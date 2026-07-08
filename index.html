@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1976d2">
 
+    <title>AI Fitness Tracker</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🍽 AI Fitness Tracker</h1>
+
+    <textarea
+        id="meal"
+        placeholder="Example: 2 eggs, 2 rotis and tea"></textarea>
+
+    <div class="buttons">
+
+        <button id="voiceBtn">
+            🎤 Speak
+        </button>
+
+        <button id="logBtn">
+            Log Meal
+        </button>
+
+    </div>
+
+    <div id="loading" class="loading">
+        Analyzing your meal...
+    </div>
+
+    <div id="result" class="card" style="display:none;">
+
+        <h2>Meal Summary</h2>
+
+        <p id="mealCalories"></p>
+
+        <p id="mealProtein"></p>
+
+        <p id="confidence"></p>
+
+        <h3>Foods Identified</h3>
+
+        <ul id="foodList"></ul>
+
+        <hr>
+
+        <h2>Today's Progress</h2>
+
+        <div id="todayCalories"></div>
+
+        <div class="progress">
+            <div class="fill" id="calorieBar"></div>
+        </div>
+
+        <div id="todayProtein"></div>
+
+        <div class="progress">
+            <div class="fill" id="proteinBar"></div>
+        </div>
+
+        <hr>
+
+        <h2>AI Coach</h2>
+
+        <p id="coach"></p>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
