@@ -25,14 +25,24 @@ body{
     padding:30px;
 }
 .container{
-    width:100%;
-    max-width:650px;
-    background:#fff;
-    padding:25px;
-    border-radius:16px;
-    box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
 
+    width:100%;
+    max-width:700px;
+
+    background:rgba(255,255,255,.12);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.25);
+
+    border-radius:28px;
+
+    padding:30px;
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,.35);
+
+}
 h1{
     text-align:center;
     margin-bottom:25px;
