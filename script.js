@@ -91,14 +91,49 @@ async function logMeal() {
 
     const meal = mealInput.value.trim();
 
-    if (meal === "") {
-
+    if (!meal) {
         alert("Please enter a meal.");
-
         return;
+    }
+
+    loading.style.display = "block";
+    resultCard.style.display = "none";
+
+    try {
+
+        const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbx1xpXsQwtsGNGaIlFlxlAFeEIcT4tRRpik65ugnFma6ibydox03qQGJMsra5FL2F9C0w/exec",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    meal: meal
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Server returned " + response.status);
+        }
+
+        const data = await response.json();
+
+        showResult(data);
+
+    } catch (err) {
+
+        console.error(err);
+        alert("Error: " + err.message);
+
+    } finally {
+
+        loading.style.display = "none";
 
     }
 
+}
     loading.style.display = "block";
     resultCard.style.display = "none";
 
