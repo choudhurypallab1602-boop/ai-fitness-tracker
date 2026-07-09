@@ -28,26 +28,34 @@ body{
 .container{
 
     width:100%;
-    max-width:700px;
+    max-width:760px;
 
-    background:rgba(255,255,255,.12);
+    margin:0 auto;
 
-    backdrop-filter:blur(18px);
-
-    border:1px solid rgba(255,255,255,.25);
+    background:#FFFFFF;
 
     border-radius:28px;
 
-    padding:30px;
+    padding:36px;
 
     box-shadow:
-    0 20px 60px rgba(0,0,0,.35);
+        0 10px 30px rgba(0,0,0,.05);
+
+    border:1px solid #ECECEC;
 
 }
 h1{
-    text-align:center;
-    margin-bottom:25px;
-    color:#1976d2;
+
+    font-size:36px;
+
+    font-weight:700;
+
+    color:#111111;
+
+    margin-bottom:8px;
+
+    letter-spacing:-1px;
+
 }
 
 h2{
