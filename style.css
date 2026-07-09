@@ -6,12 +6,24 @@
 }
 
 body{
-    background:#f3f5f7;
+    margin:0;
+    font-family:'Poppins',sans-serif;
+
+    background:linear-gradient(
+        135deg,
+        #0f172a,
+        #1e3a8a,
+        #2563eb
+    );
+
+    min-height:100vh;
+
     display:flex;
     justify-content:center;
+    align-items:flex-start;
+
     padding:30px;
 }
-
 .container{
     width:100%;
     max-width:650px;
