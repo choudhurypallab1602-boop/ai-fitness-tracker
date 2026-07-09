@@ -2,7 +2,6 @@
 // AI Fitness Tracker Frontend
 // ===============================
 
-// CHANGE THIS TO YOUR APPS SCRIPT WEB APP URL
 const API_URL =
 "https://script.google.com/macros/s/AKfycbx1xpXsQwtsGNGaIlFlxlAFeEIcT4tRRpik65ugnFma6ibydox03qQGJMsra5FL2F9C0w/exec";
 
@@ -26,6 +25,7 @@ const calorieBar = document.getElementById("calorieBar");
 const proteinBar = document.getElementById("proteinBar");
 
 const coach = document.getElementById("coach");
+
 // ===============================
 // Voice Recognition
 // ===============================
@@ -40,47 +40,34 @@ if ("webkitSpeechRecognition" in window) {
     recognition.interimResults = false;
     recognition.continuous = false;
 
-    recognition.onstart = function(){
-
+    recognition.onstart = function () {
         voiceBtn.innerHTML = "🎙 Listening...";
-
     };
 
-    recognition.onend = function(){
-
+    recognition.onend = function () {
         voiceBtn.innerHTML = "🎤 Speak";
-
     };
 
-    recognition.onerror = function(e){
-
+    recognition.onerror = function (e) {
         alert("Voice Error : " + e.error);
-
     };
 
-    recognition.onresult = function(event){
-
-        const transcript = event.results[0][0].transcript;
-
-        mealInput.value = transcript;
-
+    recognition.onresult = function (event) {
+        mealInput.value = event.results[0][0].transcript;
     };
-
 }
 
-voiceBtn.addEventListener("click", function(){
+voiceBtn.addEventListener("click", function () {
 
-    if(!recognition){
-
-        alert("Speech Recognition is not supported.");
-
+    if (!recognition) {
+        alert("Speech Recognition not supported.");
         return;
-
     }
 
     recognition.start();
 
 });
+
 // ===============================
 // Log Meal
 // ===============================
@@ -102,16 +89,7 @@ async function logMeal() {
     try {
 
         const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbx1xpXsQwtsGNGaIlFlxlAFeEIcT4tRRpik65ugnFma6ibydox03qQGJMsra5FL2F9C0w/exec",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    meal: meal
-                })
-            }
+            API_URL + "?meal=" + encodeURIComponent(meal)
         );
 
         if (!response.ok) {
@@ -120,12 +98,16 @@ async function logMeal() {
 
         const data = await response.json();
 
+        if (data.success === false) {
+            throw new Error(data.error);
+        }
+
         showResult(data);
 
     } catch (err) {
 
         console.error(err);
-        alert("Error: " + err.message);
+        alert(err.message);
 
     } finally {
 
@@ -134,58 +116,12 @@ async function logMeal() {
     }
 
 }
-    loading.style.display = "block";
-    resultCard.style.display = "none";
 
-    try {
-
-        const response = await fetch(API_URL, {
-
-            method: "POST",
-
-            headers: {
-
-                "Content-Type": "application/json"
-
-            },
-
-            body: JSON.stringify({
-
-                meal: meal
-
-            })
-
-        });
-
-        const data = await response.json();
-
-        if (data.success === false) {
-
-            throw new Error(data.error);
-
-        }
-
-        showResult(data);
-
-    }
-
-    catch (err) {
-
-        alert("Error : " + err.message);
-
-    }
-
-    finally {
-
-        loading.style.display = "none";
-
-    }
-
-}// ===============================
+// ===============================
 // Show Result
 // ===============================
 
-function showResult(data){
+function showResult(data) {
 
     resultCard.style.display = "block";
 
@@ -196,11 +132,13 @@ function showResult(data){
         "💪 <b>" + data.totalProtein + "</b> g protein";
 
     confidence.innerHTML =
-        "🎯 Confidence : " + Math.round(data.confidence * 100) + "%";
+        "🎯 Confidence : " +
+        Math.round(data.confidence * 100) +
+        "%";
 
     foodList.innerHTML = "";
 
-    data.foods.forEach(function(food){
+    data.foods.forEach(function (food) {
 
         foodList.innerHTML +=
             "<li>" +
@@ -213,13 +151,13 @@ function showResult(data){
 
     updateDashboard(data);
 
-}// ===============================
+}
+
+// ===============================
 // Dashboard
 // ===============================
 
-function updateDashboard(data){
-
-    // ---------- Calories ----------
+function updateDashboard(data) {
 
     todayCalories.innerHTML =
         "<b>" +
@@ -232,43 +170,37 @@ function updateDashboard(data){
         (data.todayCalories / data.calorieGoal) * 100;
 
     calorieBar.style.width =
-        Math.min(caloriePercent,100) + "%";
+        Math.min(caloriePercent, 100) + "%";
 
-    if(caloriePercent < 80){
+    if (caloriePercent < 80) {
 
         calorieBar.style.background = "#4CAF50";
 
-    }
-    else if(caloriePercent <= 100){
+    } else if (caloriePercent <= 100) {
 
         calorieBar.style.background = "#ff9800";
 
-    }
-    else{
+    } else {
 
         calorieBar.style.background = "#e53935";
 
     }
 
-    if(data.todayCalories > data.calorieGoal){
+    if (data.todayCalories > data.calorieGoal) {
 
         todayCalories.innerHTML +=
-        "<br><span style='color:#e53935;'>Over by " +
-        (data.todayCalories-data.calorieGoal).toFixed(0) +
-        " kcal</span>";
+            "<br><span style='color:#e53935;'>Over by " +
+            (data.todayCalories - data.calorieGoal).toFixed(0) +
+            " kcal</span>";
 
-    }
-    else{
+    } else {
 
         todayCalories.innerHTML +=
-        "<br><span style='color:green;'>Remaining " +
-        (data.calorieGoal-data.todayCalories).toFixed(0) +
-        " kcal</span>";
+            "<br><span style='color:green;'>Remaining " +
+            (data.calorieGoal - data.todayCalories).toFixed(0) +
+            " kcal</span>";
 
     }
-
-
-    // ---------- Protein ----------
 
     todayProtein.innerHTML =
         "<b>" +
@@ -281,36 +213,31 @@ function updateDashboard(data){
         (data.todayProtein / data.proteinGoal) * 100;
 
     proteinBar.style.width =
-        Math.min(proteinPercent,100) + "%";
+        Math.min(proteinPercent, 100) + "%";
 
-    if(proteinPercent < 100){
+    if (proteinPercent < 100) {
 
-        proteinBar.style.background="#2196F3";
+        proteinBar.style.background = "#2196F3";
+
+    } else {
+
+        proteinBar.style.background = "#4CAF50";
 
     }
-    else{
 
-        proteinBar.style.background="#4CAF50";
-
-    }
-
-    if(data.todayProtein >= data.proteinGoal){
+    if (data.todayProtein >= data.proteinGoal) {
 
         todayProtein.innerHTML +=
-        "<br><span style='color:green;'>Goal achieved ✅</span>";
+            "<br><span style='color:green;'>Goal achieved ✅</span>";
 
-    }
-    else{
+    } else {
 
         todayProtein.innerHTML +=
-        "<br><span style='color:#ff9800;'>Remaining " +
-        (data.proteinGoal-data.todayProtein).toFixed(1) +
-        " g</span>";
+            "<br><span style='color:#ff9800;'>Remaining " +
+            (data.proteinGoal - data.todayProtein).toFixed(1) +
+            " g</span>";
 
     }
-
-
-    // ---------- AI Coach ----------
 
     coach.innerHTML = data.coach;
 
