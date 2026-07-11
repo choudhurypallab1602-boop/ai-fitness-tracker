@@ -2,7 +2,7 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "YOUR_NEW_DEPLOYMENT_URL_HERE"; // <--- APNA EXEC URL YAHA RE-PASTE KARNA!
+const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; // <--- APNA EXEC URL YAHA RE-PASTE KARNA!
 
 const mealInput = document.getElementById("meal");
 const voiceBtn = document.getElementById("voiceBtn");
