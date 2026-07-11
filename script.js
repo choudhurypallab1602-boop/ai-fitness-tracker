@@ -95,19 +95,21 @@ async function logMeal() {
     const response = await fetch(API_URL + "?meal=" + encodeURIComponent(meal));
 
     if (!response.ok) {
-      throw new Error("Server returned " + response.status);
+      throw new Error("Server returned HTTP " + response.status);
     }
 
     const data = await response.json();
 
-    if (data.success === false) {
-      throw new Error(data.error);
+    // Catch errors safely passed down from Apps Script catch block
+    if (data.success === false || data.error) {
+      throw new Error(data.error || "Backend script execution failed.");
     }
 
     showResult(data);
   } catch (err) {
-    console.error(err);
-    alert(err.message);
+    console.error("Aura Connection Error:", err);
+    // Upgraded explicit alert messaging to tell you EXACTLY what failed
+    alert("System Diagnostic Message: " + err.message + "\n\nPlease verify your Gemini API key inside script properties.");
   } finally {
     loading.style.display = "none";
   }
@@ -127,9 +129,11 @@ function showResult(data) {
 
   foodList.innerHTML = "";
 
-  data.foods.forEach(function (food) {
-    foodList.innerHTML += "<li>" + food.quantity + " × " + food.name + "</li>";
-  });
+  if (data.foods && Array.isArray(data.foods)) {
+    data.foods.forEach(function (food) {
+      foodList.innerHTML += "<li>" + food.quantity + " × " + food.name + "</li>";
+    });
+  }
 
   updateDashboard(data);
 }
