@@ -107,12 +107,26 @@ async function logMeal() {
     mealInput.value = "";
   }
 }
-
 function showResult(data) {
+  if (!data) return;
   resultCard.style.display = "block";
-  mealCalories.innerHTML = "🔥 <b>" + data.totalCalories + "</b> kcal";
-  mealProtein.innerHTML = "💪 <b>" + data.totalProtein + "</b> g protein";
-  confidence.innerHTML = "🎯 Confidence : " + Math.round(data.confidence * 100) + "%";
+  
+  // Clean checks to shield UI renderers from crashing if properties are deep nested
+  const mealCalVal = data.totalCalories !== undefined ? data.totalCalories : 0;
+  const mealProtVal = data.totalProtein !== undefined ? data.totalProtein : 0;
+  const confVal = data.confidence !== undefined ? Math.round(data.confidence * 100) : 0;
+
+  mealCalories.innerHTML = "🔥 <b>" + mealCalVal + "</b> kcal";
+  mealProtein.innerHTML = "💪 <b>" + mealProtVal + "</b> g protein";
+  confidence.innerHTML = "🎯 Confidence : " + confVal + "%";
+
+  foodList.innerHTML = "";
+  if (data.foods && Array.isArray(data.foods)) {
+    data.foods.forEach(f => {
+      foodList.innerHTML += "<li>" + f.quantity + " × " + f.name + "</li>";
+    });
+  }
+}
 
   foodList.innerHTML = "";
   if (data.foods && Array.isArray(data.foods)) {
