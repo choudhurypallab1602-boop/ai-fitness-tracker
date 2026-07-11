@@ -3,18 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aura — AI Fitness Tracker</title>
+  <title>Aura — AI Fitness Tracker Pro</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Quick inline addition for clean new layout controls */
+    .view-filters { display: flex; gap: 10px; margin-bottom: 20px; background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #eaeaea; justify-content: space-between; align-items: center; }
+    .analytics-tabs { display: flex; gap: 8px; }
+    .tab-btn { padding: 6px 14px; border: none; background: #f3f3f3; color: #555; font-size: 13px; font-weight: 500; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: #000; color: #fff; }
+    .date-picker-input { padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; }
+    .delete-btn { font-size: 11px; background: #ffebeb; color: #ff3b30; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: 500; float: right; transition: 0.2s; }
+    .delete-btn:hover { background: #ff3b30; color: #fff; }
+  </style>
 </head>
 <body>
 
   <header class="app-header">
     <div class="header-container">
-      <h1>Aura</h1>
-      <p>Intelligent nutritional logging and real-time coaching insights.</p>
+      <h1>Aura <span style="font-size:12px; vertical-align:middle; background:#000; color:#fff; padding:2px 8px; border-radius:10px;">PRO</span></h1>
+      <p>Intelligent nutritional logging and multi-day historical dashboard tracking.</p>
     </div>
   </header>
 
@@ -30,12 +40,23 @@
         <button id="logBtn" class="btn-primary">Log Meal</button>
       </div>
       
-      <!-- Loading State using direct style.display controls matching your backend script -->
       <div id="loading" class="loading-indicator" style="display: none;">
         <div class="spinner"></div>
         <span>Analyzing metrics with AI...</span>
       </div>
     </section>
+
+    <!-- PRO GLOBAL CONTROLS SECTION -->
+    <div class="view-filters">
+      <div class="analytics-tabs">
+        <button class="tab-btn active" onclick="switchViewScope('today')">Today</button>
+        <button class="tab-btn" onclick="switchViewScope('weekly')">Weekly Summary</button>
+        <button class="tab-btn" onclick="switchViewScope('monthly')">Monthly View</button>
+      </div>
+      <div>
+        <input type="date" id="historyDatePicker" class="date-picker-input" onchange="filterTimelineByDate()">
+      </div>
+    </div>
 
     <!-- Dashboard Grid Layout -->
     <div class="dashboard-grid">
@@ -45,7 +66,7 @@
         
         <!-- Daily Tracker -->
         <section class="card summary-card">
-          <h2 class="card-title">Daily Progress</h2>
+          <h2 class="card-title" id="dashboardScopeTitle">Daily Progress</h2>
           
           <div class="metric-group">
             <div class="metric-header">
@@ -87,9 +108,7 @@
           </div>
 
           <h3 class="section-subtitle">Identified Breakdown</h3>
-          <ul id="foodList" class="food-chips-list">
-            <!-- Populated via script.js -->
-          </ul>
+          <ul id="foodList" class="food-chips-list"></ul>
         </section>
 
       </div>
@@ -106,42 +125,18 @@
           <p id="coach" class="coach-text">Log your first meal to initialize live context-aware coaching feedback.</p>
         </section>
 
-        <!-- Static History Timeline View -->
+        <!-- Dynamic History Timeline View -->
         <section class="card timeline-card">
-          <h2 class="card-title">Today's Timeline</h2>
+          <h2 class="card-title">Timeline Feed</h2>
           <div class="timeline">
-            <div class="timeline-item">
-              <div class="timeline-marker"></div>
-              <div class="timeline-content">
-                <div class="timeline-meta">
-                  <span class="timeline-time">08:15 AM</span>
-                  <span class="timeline-tag">Breakfast</span>
-                </div>
-                <h4 class="timeline-title">Avocado Toast & Poached Eggs</h4>
-                <p class="timeline-desc">380 kcal • 18g Protein</p>
-              </div>
-            </div>
-            <div class="timeline-item">
-              <div class="timeline-marker"></div>
-              <div class="timeline-content">
-                <div class="timeline-meta">
-                  <span class="timeline-time">11:30 AM</span>
-                  <span class="timeline-tag">Snack</span>
-                </div>
-                <h4 class="timeline-title">Whey Isolate Shake & Almonds</h4>
-                <p class="timeline-desc">290 kcal • 31g Protein</p>
-              </div>
-            </div>
+             <!-- Javascript data maps inject here -->
           </div>
         </section>
 
       </div>
     </div>
   </main>
-  
-  <script src="script.js"></script>
 
-</body>
-</html>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
