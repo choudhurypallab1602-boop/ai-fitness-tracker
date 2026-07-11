@@ -2,7 +2,7 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; // <--- APNA NAYA DEPLOYED URL YAHA DAALEIN!
+const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; // <--- APNA DEPLOYED URL YAHA DOBARA DAALEIN!
 
 let globalHistoryCache = [];
 let currentFilterScope = "today"; // today, weekly, monthly
@@ -107,11 +107,11 @@ async function logMeal() {
     mealInput.value = "";
   }
 }
+
 function showResult(data) {
   if (!data) return;
   resultCard.style.display = "block";
   
-  // Clean checks to shield UI renderers from crashing if properties are deep nested
   const mealCalVal = data.totalCalories !== undefined ? data.totalCalories : 0;
   const mealProtVal = data.totalProtein !== undefined ? data.totalProtein : 0;
   const confVal = data.confidence !== undefined ? Math.round(data.confidence * 100) : 0;
@@ -119,14 +119,6 @@ function showResult(data) {
   mealCalories.innerHTML = "🔥 <b>" + mealCalVal + "</b> kcal";
   mealProtein.innerHTML = "💪 <b>" + mealProtVal + "</b> g protein";
   confidence.innerHTML = "🎯 Confidence : " + confVal + "%";
-
-  foodList.innerHTML = "";
-  if (data.foods && Array.isArray(data.foods)) {
-    data.foods.forEach(f => {
-      foodList.innerHTML += "<li>" + f.quantity + " × " + f.name + "</li>";
-    });
-  }
-}
 
   foodList.innerHTML = "";
   if (data.foods && Array.isArray(data.foods)) {
@@ -146,13 +138,53 @@ async function promptDeleteMeal(rowId) {
     const response = await fetch(`${API_URL}?action=delete&rowId=${rowId}`);
     const result = await response.json();
     if(result.success) {
-      // Reload fresh matrix state directly from spreadsheet database
       loadDashboardOnStart();
     } else {
       alert("Delete transaction dropped by Google Cloud endpoint.");
     }
   } catch(err) {
     alert("Connection Error on deletion query execution.");
+  }
+}
+
+// ==========================================
+// QUICK INLINE ADJUSTMENT PIPELINE (EDIT WITHOUT DELETING MANUALLY)
+// ==========================================
+function triggerAdjustMealPopup(rowId, currentText) {
+  const newMealText = prompt("Adjust your logged entry descriptive metrics:", currentText);
+  if (newMealText === null) return; 
+  
+  const trimmed = newMealText.trim();
+  if (!trimmed) {
+    alert("Description cannot be empty.");
+    return;
+  }
+  executeMealAdjustment(rowId, trimmed);
+}
+
+async function executeMealAdjustment(rowId, newText) {
+  loading.style.display = "block";
+  try {
+    const deleteResp = await fetch(`${API_URL}?action=delete&rowId=${rowId}`);
+    const deleteJson = await deleteResp.json();
+    
+    if(deleteJson.success) {
+      const response = await fetch(API_URL + "?meal=" + encodeURIComponent(newText));
+      if (!response.ok) throw new Error("HTTP connection drop during overwrite script.");
+      
+      const data = await response.json();
+      if(data.history) {
+        globalHistoryCache = data.history;
+        showResult(data);
+        processMetricsAndTimelineView();
+      }
+    } else {
+      alert("Sheet baseline modifications rejected by Google Script Engine.");
+    }
+  } catch(err) {
+    alert("Adjustment execution error details: " + err.message);
+  } finally {
+    loading.style.display = "none";
   }
 }
 
@@ -178,7 +210,7 @@ function filterTimelineByDate() {
 }
 
 function processMetricsAndTimelineView() {
-  const targetDateStr = datePicker.value; // yyyy-mm-dd
+  const targetDateStr = datePicker.value; 
   const todayStr = new Date().toISOString().split('T')[0];
 
   let filteredList = [];
@@ -207,30 +239,30 @@ function processMetricsAndTimelineView() {
     }
   });
 
-  // UI Bar Calculations update
-  todayCalories.innerHTML = "<b>" + sumCal + " / " + calGoal + " kcal</b>";
-  let calPercent = (sumCal / calGoal) * 100;
-  calorieBar.style.width = Math.min(calPercent, 100) + "%";
+  updateDashboard(sumCal, calGoal, sumProt, protGoal);
 
-  todayProtein.innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
-  let protPercent = (sumProt / protGoal) * 100;
-  proteinBar.style.width = Math.min(protPercent, 100) + "%";
-
-  // Re-render Timeline Rows matching the contextual filter query selection
   timelineContainer.innerHTML = "";
   if(filteredList.length === 0) {
     timelineContainer.innerHTML = "<p style='font-size:13px; color:#999; text-align:center; padding:20px;'>No logs tracked inside this analytical window.</p>";
     return;
   }
 
-  // Reverse loop to stack new entries dynamically on top
   for(let i = filteredList.length - 1; i >= 0; i--) {
     const row = filteredList[i];
     timelineContainer.innerHTML += `
       <div class="timeline-item">
         <div class="timeline-marker"></div>
         <div class="timeline-content">
-          <button class="delete-btn" onclick="promptDeleteMeal(${row.rowId})">Remove</button>
+          
+          <div class="timeline-actions">
+            <button class="action-icon-btn btn-adjust" data-tooltip="Adjust Meal" onclick="triggerAdjustMealPopup(${row.rowId}, '${row.rawInput.replace(/'/g, "\\'")}')">
+              ✏️
+            </button>
+            <button class="action-icon-btn btn-delete" data-tooltip="Remove Meal" onclick="promptDeleteMeal(${row.rowId})">
+              🗑️
+            </button>
+          </div>
+
           <div class="timeline-meta">
             <span class="timeline-time">${row.date} • ${row.time}</span>
             <span class="timeline-tag">Logged</span>
@@ -240,5 +272,26 @@ function processMetricsAndTimelineView() {
         </div>
       </div>
     `;
+  }
+}
+
+function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
+  todayCalories.innerHTML = "<b>" + sumCal + " / " + calGoal + " kcal</b>";
+  let calPercent = (sumCal / calGoal) * 100;
+  calorieBar.style.width = Math.min(calPercent, 100) + "%";
+
+  todayProtein.innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
+  let protPercent = (sumProt / protGoal) * 100;
+  proteinBar.style.width = Math.min(protPercent, 100) + "%";
+
+  const coachElement = document.getElementById("coach");
+  if (coachElement) {
+    if (sumCal > calGoal) {
+      coachElement.innerHTML = "⚠️ You are over your calorie goal today. Keep your next meal light and lean-protein rich.";
+    } else if (sumProt < (protGoal * 0.5)) {
+      coachElement.innerHTML = "💪 Protein intake is tracking low for this period. Consider adding clean sources like eggs, chicken, paneer, tofu, or dal.";
+    } else {
+      coachElement.innerHTML = "✅ You are doing beautifully today. Keep making balanced, clean whole-food choices.";
+    }
   }
 }
