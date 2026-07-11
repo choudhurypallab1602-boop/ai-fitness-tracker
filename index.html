@@ -24,18 +24,16 @@
     <section class="input-section">
       <div class="input-card">
         <div class="textarea-wrapper">
-          <textarea id="meal" placeholder="Describe your meal (e.g., '2 soft boiled eggs, 1 slice of sourdough toast, and black coffee')..." rows="1"></textarea>
-          <button id="voiceBtn" class="btn-icon" type="button" aria-label="Voice input">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-          </button>
+          <textarea id="meal" placeholder="Describe your meal (e.g., '2 soft boiled eggs, 1 slice of sourdough toast')..." rows="1"></textarea>
+          <button id="voiceBtn" class="btn-icon" type="button" aria-label="Voice input">🎤 Speak</button>
         </div>
         <button id="logBtn" class="btn-primary">Log Meal</button>
       </div>
       
-      <!-- Loading State -->
-      <div id="loading" class="loading-indicator">
+      <!-- Loading State using direct style.display controls matching your backend script -->
+      <div id="loading" class="loading-indicator" style="display: none;">
         <div class="spinner"></div>
-        <span>Analyzing profile and nutritional metrics...</span>
+        <span>Analyzing metrics with AI...</span>
       </div>
     </section>
 
@@ -55,7 +53,7 @@
               <span class="metric-value" id="todayCalories">0 / 2000 kcal</span>
             </div>
             <div class="progress-container">
-              <div id="calorieBar" class="progress-bar" style="width: 0%;"></div>
+              <div id="calorieBar" class="fill" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -65,26 +63,24 @@
               <span class="metric-value" id="todayProtein">0 / 120 g</span>
             </div>
             <div class="progress-container">
-              <div id="proteinBar" class="progress-bar" style="width: 0%;"></div>
+              <div id="proteinBar" class="fill" style="width: 0%;"></div>
             </div>
           </div>
         </section>
 
         <!-- Dynamic Meal Analysis Target Card -->
-        <section id="result" class="card result-card">
+        <section id="result" class="card result-card" style="display: none;">
           <div class="result-header">
             <h2 class="card-title">Analysis</h2>
-            <div class="confidence-badge">
-              <span id="confidence">Confidence: 0%</span>
-            </div>
+            <div class="confidence-badge" id="confidence">Confidence: 0%</div>
           </div>
 
           <div class="quick-stats">
-            <div class="stat-box">
+            <div class="stat-box calories-box">
               <span class="stat-num" id="mealCalories">0 kcal</span>
               <span class="stat-lbl">Meal Calories</span>
             </div>
-            <div class="stat-box">
+            <div class="stat-box protein-box">
               <span class="stat-num" id="mealProtein">0 g</span>
               <span class="stat-lbl">Meal Protein</span>
             </div>
