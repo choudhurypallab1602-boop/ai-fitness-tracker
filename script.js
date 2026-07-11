@@ -280,9 +280,23 @@ function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
   let calPercent = (sumCal / calGoal) * 100;
   calorieBar.style.width = Math.min(calPercent, 100) + "%";
 
+  // 🔥 Calorie limit cross hone par bar RED ho jayega, nahi toh GREEN rahega
+  if (sumCal > calGoal) {
+    calorieBar.style.backgroundColor = "#dc2626"; // Premium Coral Red
+  } else {
+    calorieBar.style.backgroundColor = "#16a34a"; // Clean Leaf Green
+  }
+
   todayProtein.innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
   let protPercent = (sumProt / protGoal) * 100;
   proteinBar.style.width = Math.min(protPercent, 100) + "%";
+
+  // 💪 Protein target meet hone par bar deep success GREEN hoga, kam hone par ORANGE rahega
+  if (sumProt >= protGoal) {
+    proteinBar.style.backgroundColor = "#16a34a"; // Success Green
+  } else {
+    proteinBar.style.backgroundColor = "#ea580c"; // Focus Orange
+  }
 
   const coachElement = document.getElementById("coach");
   if (coachElement) {
