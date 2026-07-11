@@ -2,7 +2,10 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; // <--- APNA EXEC URL YAHA RE-PASTE KARNA!
+const API_URL = "PASTE_YOUR_NEW_EXEC_URL_HERE"; // <--- APNA NAYA DEPLOYED URL YAHA DAALEIN!
+
+let globalHistoryCache = [];
+let currentFilterScope = "today"; // today, weekly, monthly
 
 const mealInput = document.getElementById("meal");
 const voiceBtn = document.getElementById("voiceBtn");
@@ -14,32 +17,33 @@ const resultCard = document.getElementById("result");
 const mealCalories = document.getElementById("mealCalories");
 const mealProtein = document.getElementById("mealProtein");
 const confidence = document.getElementById("confidence");
-
 const foodList = document.getElementById("foodList");
 
 const todayCalories = document.getElementById("todayCalories");
 const todayProtein = document.getElementById("todayProtein");
-
 const calorieBar = document.getElementById("calorieBar");
 const proteinBar = document.getElementById("proteinBar");
 
 const coach = document.getElementById("coach");
 const timelineContainer = document.querySelector(".timeline");
+const datePicker = document.getElementById("historyDatePicker");
 
-// Controls startup and resizing mechanics
 document.addEventListener("DOMContentLoaded", () => {
+  // Autofill date picker input with today's date structure
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  if(datePicker) datePicker.value = todayDateStr;
+
   if (mealInput) {
     mealInput.addEventListener("input", function() {
       this.style.height = "auto";
       this.style.height = (this.scrollHeight) + "px";
     });
   }
-  // Load database state directly from spreadsheet data array on load
   loadDashboardOnStart();
 });
 
 // ==========================================
-// Voice Recognition Processing Engine
+// Voice Engine Mechanics
 // ==========================================
 let recognition = null;
 if ("webkitSpeechRecognition" in window) {
@@ -50,20 +54,17 @@ if ("webkitSpeechRecognition" in window) {
 
   recognition.onstart = function () { voiceBtn.innerHTML = "🎙 Listening..."; };
   recognition.onend = function () { voiceBtn.innerHTML = "🎤 Speak"; };
-  recognition.onerror = function (e) { alert("Voice Error : " + e.error); };
   recognition.onresult = function (event) {
     mealInput.value = event.results[0][0].transcript;
     mealInput.dispatchEvent(new Event('input'));
   };
 }
-
-voiceBtn.addEventListener("click", function () {
-  if (!recognition) { alert("Speech Recognition not supported."); return; }
-  recognition.start();
-});
+if(voiceBtn) {
+  voiceBtn.addEventListener("click", () => { if(recognition) recognition.start(); });
+}
 
 // ==========================================
-// Page Load Sync & Log Processing Pipelines
+// Core Sync Framework Data Pipelines
 // ==========================================
 logBtn.addEventListener("click", logMeal);
 
@@ -73,16 +74,12 @@ async function loadDashboardOnStart() {
     if (!response.ok) return;
     const data = await response.json();
     
-    if(data.todayCalories !== undefined) {
-      updateDashboard(data);
-      
-      // Agar pehle se aaj ki items logged hain sheet me toh unhe timeline par render karo
-      if(data.history && data.history.length > 0) {
-        renderFullHistoryTimeline(data.history);
-      }
+    if(data.history) {
+      globalHistoryCache = data.history; 
+      processMetricsAndTimelineView();
     }
   } catch (err) {
-    console.log("Database sync skipped.");
+    console.log("Database fetch fault.");
   }
 }
 
@@ -95,20 +92,23 @@ async function logMeal() {
 
   try {
     const response = await fetch(API_URL + "?meal=" + encodeURIComponent(meal));
-    if (!response.ok) throw new Error("Server returned HTTP " + response.status);
+    if (!response.ok) throw new Error("HTTP failure");
 
     const data = await response.json();
-    if (data.success === false || data.error) throw new Error(data.error || "Backend failed.");
-
-    showResult(data, meal);
+    if(data.history) {
+      globalHistoryCache = data.history;
+      showResult(data);
+      processMetricsAndTimelineView();
+    }
   } catch (err) {
-    alert("System Diagnostic Message: " + err.message);
+    alert("Error logging tracking point: " + err.message);
   } finally {
     loading.style.display = "none";
+    mealInput.value = "";
   }
 }
 
-function showResult(data, mealText) {
+function showResult(data) {
   resultCard.style.display = "block";
   mealCalories.innerHTML = "🔥 <b>" + data.totalCalories + "</b> kcal";
   mealProtein.innerHTML = "💪 <b>" + data.totalProtein + "</b> g protein";
@@ -116,78 +116,115 @@ function showResult(data, mealText) {
 
   foodList.innerHTML = "";
   if (data.foods && Array.isArray(data.foods)) {
-    data.foods.forEach(function (food) {
-      foodList.innerHTML += "<li>" + food.quantity + " × " + food.name + "</li>";
+    data.foods.forEach(f => {
+      foodList.innerHTML += "<li>" + f.quantity + " × " + f.name + "</li>";
     });
   }
-
-  updateDashboard(data);
-  
-  // Real-time local append logic 
-  appendSingleTimelineItem(mealText, data.totalCalories, data.totalProtein);
 }
 
 // ==========================================
-// UI Rendering Core Mechanics
+// DELETE ELEMENT FUNCTION PIPELINE
 // ==========================================
-function updateDashboard(data) {
-  todayCalories.innerHTML = "<b>" + data.todayCalories + " / " + data.calorieGoal + " kcal</b>";
-  let caloriePercent = (data.todayCalories / data.calorieGoal) * 100;
-  calorieBar.style.width = Math.min(caloriePercent, 100) + "%";
-
-  if (caloriePercent < 80) calorieBar.style.background = "var(--success)";
-  else if (caloriePercent <= 100) calorieBar.style.background = "var(--warning)";
-  else calorieBar.style.background = "var(--danger)";
-
-  todayProtein.innerHTML = "<b>" + data.todayProtein + " / " + data.proteinGoal + " g</b>";
-  let proteinPercent = (data.todayProtein / data.proteinGoal) * 100;
-  proteinBar.style.width = Math.min(proteinPercent, 100) + "%";
-  proteinBar.style.background = proteinPercent >= 100 ? "var(--success)" : "var(--accent-muted)";
-
-  coach.innerHTML = data.coach || "Keep tracking!";
-}
-
-function clearFakeTimeline() {
-  if (!window.timelineCleaned && timelineContainer) {
-    timelineContainer.innerHTML = "";
-    window.timelineCleaned = true;
+async function promptDeleteMeal(rowId) {
+  if(!confirm("Are you sure you want to delete this logged meal?")) return;
+  
+  try {
+    const response = await fetch(`${API_URL}?action=delete&rowId=${rowId}`);
+    const result = await response.json();
+    if(result.success) {
+      // Reload fresh matrix state directly from spreadsheet database
+      loadDashboardOnStart();
+    } else {
+      alert("Delete transaction dropped by Google Cloud endpoint.");
+    }
+  } catch(err) {
+    alert("Connection Error on deletion query execution.");
   }
 }
 
-function appendSingleTimelineItem(text, kcal, protein) {
-  clearFakeTimeline();
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+// ==========================================
+// DYNAMIC COMPUTE FILTERS & TAB ANALYTICS 
+// ==========================================
+function switchViewScope(scope) {
+  currentFilterScope = scope;
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  event.target.classList.add("active");
   
-  const html = createTimelineRow(timeStr, text, kcal, protein);
-  timelineContainer.insertAdjacentHTML('afterbegin', html);
+  const titleMap = { "today": "Daily Progress", "weekly": "Weekly Summary Dashboard", "monthly": "Monthly View Metrics" };
+  document.getElementById("dashboardScopeTitle").innerText = titleMap[scope];
+  
+  processMetricsAndTimelineView();
 }
 
-function renderFullHistoryTimeline(historyArray) {
-  if (!timelineContainer) return;
-  window.timelineCleaned = true;
-  timelineContainer.innerHTML = ""; // Complete purge of template data
-  
-  // Loop backward to keep latest items at the top of the timeline feed
-  for(let i = historyArray.length - 1; i >= 0; i--) {
-    const item = historyArray[i];
-    const html = createTimelineRow(item.time, item.rawInput, item.calories, item.protein);
-    timelineContainer.innerHTML += html;
+function filterTimelineByDate() {
+  currentFilterScope = "date-specific";
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  document.getElementById("dashboardScopeTitle").innerText = "Selected Date Metrics";
+  processMetricsAndTimelineView();
+}
+
+function processMetricsAndTimelineView() {
+  const targetDateStr = datePicker.value; // yyyy-mm-dd
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  let filteredList = [];
+  let sumCal = 0;
+  let sumProt = 0;
+  let calGoal = 2000;
+  let protGoal = 120;
+
+  const millisecondsInDay = 24 * 60 * 60 * 1000;
+
+  globalHistoryCache.forEach(item => {
+    const itemDate = new Date(item.date);
+    const todayDate = new Date(todayStr);
+    const dateDiff = (todayDate - itemDate) / millisecondsInDay;
+
+    let match = false;
+    if (currentFilterScope === "today" && item.date === todayStr) match = true;
+    else if (currentFilterScope === "date-specific" && item.date === targetDateStr) match = true;
+    else if (currentFilterScope === "weekly" && dateDiff >= 0 && dateDiff < 7) { match = true; calGoal = 14000; protGoal = 840; }
+    else if (currentFilterScope === "monthly" && dateDiff >= 0 && dateDiff < 30) { match = true; calGoal = 60000; protGoal = 3600; }
+
+    if (match) {
+      filteredList.push(item);
+      sumCal += item.calories;
+      sumProt += item.protein;
+    }
+  });
+
+  // UI Bar Calculations update
+  todayCalories.innerHTML = "<b>" + sumCal + " / " + calGoal + " kcal</b>";
+  let calPercent = (sumCal / calGoal) * 100;
+  calorieBar.style.width = Math.min(calPercent, 100) + "%";
+
+  todayProtein.innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
+  let protPercent = (sumProt / protGoal) * 100;
+  proteinBar.style.width = Math.min(protPercent, 100) + "%";
+
+  // Re-render Timeline Rows matching the contextual filter query selection
+  timelineContainer.innerHTML = "";
+  if(filteredList.length === 0) {
+    timelineContainer.innerHTML = "<p style='font-size:13px; color:#999; text-align:center; padding:20px;'>No logs tracked inside this analytical window.</p>";
+    return;
   }
-}
 
-function createTimelineRow(time, title, kcal, prot) {
-  return `
-    <div class="timeline-item">
-      <div class="timeline-marker"></div>
-      <div class="timeline-content">
-        <div class="timeline-meta">
-          <span class="timeline-time">${time}</span>
-          <span class="timeline-tag">Logged</span>
+  // Reverse loop to stack new entries dynamically on top
+  for(let i = filteredList.length - 1; i >= 0; i--) {
+    const row = filteredList[i];
+    timelineContainer.innerHTML += `
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <button class="delete-btn" onclick="promptDeleteMeal(${row.rowId})">Remove</button>
+          <div class="timeline-meta">
+            <span class="timeline-time">${row.date} • ${row.time}</span>
+            <span class="timeline-tag">Logged</span>
+          </div>
+          <h4 class="timeline-title" style="margin-top:6px;">${row.rawInput}</h4>
+          <p class="timeline-desc">${row.calories} kcal • ${row.protein}g Protein</p>
         </div>
-        <h4 class="timeline-title">${title}</h4>
-        <p class="timeline-desc">${kcal} kcal • ${prot}g Protein</p>
       </div>
-    </div>
-  `;
+    `;
+  }
 }
