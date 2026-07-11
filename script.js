@@ -2,7 +2,7 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx1xpXsQwtsGNGaIlFlxlAFeEIcT4tRRpik65ugnFma6ibydox03qQGJMsra5FL2F9C0w/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
 
 const mealInput = document.getElementById("meal");
 const voiceBtn = document.getElementById("voiceBtn");
