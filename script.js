@@ -2,7 +2,7 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; 
+const API_URL = "YOUR_NEW_DEPLOYMENT_URL_HERE"; // <--- APNA EXEC URL YAHA RE-PASTE KARNA!
 
 const mealInput = document.getElementById("meal");
 const voiceBtn = document.getElementById("voiceBtn");
@@ -24,8 +24,9 @@ const calorieBar = document.getElementById("calorieBar");
 const proteinBar = document.getElementById("proteinBar");
 
 const coach = document.getElementById("coach");
+const timelineContainer = document.querySelector(".timeline");
 
-// Premium Input Textarea Autoresizer utility
+// Controls startup and resizing mechanics
 document.addEventListener("DOMContentLoaded", () => {
   if (mealInput) {
     mealInput.addEventListener("input", function() {
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
       this.style.height = (this.scrollHeight) + "px";
     });
   }
-  // PAGE REFRESH PAR DATA WAPAS LAANE KE LIYE ENGINE
+  // Load database state directly from spreadsheet data array on load
   loadDashboardOnStart();
 });
 
@@ -62,23 +63,26 @@ voiceBtn.addEventListener("click", function () {
 });
 
 // ==========================================
-// Page Load & Dynamic Log Pipeline
+// Page Load Sync & Log Processing Pipelines
 // ==========================================
 logBtn.addEventListener("click", logMeal);
 
 async function loadDashboardOnStart() {
   try {
-    // Bina meal parameter ke hit karne par backend status aur default summary dega
     const response = await fetch(API_URL);
     if (!response.ok) return;
     const data = await response.json();
     
-    // Agar sheet me aaj ka data pehle se hai toh bars refresh par bhi fill rahenge
     if(data.todayCalories !== undefined) {
       updateDashboard(data);
+      
+      // Agar pehle se aaj ki items logged hain sheet me toh unhe timeline par render karo
+      if(data.history && data.history.length > 0) {
+        renderFullHistoryTimeline(data.history);
+      }
     }
   } catch (err) {
-    console.log("Startup sync skipped or offline.");
+    console.log("Database sync skipped.");
   }
 }
 
@@ -118,11 +122,13 @@ function showResult(data, mealText) {
   }
 
   updateDashboard(data);
-  addMealToTimeline(data, mealText);
+  
+  // Real-time local append logic 
+  appendSingleTimelineItem(mealText, data.totalCalories, data.totalProtein);
 }
 
 // ==========================================
-// Dynamic Dashboard & Live Timeline Renderer
+// UI Rendering Core Mechanics
 // ==========================================
 function updateDashboard(data) {
   todayCalories.innerHTML = "<b>" + data.todayCalories + " / " + data.calorieGoal + " kcal</b>";
@@ -141,33 +147,47 @@ function updateDashboard(data) {
   coach.innerHTML = data.coach || "Keep tracking!";
 }
 
-function addMealToTimeline(data, mealText) {
-  const timelineContainer = document.querySelector(".timeline");
-  if (!timelineContainer) return;
-
-  // Pehli baar real entry hone par purani hardcoded (fake) template timeline ko saaf karein
-  if (!window.timelineCleaned) {
+function clearFakeTimeline() {
+  if (!window.timelineCleaned && timelineContainer) {
     timelineContainer.innerHTML = "";
     window.timelineCleaned = true;
   }
+}
 
+function appendSingleTimelineItem(text, kcal, protein) {
+  clearFakeTimeline();
   const now = new Date();
   const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  const html = createTimelineRow(timeStr, text, kcal, protein);
+  timelineContainer.insertAdjacentHTML('afterbegin', html);
+}
 
-  // Nayi real-time entry html component build karein
-  const itemHTML = `
+function renderFullHistoryTimeline(historyArray) {
+  if (!timelineContainer) return;
+  window.timelineCleaned = true;
+  timelineContainer.innerHTML = ""; // Complete purge of template data
+  
+  // Loop backward to keep latest items at the top of the timeline feed
+  for(let i = historyArray.length - 1; i >= 0; i--) {
+    const item = historyArray[i];
+    const html = createTimelineRow(item.time, item.rawInput, item.calories, item.protein);
+    timelineContainer.innerHTML += html;
+  }
+}
+
+function createTimelineRow(time, title, kcal, prot) {
+  return `
     <div class="timeline-item">
       <div class="timeline-marker"></div>
       <div class="timeline-content">
         <div class="timeline-meta">
-          <span class="timeline-time">${timeStr}</span>
+          <span class="timeline-time">${time}</span>
           <span class="timeline-tag">Logged</span>
         </div>
-        <h4 class="timeline-title">${mealText}</h4>
-        <p class="timeline-desc">${data.totalCalories} kcal • ${data.totalProtein}g Protein</p>
+        <h4 class="timeline-title">${title}</h4>
+        <p class="timeline-desc">${kcal} kcal • ${prot}g Protein</p>
       </div>
     </div>
   `;
-  
-  timelineContainer.insertAdjacentHTML('afterbegin', itemHTML);
 }
