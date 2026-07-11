@@ -25,12 +25,8 @@ const proteinBar = document.getElementById("proteinBar");
 
 const coach = document.getElementById("coach");
 
-// Initialize State Visibility matching premium design definitions
+// Premium Input Textarea Autoresizer utility
 document.addEventListener("DOMContentLoaded", () => {
-  if (loading) loading.classList.add("hidden");
-  if (resultCard) resultCard.classList.add("hidden");
-  
-  // Dynamic Input Textarea Autoresizer
   if (mealInput) {
     mealInput.addEventListener("input", function() {
       this.style.height = "auto";
@@ -52,30 +48,26 @@ if ("webkitSpeechRecognition" in window) {
   recognition.continuous = false;
 
   recognition.onstart = function () {
-    voiceBtn.innerHTML = `
-      <svg class="spinner" style="animation-duration: 1.5s" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/></svg>
-    `;
+    voiceBtn.innerHTML = "🎙 Listening...";
   };
 
   recognition.onend = function () {
-    voiceBtn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-    `;
+    voiceBtn.innerHTML = "🎤 Speak";
   };
 
   recognition.onerror = function (e) {
-    alert("Voice Processing Error: " + e.error);
+    alert("Voice Error : " + e.error);
   };
 
   recognition.onresult = function (event) {
     mealInput.value = event.results[0][0].transcript;
-    mealInput.dispatchEvent(new Event('input')); // trigger auto-resize calculation
+    mealInput.dispatchEvent(new Event('input'));
   };
 }
 
 voiceBtn.addEventListener("click", function () {
   if (!recognition) {
-    alert("Speech Recognition engine is not supported by your current web browser architecture.");
+    alert("Speech Recognition not supported.");
     return;
   }
   recognition.start();
@@ -91,18 +83,19 @@ async function logMeal() {
   const meal = mealInput.value.trim();
 
   if (!meal) {
-    alert("Please formulate a valid meal statement description.");
+    alert("Please enter a meal.");
     return;
   }
 
-  loading.classList.remove("hidden");
-  resultCard.classList.add("hidden");
+  // Exact UI interaction state toggling logic from original script
+  loading.style.display = "block";
+  resultCard.style.display = "none";
 
   try {
     const response = await fetch(API_URL + "?meal=" + encodeURIComponent(meal));
 
     if (!response.ok) {
-      throw new Error("Target API Node returned status code " + response.status);
+      throw new Error("Server returned " + response.status);
     }
 
     const data = await response.json();
@@ -116,7 +109,7 @@ async function logMeal() {
     console.error(err);
     alert(err.message);
   } finally {
-    loading.classList.add("hidden");
+    loading.style.display = "none";
   }
 }
 
@@ -125,61 +118,63 @@ async function logMeal() {
 // ==========================================
 
 function showResult(data) {
-  resultCard.classList.remove("hidden");
+  resultCard.style.display = "block";
 
-  // Format single meal values seamlessly into premium card slots
-  mealCalories.innerText = `${data.totalCalories} kcal`;
-  mealProtein.innerText = `${data.totalProtein} g`;
-  confidence.innerText = `Confidence: ${Math.round(data.confidence * 100)}%`;
+  // Retaining exact markup structure your backend looks for
+  mealCalories.innerHTML = "🔥 <b>" + data.totalCalories + "</b> kcal";
+  mealProtein.innerHTML = "💪 <b>" + data.totalProtein + "</b> g protein";
+  confidence.innerHTML = "🎯 Confidence : " + Math.round(data.confidence * 100) + "%";
 
   foodList.innerHTML = "";
 
   data.foods.forEach(function (food) {
-    const chip = document.createElement("li");
-    chip.innerText = `${food.quantity} × ${food.name}`;
-    foodList.appendChild(chip);
+    foodList.innerHTML += "<li>" + food.quantity + " × " + food.name + "</li>";
   });
 
   updateDashboard(data);
 }
 
 // ==========================================
-// Premium Dynamic Dashboard Engine
+// Dynamic Dashboard Engine
 // ==========================================
 
 function updateDashboard(data) {
-  const calGoal = data.calorieGoal || 2000;
-  const protGoal = data.proteinGoal || 120;
+  todayCalories.innerHTML = "<b>" + data.todayCalories + " / " + data.calorieGoal + " kcal</b>";
 
-  // Build high-end minimal visual text responses
-  todayCalories.innerHTML = `${data.todayCalories} <span class="unit">/ ${calGoal} kcal</span>`;
-  todayProtein.innerHTML = `${data.todayProtein} <span class="unit">/ ${protGoal} g</span>`;
-
-  // Calculate strict progress metrics percentages
-  let caloriePercent = (data.todayCalories / calGoal) * 100;
-  let proteinPercent = (data.todayProtein / protGoal) * 100;
-
+  let caloriePercent = (data.todayCalories / data.calorieGoal) * 100;
   calorieBar.style.width = Math.min(caloriePercent, 100) + "%";
+
+  // Tonal status changes utilizing premium custom colors variables
+  if (caloriePercent < 80) {
+    calorieBar.style.background = "var(--success)";
+  } else if (caloriePercent <= 100) {
+    calorieBar.style.background = "var(--warning)";
+  } else {
+    calorieBar.style.background = "var(--danger)";
+  }
+
+  if (data.todayCalories > data.calorieGoal) {
+    todayCalories.innerHTML += "<br><span style='color:var(--danger); font-size:12px; font-weight:500;'>Over by " + (data.todayCalories - data.calorieGoal).toFixed(0) + " kcal</span>";
+  } else {
+    todayCalories.innerHTML += "<br><span style='color:var(--success); font-size:12px; font-weight:500;'>Remaining " + (data.calorieGoal - data.todayCalories).toFixed(0) + " kcal</span>";
+  }
+
+  todayProtein.innerHTML = "<b>" + data.todayProtein + " / " + data.proteinGoal + " g</b>";
+
+  let proteinPercent = (data.todayProtein / data.proteinGoal) * 100;
   proteinBar.style.width = Math.min(proteinPercent, 100) + "%";
 
-  // Class Reset Pipeline for Calorie Bar State Mapping
-  calorieBar.className = "progress-bar";
-  if (caloriePercent < 80) {
-    calorieBar.classList.add("progress-safe"); // Premium soft green
-  } else if (caloriePercent <= 100) {
-    calorieBar.classList.add("progress-warn"); // Muted warning amber
-  } else {
-    calorieBar.classList.add("progress-danger"); // Flat warning red
-  }
-
-  // Class Reset Pipeline for Protein Progression Mapping
-  proteinBar.className = "progress-bar";
   if (proteinPercent < 100) {
-    proteinBar.classList.add("progress-neutral"); // Clean brand asset gray-green
+    proteinBar.style.background = "var(--accent-muted)";
   } else {
-    proteinBar.classList.add("progress-safe"); // Full performance complete green
+    proteinBar.style.background = "var(--success)";
   }
 
-  // Inject Clean Context Text string directly into AI Box interface cleanly
-  coach.innerText = data.coach || "Metrics calibrated. Continue log patterns for deeper behavioral analytics tracking.";
+  if (data.todayProtein >= data.proteinGoal) {
+    todayProtein.innerHTML += "<br><span style='color:var(--success); font-size:12px; font-weight:500;'>Goal achieved ✅</span>";
+  } else {
+    todayProtein.innerHTML += "<br><span style='color:var(--warning); font-size:12px; font-weight:500;'>Remaining " + (data.proteinGoal - data.todayProtein).toFixed(1) + " g</span>";
+  }
+
+  coach.innerHTML = data.coach;
 }
