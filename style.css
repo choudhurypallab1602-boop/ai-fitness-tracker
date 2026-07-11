@@ -435,3 +435,68 @@ textarea#meal {
   .textarea-wrapper { width: 100%; }
   .btn-primary { width: 100%; justify-content: center; padding: 12px; }
 }
+/* Premium Icon Utilities & Tooltip Layouts */
+.timeline-actions {
+  display: flex;
+  gap: 8px;
+  float: right;
+  margin-top: -4px;
+}
+
+.action-icon-btn {
+  background: #f7f7f8;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.action-icon-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.action-icon-btn.btn-adjust:hover {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #16a34a;
+}
+
+.action-icon-btn.btn-delete:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* Dynamic CSS Tooltips Engine */
+.action-icon-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  background: #18181b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon-btn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
