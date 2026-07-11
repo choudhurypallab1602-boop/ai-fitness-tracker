@@ -1,91 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1976d2">
-
-    <title>AI Fitness Tracker</title>
-
-    <link rel="manifest" href="manifest.json">
+    <title>AI Fitness — Track your meals intelligently</title>
+    <!-- Premium Typography Links -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <!-- Link to external stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="container">
+    <div class="app-container">
+        
+        <!-- 1. Header Section -->
+        <header class="app-header">
+            <h1 class="app-title">AI Fitness</h1>
+            <p class="app-subtitle">Track your meals intelligently with AI</p>
+        </header>
 
-    <h1>AI Fitness</h1>
+        <!-- 2. Ultra-Compact Meal Input Section -->
+        <section class="compact-input-card">
+<textarea
+    id="meal"
+    placeholder="Example: 2 eggs, 2 rotis and tea"></textarea>            <div class="action-controls">
+                <button class="btn-refined btn-secondary-refined">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                    Speak
+                </button>
+                <button class="btn-refined btn-primary-refined">Log Meal</button>
+            </div>
+        </section>
 
-<p class="subtitle">
-Track your meals intelligently with AI.
-</p>
+        <!-- Structured Responsive Dashboard Grid Split -->
+        <div class="dashboard-grid">
+            
+            <!-- Column 1: Progress Analytics & Summaries -->
+            <div class="left-column">
+                
+                <!-- 3. Today's Progress Cards with Tonal Partial Colors -->
+                <div class="stats-grid">
+                    
+                    <!-- Calories Card (Warm Parchment/Neutral base) -->
+                    <div class="premium-card calories-tonal">
+                        <div class="stat-card-header">
+                            <p class="stat-card-title">Calories</p>
+                            <p class="stat-value mono-data">1,450<span class="stat-unit">kcal</span></p>
+                        </div>
+                        <p class="stat-goal">Goal: 2,100 kcal</p>
+                        <div class="progress-container">
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 69%;"></div>
+                            </div>
+                            <div class="stat-remaining">
+                                <span>69% completed</span>
+                                <span class="mono-data">650 left</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Protein Card (Soft Minimal Green Gradient base) -->
+                    <div class="premium-card protein-tonal">
+                        <div class="stat-card-header">
+                            <p class="stat-card-title">Protein</p>
+                            <p class="stat-value mono-data">95<span class="stat-unit">g</span></p>
+                        </div>
+                        <p class="stat-goal">Goal: 160g</p>
+                        <div class="progress-container">
+                            <div class="progress-track">
+                                <div class="progress-fill active-green" style="width: 59%;"></div>
+                            </div>
+                            <div class="stat-remaining">
+                                <span>59% completed</span>
+                                <span class="mono-data">65g left</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
 
-    <textarea
-        id="meal"
-        placeholder="Example: 2 eggs, 2 rotis and tea"></textarea>
+                <!-- 4. Meal Summary Card -->
+                <div class="premium-card summary-list">
+                    <div class="summary-row">
+                        <span class="summary-label">Foods identified</span>
+                        <div class="chips-wrapper">
+                            <span class="food-chip">Salmon fillet</span>
+                            <span class="food-chip">Wild Quinoa</span>
+                            <span class="food-chip">Grilled Asparagus</span>
+                        </div>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Calories</span>
+                        <span class="summary-value mono-data">550 kcal</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Protein</span>
+                        <span class="summary-value mono-data">42g</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Confidence score</span>
+                        <span class="summary-value mono-data" style="color: var(--accent-green); font-weight: 600;">High (98%)</span>
+                    </div>
+                </div>
+                
+            </div>
 
-    <div class="buttons">
+            <!-- Column 2: Contextual Coaching & Historical Feed -->
+            <div class="right-column">
+                
+                <!-- 5. Refined AI Coach Insight Widget (Integrated partial green layout mix) -->
+                <div class="ai-coach-card">
+                    <div class="coach-header">
+                        <span class="coach-title">AI Coach</span>
+                        <span class="coach-badge">Insight</span>
+                    </div>
+                    <p class="coach-text">
+                        Consider shifting more complex carbs like your morning quinoa toward your post-workout window to stabilize active recovery and ensure baseline energy levels.
+                    </p>
+                </div>
 
-        <button id="voiceBtn">
-            🎤 Speak
-        </button>
+                <!-- 6. Modernized Timeline Feed -->
+                <div class="timeline-container">
+                    
+                    <!-- Timeline Item 1 -->
+                    <div class="timeline-card-wrapper">
+                        <div class="timeline-node"></div>
+                        <div class="timeline-item">
+                            <div class="timeline-details">
+                                <span class="timeline-food">Salmon Salad Bowl</span>
+                                <span class="timeline-meta">Lunch &middot; 13:15</span>
+                            </div>
+                            <div class="timeline-macros mono-data">550 kcal</div>
+                        </div>
+                    </div>
 
-        <button id="logBtn">
-            Log Meal
-        </button>
-
-    </div>
-
-    <div id="loading" class="loading">
-        Analyzing your meal...
-    </div>
-
-    <div id="result" class="card" style="display:none;">
-
-        <h2>Meal Summary</h2>
-
-        <p id="mealCalories"></p>
-
-        <p id="mealProtein"></p>
-
-        <p id="confidence"></p>
-
-        <h3>Foods Identified</h3>
-
-        <ul id="foodList"></ul>
-
-        <hr>
-
-        <h2>Today's Progress</h2>
-
-        <div id="todayCalories"></div>
-
-        <div class="progress">
-            <div class="fill" id="calorieBar"></div>
+                    <!-- Timeline Item 2 -->
+                    <div class="timeline-card-wrapper">
+                        <div class="timeline-node"></div>
+                        <div class="timeline-item">
+                            <div class="timeline-details">
+                                <span class="timeline-food">Steel Cut Berry Oats & Whey</span>
+                                <span class="timeline-meta">Breakfast &middot; 08:30</span>
+                            </div>
+                            <div class="timeline-macros mono-data">410 kcal</div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
         </div>
-
-        <div id="todayProtein"></div>
-
-        <div class="progress">
-            <div class="fill" id="proteinBar"></div>
-        </div>
-
-        <hr>
-
-        <h2>AI Coach</h2>
-
-        <p id="coach"></p>
-
+        
     </div>
-
-</div>
-
-<script src="script.js"></script>
 
 </body>
 </html>
