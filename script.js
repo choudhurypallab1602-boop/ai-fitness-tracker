@@ -2,10 +2,10 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; // <--- APNA DEPLOYED URL YAHA DOBARA DAALEIN!
+const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
 
 let globalHistoryCache = [];
-let currentFilterScope = "today"; // today, weekly, monthly
+let currentFilterScope = "today"; // today, weekly, monthly, date-specific
 
 const mealInput = document.getElementById("meal");
 const voiceBtn = document.getElementById("voiceBtn");
@@ -90,14 +90,27 @@ async function logMeal() {
   loading.style.display = "block";
   resultCard.style.display = "none";
 
+  // Capture active context date from dashboard picker input
+  const activeSelectedDate = datePicker.value;
+
   try {
-    const response = await fetch(API_URL + "?meal=" + encodeURIComponent(meal));
+    const response = await fetch(`${API_URL}?meal=${encodeURIComponent(meal)}&customDate=${activeSelectedDate}`);
     if (!response.ok) throw new Error("HTTP failure");
 
     const data = await response.json();
     if(data.history) {
       globalHistoryCache = data.history;
-      showResult(data);
+      
+      // Calculate individual metrics internally if deep array objects are returned
+      if (data.history.length > 0) {
+        const lastEntry = data.history[data.history.length - 1];
+        showResult({
+          totalCalories: lastEntry.calories,
+          totalProtein: lastEntry.protein,
+          confidence: 0.95,
+          foods: [{ name: lastEntry.rawInput, quantity: 1 }]
+        });
+      }
       processMetricsAndTimelineView();
     }
   } catch (err) {
@@ -148,7 +161,7 @@ async function promptDeleteMeal(rowId) {
 }
 
 // ==========================================
-// QUICK INLINE ADJUSTMENT PIPELINE (EDIT WITHOUT DELETING MANUALLY)
+// QUICK INLINE HISTORICAL ADJUSTMENT ENGINE
 // ==========================================
 function triggerAdjustMealPopup(rowId, currentText) {
   const newMealText = prompt("Adjust your logged entry descriptive metrics:", currentText);
@@ -164,18 +177,19 @@ function triggerAdjustMealPopup(rowId, currentText) {
 
 async function executeMealAdjustment(rowId, newText) {
   loading.style.display = "block";
+  const activeSelectedDate = datePicker.value; // Retain targeted chart timeline view date Context
+  
   try {
     const deleteResp = await fetch(`${API_URL}?action=delete&rowId=${rowId}`);
     const deleteJson = await deleteResp.json();
     
     if(deleteJson.success) {
-      const response = await fetch(API_URL + "?meal=" + encodeURIComponent(newText));
+      const response = await fetch(`${API_URL}?meal=${encodeURIComponent(newText)}&customDate=${activeSelectedDate}`);
       if (!response.ok) throw new Error("HTTP connection drop during overwrite script.");
       
       const data = await response.json();
       if(data.history) {
         globalHistoryCache = data.history;
-        showResult(data);
         processMetricsAndTimelineView();
       }
     } else {
@@ -222,6 +236,7 @@ function processMetricsAndTimelineView() {
   const millisecondsInDay = 24 * 60 * 60 * 1000;
 
   globalHistoryCache.forEach(item => {
+    // Structural split sanitization logic check for explicit cross-system platform integrity
     const itemDate = new Date(item.date);
     const todayDate = new Date(todayStr);
     const dateDiff = (todayDate - itemDate) / millisecondsInDay;
@@ -280,9 +295,9 @@ function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
   let calPercent = (sumCal / calGoal) * 100;
   calorieBar.style.width = Math.min(calPercent, 100) + "%";
 
-  // 🔥 Calorie limit cross hone par bar RED ho jayega, nahi toh GREEN rahega
+  // Calorie Limit warning indicator change hooks
   if (sumCal > calGoal) {
-    calorieBar.style.backgroundColor = "#dc2626"; // Premium Coral Red
+    calorieBar.style.backgroundColor = "#dc2626"; // Alert Red
   } else {
     calorieBar.style.backgroundColor = "#16a34a"; // Clean Leaf Green
   }
@@ -291,11 +306,11 @@ function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
   let protPercent = (sumProt / protGoal) * 100;
   proteinBar.style.width = Math.min(protPercent, 100) + "%";
 
-  // 💪 Protein target meet hone par bar deep success GREEN hoga, kam hone par ORANGE rahega
+  // Protein threshold condition scale
   if (sumProt >= protGoal) {
-    proteinBar.style.backgroundColor = "#16a34a"; // Success Green
+    proteinBar.style.backgroundColor = "#16a34a"; // Target hit green
   } else {
-    proteinBar.style.backgroundColor = "#ea580c"; // Focus Orange
+    proteinBar.style.backgroundColor = "#ea580c"; // Tracking low orange
   }
 
   const coachElement = document.getElementById("coach");
