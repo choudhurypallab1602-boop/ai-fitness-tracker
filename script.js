@@ -2,7 +2,7 @@
 // AI Fitness Tracker Frontend Layer Setup
 // ==========================================
 
-const API_URL = "PASTE_YOUR_NEW_EXEC_URL_HERE"; // <--- APNA NAYA DEPLOYED URL YAHA DAALEIN!
+const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec"; // <--- APNA NAYA DEPLOYED URL YAHA DAALEIN!
 
 let globalHistoryCache = [];
 let currentFilterScope = "today"; // today, weekly, monthly
