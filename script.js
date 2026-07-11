@@ -29,7 +29,6 @@ const timelineContainer = document.querySelector(".timeline");
 const datePicker = document.getElementById("historyDatePicker");
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Autofill date picker input with today's date structure
   const todayDateStr = new Date().toISOString().split('T')[0];
   if(datePicker) datePicker.value = todayDateStr;
 
@@ -90,7 +89,6 @@ async function logMeal() {
   loading.style.display = "block";
   resultCard.style.display = "none";
 
-  // Capture active context date from dashboard picker input
   const activeSelectedDate = datePicker.value;
 
   try {
@@ -101,7 +99,6 @@ async function logMeal() {
     if(data.history) {
       globalHistoryCache = data.history;
       
-      // Calculate individual metrics internally if deep array objects are returned
       if (data.history.length > 0) {
         const lastEntry = data.history[data.history.length - 1];
         showResult({
@@ -142,13 +139,13 @@ function showResult(data) {
 }
 
 // ==========================================
-// DELETE ELEMENT FUNCTION PIPELINE
+// FLEXIBLE DELETION FUNCTION WITH INDEX FALLBACK
 // ==========================================
-async function promptDeleteMeal(rowId) {
+async function promptDeleteMeal(rowId, rowIndex) {
   if(!confirm("Are you sure you want to delete this logged meal?")) return;
   
   try {
-    const response = await fetch(`${API_URL}?action=delete&rowId=${rowId}`);
+    const response = await fetch(`${API_URL}?action=delete&rowId=${rowId}&rowIndex=${rowIndex}`);
     const result = await response.json();
     if(result.success) {
       loadDashboardOnStart();
@@ -161,9 +158,9 @@ async function promptDeleteMeal(rowId) {
 }
 
 // ==========================================
-// QUICK INLINE HISTORICAL ADJUSTMENT ENGINE
+// QUICK INLINE ADJUSTMENT ENGINE WITH SYNC FIX
 // ==========================================
-function triggerAdjustMealPopup(rowId, currentText) {
+function triggerAdjustMealPopup(rowId, rowIndex, currentText) {
   const newMealText = prompt("Adjust your logged entry descriptive metrics:", currentText);
   if (newMealText === null) return; 
   
@@ -172,15 +169,15 @@ function triggerAdjustMealPopup(rowId, currentText) {
     alert("Description cannot be empty.");
     return;
   }
-  executeMealAdjustment(rowId, trimmed);
+  executeMealAdjustment(rowId, rowIndex, trimmed);
 }
 
-async function executeMealAdjustment(rowId, newText) {
+async function executeMealAdjustment(rowId, rowIndex, newText) {
   loading.style.display = "block";
-  const activeSelectedDate = datePicker.value; // Retain targeted chart timeline view date Context
+  const activeSelectedDate = datePicker.value;
   
   try {
-    const deleteResp = await fetch(`${API_URL}?action=delete&rowId=${rowId}`);
+    const deleteResp = await fetch(`${API_URL}?action=delete&rowId=${rowId}&rowIndex=${rowIndex}`);
     const deleteJson = await deleteResp.json();
     
     if(deleteJson.success) {
@@ -236,7 +233,6 @@ function processMetricsAndTimelineView() {
   const millisecondsInDay = 24 * 60 * 60 * 1000;
 
   globalHistoryCache.forEach(item => {
-    // Structural split sanitization logic check for explicit cross-system platform integrity
     const itemDate = new Date(item.date);
     const todayDate = new Date(todayStr);
     const dateDiff = (todayDate - itemDate) / millisecondsInDay;
@@ -270,10 +266,10 @@ function processMetricsAndTimelineView() {
         <div class="timeline-content">
           
           <div class="timeline-actions">
-            <button class="action-icon-btn btn-adjust" data-tooltip="Adjust Meal" onclick="triggerAdjustMealPopup(${row.rowId}, '${row.rawInput.replace(/'/g, "\\'")}')">
+            <button class="action-icon-btn btn-adjust" data-tooltip="Adjust Meal" onclick="triggerAdjustMealPopup(${row.rowId}, ${row.actualRowIndex}, '${row.rawInput.replace(/'/g, "\\'")}')">
               ✏️
             </button>
-            <button class="action-icon-btn btn-delete" data-tooltip="Remove Meal" onclick="promptDeleteMeal(${row.rowId})">
+            <button class="action-icon-btn btn-delete" data-tooltip="Remove Meal" onclick="promptDeleteMeal(${row.rowId}, ${row.actualRowIndex})">
               🗑️
             </button>
           </div>
@@ -295,22 +291,20 @@ function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
   let calPercent = (sumCal / calGoal) * 100;
   calorieBar.style.width = Math.min(calPercent, 100) + "%";
 
-  // Calorie Limit warning indicator change hooks
   if (sumCal > calGoal) {
-    calorieBar.style.backgroundColor = "#dc2626"; // Alert Red
+    calorieBar.style.backgroundColor = "#dc2626"; 
   } else {
-    calorieBar.style.backgroundColor = "#16a34a"; // Clean Leaf Green
+    calorieBar.style.backgroundColor = "#16a34a"; 
   }
 
   todayProtein.innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
   let protPercent = (sumProt / protGoal) * 100;
   proteinBar.style.width = Math.min(protPercent, 100) + "%";
 
-  // Protein threshold condition scale
   if (sumProt >= protGoal) {
-    proteinBar.style.backgroundColor = "#16a34a"; // Target hit green
+    proteinBar.style.backgroundColor = "#16a34a"; 
   } else {
-    proteinBar.style.backgroundColor = "#ea580c"; // Tracking low orange
+    proteinBar.style.backgroundColor = "#ea580c"; 
   }
 
   const coachElement = document.getElementById("coach");
