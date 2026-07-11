@@ -3,19 +3,18 @@
   --bg-card: #FFFFFF;
   --text-primary: #111111;
   --text-secondary: #6E6E6E;
-  --border-light: #EEEEEC;
+  --border-light: #EFEFED;
   
   --accent-muted: #6B8E6A;
-  --success: #388E3C;
-  --warning: #F57C00;
+  --success: #2E7D32;
+  --warning: #ED6C02;
   --danger: #D32F2F;
   --bar-empty: #EFEFEF;
   
-  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --transition-smooth: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reset base system layout details */
 * {
   margin: 0;
   padding: 0;
@@ -27,11 +26,9 @@ body {
   color: var(--text-primary);
   font-family: var(--font-stack);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   padding: 0 0 80px 0;
 }
 
-/* Global Container Rules */
 .app-header {
   max-width: 1040px;
   margin: 0 auto;
@@ -39,7 +36,7 @@ body {
 }
 
 .app-header h1 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.02em;
   margin-bottom: 6px;
@@ -56,7 +53,7 @@ body {
   padding: 0 24px;
 }
 
-/* Premium Textarea Input Card Block */
+/* Input Card Configuration */
 .input-section {
   margin-bottom: 40px;
 }
@@ -69,13 +66,12 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.015);
-  transition: var(--transition-smooth);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.01);
 }
 
 .input-card:focus-within {
   border-color: #CCCCCC;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
 .textarea-wrapper {
@@ -99,21 +95,17 @@ textarea#meal {
   min-height: 36px;
 }
 
-textarea#meal::placeholder {
-  color: #A0A09E;
-}
-
-/* Premium Buttons Styling */
 .btn-icon {
   background: transparent;
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  padding: 8px;
+  font-family: var(--font-stack);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 12px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  white-space: nowrap;
   transition: var(--transition-smooth);
 }
 
@@ -144,7 +136,7 @@ textarea#meal::placeholder {
   transform: scale(0.98);
 }
 
-/* Loading indicators */
+/* Loading Indicators */
 .loading-indicator {
   display: flex;
   align-items: center;
@@ -153,11 +145,6 @@ textarea#meal::placeholder {
   padding-left: 4px;
   font-size: 13px;
   color: var(--text-secondary);
-  transition: var(--transition-smooth);
-}
-
-.loading-indicator.hidden {
-  display: none !important;
 }
 
 .spinner {
@@ -173,7 +160,7 @@ textarea#meal::placeholder {
   to { transform: rotate(360deg); }
 }
 
-/* Response Dashboard Layout Construction */
+/* Dashboard Grid Layout Construction */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -186,14 +173,13 @@ textarea#meal::placeholder {
   gap: 32px;
 }
 
-/* Micro Elements: Notion / Stripe Card standards */
+/* Premium Component Cards */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 16px;
   padding: 28px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.01);
-  transition: var(--transition-smooth);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.01);
 }
 
 .card-title {
@@ -222,10 +208,11 @@ textarea#meal::placeholder {
 
 .metric-label {
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .metric-value {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .metric-value span.unit {
@@ -235,30 +222,21 @@ textarea#meal::placeholder {
 
 .progress-container {
   width: 100%;
-  height: 6px;
+  height: 8px;
   background: var(--bar-empty);
   border-radius: 100px;
   overflow: hidden;
 }
 
-.progress-bar {
+.fill {
   height: 100%;
   width: 0%;
   border-radius: 100px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+  background-color: var(--accent-muted);
 }
 
-/* Dynamic State Colors for script manipulation */
-.progress-neutral { background-color: var(--accent-muted); }
-.progress-safe { background-color: var(--success); }
-.progress-warn { background-color: var(--warning); }
-.progress-danger { background-color: var(--danger); }
-
-/* Analytics Results Card */
-.result-card.hidden {
-  display: none !important;
-}
-
+/* Analysis Results Card */
 .result-header {
   display: flex;
   justify-content: space-between;
@@ -288,12 +266,21 @@ textarea#meal::placeholder {
 }
 
 .stat-box {
-  background: #FAF8F6;
-  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 16px;
   display: flex;
   flex-direction: column;
+  border: 1px solid transparent;
+}
+
+.calories-box {
+  background: #FCF9F5;
+  border-color: #F5EFE6;
+}
+
+.protein-box {
+  background: #F5F9FC;
+  border-color: #E6EEF5;
 }
 
 .stat-num {
@@ -327,27 +314,27 @@ textarea#meal::placeholder {
 
 .food-chips-list li {
   font-size: 13px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  color: var(--text-primary);
+  background: #FAFAD2;
+  border: 1px solid #E6E6A8;
+  color: #55552B;
+  font-weight: 500;
   padding: 6px 12px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.01);
 }
 
-/* AI Coach ChatGPT styled UI */
+/* AI Coach Card layout */
 .coach-card {
-  background: #F5F7F5;
-  border-color: #E2E8E2;
+  background: #F4F7F4;
+  border-color: #E0E8E0;
 }
 
 .coach-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--accent-muted);
+  color: var(--success);
   margin-bottom: 12px;
 }
 
@@ -360,10 +347,10 @@ textarea#meal::placeholder {
 .coach-text {
   font-size: 14px;
   line-height: 22px;
-  color: #2C3E2B;
+  color: #2E3B2E;
 }
 
-/* Modernized Minimalist Timeline */
+/* Modern Minimalist Timeline */
 .timeline {
   display: flex;
   flex-direction: column;
@@ -438,42 +425,13 @@ textarea#meal::placeholder {
   color: var(--text-secondary);
 }
 
-/* Mobile Responsive Adaptation rules */
 @media (max-width: 768px) {
-  .app-header {
-    padding: 40px 16px 24px 16px;
-  }
-  
-  .app-container {
-    padding: 0 16px;
-  }
-  
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .grid-column {
-    gap: 20px;
-  }
-  
-  .card {
-    padding: 20px;
-  }
-  
-  .input-card {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px;
-  }
-  
-  .textarea-wrapper {
-    width: 100%;
-  }
-  
-  .btn-primary {
-    width: 100%;
-    justify-content: center;
-    padding: 12px;
-  }
+  .app-header { padding: 40px 16px 24px 16px; }
+  .app-container { padding: 0 16px; }
+  .dashboard-grid { grid-template-columns: 1fr; gap: 20px; }
+  .grid-column { gap: 20px; }
+  .card { padding: 20px; }
+  .input-card { flex-direction: column; align-items: stretch; padding: 12px; }
+  .textarea-wrapper { width: 100%; }
+  .btn-primary { width: 100%; justify-content: center; padding: 12px; }
 }
