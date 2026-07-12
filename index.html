@@ -37,7 +37,6 @@
     <!-- LAYER 2: MAIN TRACKER INTERFACE -->
     <div id="mainDashboard" class="app-container" style="display: none;">
         
-        <!-- Guest Banner Mode Indicator -->
         <div id="guestBanner" class="guest-alert-banner" style="display: none;">
             ⚠️ <b>Guest Mode Active:</b> Your data is running inside local browser memory and will NOT be saved to Google Sheets.
         </div>
@@ -57,7 +56,6 @@
             </div>
         </header>
 
-        <!-- Analytics Metric Cards Grid -->
         <section class="metrics-grid">
             <div class="card metric-card">
                 <h3>Calories Consumed</h3>
@@ -76,21 +74,18 @@
             </div>
         </section>
 
-        <!-- AI Coach Section -->
         <section class="card coach-section">
             <div id="coach" class="coach-text">
                 ⚡ Initializing tracker components... Select filter range or log foods.
             </div>
         </section>
 
-        <!-- Navigation Range Tabs -->
         <nav class="range-navigation">
             <button class="tab-btn active" onclick="switchViewScope('today')">Today</button>
             <button class="tab-btn" onclick="switchViewScope('weekly')">Weekly Summary</button>
             <button class="tab-btn" onclick="switchViewScope('monthly')">Monthly View</button>
         </nav>
 
-        <!-- Input Section -->
         <main class="interaction-layout">
             <section class="card input-card">
                 <h3>What did you eat?</h3>
@@ -108,7 +103,6 @@
                     <p>AI Engine processing nutritional indexes...</p>
                 </div>
 
-                <!-- Last Processed Display Node -->
                 <div id="result" class="card result-card" style="display: none;">
                     <h4>Identified Items Breakdown:</h4>
                     <ul id="foodList"></ul>
@@ -120,15 +114,13 @@
                 </div>
             </section>
 
-            <!-- Timeline Split Feed Container -->
             <section class="card timeline-card">
                 <h3 id="dashboardScopeTitle">Daily Progress Timeline</h3>
-                <div class="timeline">
-                    <!-- Dynamic Items render here -->
-                </div>
+                <div class="timeline"></div>
             </section>
         </main>
     </div>
 
+    <script src="script.js"></script>
 </body>
 </html>
