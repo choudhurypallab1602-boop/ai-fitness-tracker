@@ -341,3 +341,95 @@ async function deleteMeal(index) {
     finally { if(loading) loading.style.display = "none"; }
   }
 }
+// ================= DRAGGABLE & PER-DAY STICKY ENGINE =================
+const stickyEl = document.getElementById("draggableSticky");
+const handleEl = document.getElementById("stickyHandle");
+const memoTextarea = document.getElementById("dashboardMemo");
+const memoStatus = document.getElementById("memoStatus");
+const datePicker = document.getElementById("historyDatePicker");
+const stickyDateLabel = document.getElementById("stickyDateLabel");
+
+// 1. DRAG ENGINE LOGIC
+let isDragging = false;
+let currentX, currentY, initialX, initialY;
+let xOffset = 0, yOffset = 0;
+
+handleEl.addEventListener("mousedown", dragStart);
+document.addEventListener("mousemove", drag);
+document.addEventListener("mouseup", dragEnd);
+
+handleEl.addEventListener("touchstart", dragStart, { passive: true });
+document.addEventListener("touchmove", drag, { passive: false });
+document.addEventListener("touchend", dragEnd);
+
+function dragStart(e) {
+    let clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+    let clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+    
+    initialX = clientX - xOffset;
+    initialY = clientY - yOffset;
+
+    if (e.target === handleEl || handleEl.contains(e.target)) {
+        isDragging = true;
+    }
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    if (e.type === "touchmove") e.preventDefault(); // Stop screen scroll during drag
+
+    let clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+    let clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+
+    currentX = clientX - initialX;
+    currentY = clientY - initialY;
+
+    xOffset = currentX;
+    yOffset = currentY;
+
+    stickyEl.style.transform = `translate(${currentX}px, ${currentY}px)`;
+}
+
+function dragEnd() {
+    isDragging = false;
+}
+
+// 2. PER-DAY LOCKER LOGIC
+function getActiveStickyDate() {
+    // Agar datepicker me date selected h toh vo lega, nahi toh default current date
+    return datePicker && datePicker.value ? datePicker.value : new Date().toISOString().split('T')[0];
+}
+
+function loadDailyMemo() {
+    const targetDate = getActiveStickyDate();
+    const savedMemo = localStorage.getItem(`sticky_memo_${targetDate}`);
+    
+    memoTextarea.value = savedMemo ? savedMemo : "";
+    if(stickyDateLabel) {
+        stickyDateLabel.textContent = targetDate;
+    }
+    memoStatus.textContent = "Saved";
+    memoStatus.style.background = "#ccfbf1";
+}
+
+// Auto Save on typing
+memoTextarea.addEventListener("input", () => {
+    memoStatus.textContent = "Saving...";
+    memoStatus.style.background = "#fef3c7";
+    
+    const targetDate = getActiveStickyDate();
+    localStorage.setItem(`sticky_memo_${targetDate}`, memoTextarea.value);
+    
+    setTimeout(() => {
+        memoStatus.textContent = "Saved";
+        memoStatus.style.background = "#ccfbf1";
+    }, 600);
+});
+
+// Sync note when calendar date/timeline change
+if(datePicker) {
+    datePicker.addEventListener("change", loadDailyMemo);
+}
+
+// Initial Load
+document.addEventListener("DOMContentLoaded", loadDailyMemo);
