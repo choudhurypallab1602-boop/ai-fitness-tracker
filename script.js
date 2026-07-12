@@ -23,10 +23,7 @@ window.addEventListener("load", function() {
 
   const picker = document.getElementById("historyDatePicker");
   picker.value = new Date().toISOString().split('T')[0];
-  
-  picker.addEventListener("change", function() {
-    switchViewScope('today');
-  });
+  picker.addEventListener("change", function() { switchViewScope('today'); });
 
   initializeVoice();
 
@@ -39,12 +36,11 @@ window.addEventListener("load", function() {
 function handleLogin() {
   const u = document.getElementById("authUsername").value.trim().toLowerCase();
   const p = document.getElementById("authPassword").value.trim();
-
   if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) {
     sessionStorage.setItem("auth_user", u);
     activateDashboard(false, u);
   } else {
-    alert("Incorrect Username or Password.");
+    alert("Incorrect Credentials.");
   }
 }
 
@@ -61,9 +57,8 @@ function handleLogout() {
 function activateDashboard(isGuest, name) {
   isGuestModeActive = isGuest;
   document.getElementById("authScreen").style.display = "none";
-  document.getElementById("mainDashboard").style.display = "block";
-  document.getElementById("userDisplay").innerText = name.toUpperCase();
-  
+  document.getElementById("mainDashboard").style.display = "grid";
+  document.getElementById("userDisplay").innerText = name.substring(0,1).toUpperCase();
   if(isGuestModeActive) {
     document.getElementById("guestBanner").style.display = "block";
     processView();
@@ -72,44 +67,41 @@ function activateDashboard(isGuest, name) {
   }
 }
 
+function normalizeInputString(str) {
+  if(!str) return "";
+  let clean = str.trim().toLowerCase();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
 function initializeVoice() {
   if ("webkitSpeechRecognition" in window) {
     recognition = new webkitSpeechRecognition();
     recognition.lang = "en-IN";
     recognition.continuous = true;       
     recognition.interimResults = false;   
-
     const voiceBtn = document.getElementById("voiceBtn");
     const mealInput = document.getElementById("meal");
 
     recognition.onstart = function() {
       isListening = true;
-      voiceBtn.innerHTML = "Stop";
-      voiceBtn.style.color = "red";
+      voiceBtn.querySelector('.voice-label').innerText = "Stop";
+      voiceBtn.style.background = "#fee2e2";
     };
-
     recognition.onend = function() {
       isListening = false;
-      voiceBtn.innerHTML = "Speak";
-      voiceBtn.style.color = "";
+      voiceBtn.querySelector('.voice-label').innerText = "Speak";
+      voiceBtn.style.background = "#f1f5f9";
     };
-
     recognition.onresult = function(event) {
-      let speechText = "";
+      let txt = "";
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          speechText += event.results[i][0].transcript + " ";
-        }
+        if (event.results[i].isFinal) txt += event.results[i][0].transcript + " ";
       }
-      if(speechText.trim()) {
-        mealInput.value += speechText;
-      }
+      if(txt.trim()) mealInput.value += normalizeInputString(txt);
     };
-
     voiceBtn.addEventListener("click", function(e) {
       e.preventDefault();
-      if (isListening) recognition.stop();
-      else recognition.start();
+      if (isListening) recognition.stop(); else recognition.start();
     });
   }
 }
@@ -118,23 +110,18 @@ async function loadData() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
-    if(data.history) {
-      globalHistoryCache = data.history; 
-    }
-    if(data.coach) {
-      document.getElementById("coach").innerText = data.coach;
-    } else if(data.coachResponse) {
-      document.getElementById("coach").innerText = data.coachResponse;
+    if(data.history) globalHistoryCache = data.history; 
+    if(data.coach || data.coachResponse) {
+      document.getElementById("coach").innerText = data.coach || data.coachResponse;
     }
     processView();
-  } catch (err) { console.log("Fetch failure."); }
+  } catch (err) { console.log("System data sync failure."); }
 }
 
 async function logMeal() {
   const input = document.getElementById("meal");
-  const meal = input.value.trim();
+  let meal = normalizeInputString(input.value);
   if (!meal) return;
-
   const loading = document.getElementById("loading");
   if(loading) loading.style.display = "block";
   const date = document.getElementById("historyDatePicker").value;
@@ -142,16 +129,12 @@ async function logMeal() {
   try {
     const res = await fetch(API_URL + "?meal=" + encodeURIComponent(meal) + "&customDate=" + date);
     const data = await res.json();
-    if(data.history) {
-      globalHistoryCache = data.history;
-    }
-    if(data.coach) {
-      document.getElementById("coach").innerText = data.coach;
-    } else if(data.coachResponse) {
-      document.getElementById("coach").innerText = data.coachResponse;
+    if(data.history) globalHistoryCache = data.history;
+    if(data.coach || data.coachResponse) {
+      document.getElementById("coach").innerText = data.coach || data.coachResponse;
     }
     processView();
-  } catch (err) { alert("Logging failed."); }
+  } catch (err) { alert("Logging engine sync fault."); }
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
@@ -165,8 +148,25 @@ function switchViewScope(scope) {
   if(scope === 'week') document.getElementById("weekTabBtn").classList.add("active");
   if(scope === 'month') document.getElementById("monthTabBtn").classList.add("active");
 
-  document.getElementById("metricsTitle").innerText = scope === 'today' ? 'Daily Progress' : (scope === 'week' ? 'Weekly total Progress' : 'Monthly total Progress');
+  document.getElementById("metricsTitle").innerText = scope === 'today' ? 'Daily Progress Matrix' : (scope === 'week' ? 'Weekly total Metrics' : 'Monthly total Metrics');
   processView();
+}
+
+function updateRadialGauge(elementId, current, limit, overColor, baseColor) {
+  const el = document.getElementById(elementId);
+  if(!el) return;
+  const radius = el.r.baseVal.value;
+  const circumference = 2 * Math.PI * radius;
+  let percent = current / limit;
+  if(percent > 1) {
+    el.style.stroke = overColor;
+    percent = 1; 
+  } else {
+    el.style.stroke = baseColor;
+  }
+  const offset = circumference - (percent * circumference);
+  el.style.strokeDasharray = `${circumference} ${circumference}`;
+  el.style.strokeDashoffset = offset;
 }
 
 function processView() {
@@ -198,73 +198,56 @@ function processView() {
     }
 
     if (match) {
-      filtered.push({ 
-        date: item.date, 
-        time: item.time, 
-        rawInput: item.rawInput, 
-        calories: item.calories, 
-        protein: item.protein, 
-        originalIndex: index 
-      });
+      filtered.push({ ...item, originalIndex: index });
       cal += item.calories;
       prot += item.protein;
     }
   });
 
   document.getElementById("todayCalories").innerText = cal + " / " + targetLimit + " kcal";
-  const calBar = document.getElementById("calorieBar");
-  calBar.style.width = Math.min((cal / targetLimit) * 100, 100) + "%";
-  calBar.style.backgroundColor = cal > targetLimit ? "#f87171" : "#4ade80"; 
-  
   document.getElementById("todayProtein").innerText = prot + " / " + proteinLimit + " g";
-  const proBar = document.getElementById("proteinBar");
-  proBar.style.width = Math.min((prot / proteinLimit) * 100, 100) + "%";
-  proBar.style.backgroundColor = prot > proteinLimit ? "#f87171" : "#60a5fa";
+
+  // 🔥 Update Radial SVG Rings mathematically
+  updateRadialGauge("calorieGaugeFill", cal, targetLimit, "#ef4444", "#0d9488");
+  updateRadialGauge("proteinGaugeFill", prot, proteinLimit, "#ef4444", "#6366f1");
 
   container.innerHTML = "";
   if(filtered.length === 0) {
-    container.innerHTML = "<p style='font-size:12px;color:#aaa;text-align:center;padding:12px;'>No entries recorded.</p>";
+    container.innerHTML = "<div class='null-state-msg'>No entries registered in this selection scope.</div>";
     return;
   }
   
   filtered.reverse().forEach(function(row) {
     const itemEl = document.createElement("div");
-    itemEl.className = "timeline-item";
-    itemEl.style.cssText = "margin-bottom:12px; padding-bottom:8px; border-bottom:1px dashed #e2e8f0; display: flex; justify-content: space-between; align-items: center;";
+    itemEl.className = "timeline-node";
     
-    itemEl.innerHTML = "<div>" +
-        "<small style='color:#94a3b8; font-weight:500;'>" + row.date + " * " + row.time + "</small>" +
-        "<h4 style='margin:2px 0; font-size:14px; color:#1e293b;'>" + row.rawInput + "</h4>" +
-        "<small style='color:#64748b; font-weight:600;'>" + row.calories + " kcal * " + row.protein + "g</small>" +
+    itemEl.innerHTML = "<div class='node-dot-track'><span class='node-dot'></span></div>" +
+      "<div class='node-payload'>" +
+        "<div class='node-meta-row'>" +
+          "<span class='node-timestamp'>" + row.time + "</span>" +
+          "<div class='node-crud-triggers'>" +
+            "<button class='action-trigger-btn' id='edit-"+row.originalIndex+"'>✏️</button>" +
+            "<button class='action-trigger-btn' id='del-"+row.originalIndex+"'>🗑️</button>" +
+          "</div>" +
+        "</div>" +
+        "<h4 class='node-title-meal'>" + normalizeInputString(row.rawInput) + "</h4>" +
+        "<p class='node-macro-summary'>" + row.calories + " kcal  ·  " + row.protein + "g Protein</p>" +
       "</div>";
 
-    const actionContainer = document.createElement("div");
-    actionContainer.style.cssText = "display: flex; gap: 8px;";
+    container.appendChild(itemEl);
 
-    const editBtn = document.createElement("button");
-    editBtn.innerText = "✏️";
-    editBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px;";
-    editBtn.addEventListener("click", function() {
+    document.getElementById("edit-"+row.originalIndex).addEventListener("click", function() {
       document.getElementById("meal").value = row.rawInput;
       document.getElementById("meal").focus();
     });
-
-    const delBtn = document.createElement("button");
-    delBtn.innerText = "🗑️";
-    delBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px;";
-    delBtn.addEventListener("click", function() {
+    document.getElementById("del-"+row.originalIndex).addEventListener("click", function() {
       deleteMeal(row.originalIndex);
     });
-    
-    actionContainer.appendChild(editBtn);
-    actionContainer.appendChild(delBtn);
-    itemEl.appendChild(actionContainer);
-    container.appendChild(itemEl);
   });
 }
 
 async function deleteMeal(index) {
-  if(!confirm("Delete this entry?")) return;
+  if(!confirm("Purge recorded entry?")) return;
   const loading = document.getElementById("loading");
   if(loading) loading.style.display = "block";
 
@@ -276,16 +259,12 @@ async function deleteMeal(index) {
     try {
       const res = await fetch(API_URL + "?action=delete&row=" + (index + 2));
       const data = await res.json();
-      if(data.history) {
-        globalHistoryCache = data.history;
-      }
-      if(data.coach) {
-        document.getElementById("coach").innerText = data.coach;
-      } else if(data.coachResponse) {
-        document.getElementById("coach").innerText = data.coachResponse;
+      if(data.history) globalHistoryCache = data.history;
+      if(data.coach || data.coachResponse) {
+        document.getElementById("coach").innerText = data.coach || data.coachResponse;
       }
       processView();
-    } catch (err) { alert("Delete failed."); }
+    } catch (err) { alert("Delete pipeline drop error."); }
     finally { if(loading) loading.style.display = "none"; }
   }
 }
