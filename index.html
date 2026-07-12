@@ -9,9 +9,7 @@
 </head>
 <body>
 
-    <!-- ==========================================
-         LAYER 1: AUTHENTICATION SCREEN
-         ========================================== -->
+    <!-- LAYER 1: AUTHENTICATION SCREEN -->
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
@@ -25,20 +23,18 @@
                     <label for="authPassword">Secure Access Password</label>
                     <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
                 </div>
-                <button id="loginBtn" class="btn btn-primary" onclick="handleDashboardLogin()">Unlock Dashboard</button>
+                <button id="loginBtn" class="btn btn-primary">Unlock Dashboard</button>
                 
                 <div class="auth-divider">
                     <span>OR</span>
                 </div>
                 
-                <button id="guestBtn" class="btn btn-secondary" onclick="handleGuestLogin()">⚡ Sign in as Guest</button>
+                <button id="guestBtn" class="btn btn-secondary">⚡ Sign in as Guest</button>
             </div>
         </div>
     </div>
 
-    <!-- ==========================================
-         LAYER 2: MAIN TRACKER INTERFACE (Hidden Initially)
-         ========================================== -->
+    <!-- LAYER 2: MAIN TRACKER INTERFACE -->
     <div id="mainDashboard" class="app-container" style="display: none;">
         
         <!-- Guest Banner Mode Indicator -->
@@ -57,7 +53,7 @@
             
             <div class="header-actions">
                 <input type="date" id="historyDatePicker" onchange="filterTimelineByDate()">
-                <button class="btn btn-logout" onclick="handleUserLogout()">Logout 🚪</button>
+                <button id="logoutBtn" class="btn-logout">Logout 🚪</button>
             </div>
         </header>
 
@@ -103,8 +99,8 @@
                 </div>
                 
                 <div class="action-row">
-                    <button id="voiceBtn" class="btn btn-secondary">🎤 Speak</button>
-                    <button id="logBtn" class="btn btn-primary">Log Meal</button>
+                    <button id="voiceBtn" class="btn btn-secondary-voice">🎤 Speak</button>
+                    <button id="logBtn" class="btn btn-primary-log">Log Meal</button>
                 </div>
 
                 <div id="loading" class="spinner-container" style="display: none;">
