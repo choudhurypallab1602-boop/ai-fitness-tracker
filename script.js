@@ -1,11 +1,15 @@
 // ==========================================
-// AI Fitness Tracker Frontend Layer Setup
+// AI Fitness Tracker Framework Setup
 // ==========================================
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
 
+// SECURITY CONFIGURATION
+const APP_SECURE_PASSWORD = "admin123"; // 👈 Apn pasand ka password yahan daal do!
+
 let globalHistoryCache = [];
-let currentFilterScope = "today"; // today, weekly, monthly, date-specific
+let currentFilterScope = "today"; 
+let isGuestModeActive = false; // System context switch flag
 
 const mealInput = document.getElementById("meal");
 const voiceBtn = document.getElementById("voiceBtn");
@@ -38,8 +42,58 @@ document.addEventListener("DOMContentLoaded", () => {
       this.style.height = (this.scrollHeight) + "px";
     });
   }
-  loadDashboardOnStart();
+
+  // Session state preservation check
+  const savedAuthMode = sessionStorage.getItem("app_session_auth");
+  if(savedAuthMode === "master") {
+    executeInterfaceActivation(false);
+  } else if(savedAuthMode === "guest") {
+    executeInterfaceActivation(true);
+  }
 });
+
+// ==========================================
+// CORE AUTHENTICATION LOGIC ROUTERS
+// ==========================================
+function handleDashboardLogin() {
+  const enteredPass = document.getElementById("authPassword").value;
+  if(enteredPass === APP_SECURE_PASSWORD) {
+    sessionStorage.setItem("app_session_auth", "master");
+    executeInterfaceActivation(false);
+  } else {
+    alert("Invalid access password entry. Please try again.");
+  }
+}
+
+function handleGuestLogin() {
+  sessionStorage.setItem("app_session_auth", "guest");
+  executeInterfaceActivation(true);
+}
+
+function handleUserLogout() {
+  sessionStorage.clear();
+  window.location.reload();
+}
+
+function executeInterfaceActivation(guestFlag) {
+  isGuestModeActive = guestFlag;
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("mainDashboard").style.display = "block";
+  
+  if(isGuestModeActive) {
+    document.getElementById("guestBanner").style.display = "block";
+    document.getElementById("userModeLabel").innerText = "Connected Engine: Sandbox Guest Mode Memory";
+    // Load some mock starting values for the guest preview to keep dashboard interesting
+    globalHistoryCache = [
+      { actualRowIndex: 2, date: new Date().toISOString().split('T')[0], time: "08:30", rawInput: "Guest Demo: 2 Boiled Eggs & Coffee", calories: 220, protein: 14, rowId: 10001 }
+    ];
+    processMetricsAndTimelineView();
+  } else {
+    document.getElementById("guestBanner").style.display = "none";
+    document.getElementById("userModeLabel").innerText = "Connected Engine: Google Cloud Sync";
+    loadDashboardOnStart();
+  }
+}
 
 // ==========================================
 // Voice Engine Mechanics
@@ -63,22 +117,22 @@ if(voiceBtn) {
 }
 
 // ==========================================
-// Core Sync Framework Data Pipelines
+// DATA SYNC LOG MEAL CONTROLLERS
 // ==========================================
 logBtn.addEventListener("click", logMeal);
 
 async function loadDashboardOnStart() {
+  if(isGuestModeActive) return;
   try {
     const response = await fetch(API_URL);
     if (!response.ok) return;
     const data = await response.json();
-    
     if(data.history) {
       globalHistoryCache = data.history; 
       processMetricsAndTimelineView();
     }
   } catch (err) {
-    console.log("Database fetch fault.");
+    console.log("Database load fault.");
   }
 }
 
@@ -88,9 +142,36 @@ async function logMeal() {
 
   loading.style.display = "block";
   resultCard.style.display = "none";
-
   const activeSelectedDate = datePicker.value;
 
+  // INTERCEPT REQUEST IF GUEST MODE ACTIVE
+  if(isGuestModeActive) {
+    setTimeout(() => {
+      // Direct mock logic execution for client sandbox safety simulation
+      let mockCal = 350; let mockProt = 12;
+      if (meal.toLowerCase().includes("egg")) { mockCal = 180; mockProt = 14; }
+      if (meal.toLowerCase().includes("dosa") || meal.toLowerCase().includes("chowmein")) { mockCal = 550; mockProt = 8; }
+      
+      const guestNewItem = {
+        actualRowIndex: globalHistoryCache.length + 2,
+        date: activeSelectedDate,
+        time: new Date().toTimeString().substring(0,5),
+        rawInput: meal,
+        calories: mockCal,
+        protein: mockProt,
+        rowId: new Date().getTime()
+      };
+      
+      globalHistoryCache.push(guestNewItem);
+      showResult({ totalCalories: mockCal, totalProtein: mockProt, confidence: 0.98, foods: [{ name: meal, quantity: 1 }] });
+      processMetricsAndTimelineView();
+      loading.style.display = "none";
+      mealInput.value = "";
+    }, 600);
+    return;
+  }
+
+  // STANDARD PRODUCTION SYNC PIPELINE RUN
   try {
     const response = await fetch(`${API_URL}?meal=${encodeURIComponent(meal)}&customDate=${activeSelectedDate}`);
     if (!response.ok) throw new Error("HTTP failure");
@@ -98,15 +179,9 @@ async function logMeal() {
     const data = await response.json();
     if(data.history) {
       globalHistoryCache = data.history;
-      
       if (data.history.length > 0) {
         const lastEntry = data.history[data.history.length - 1];
-        showResult({
-          totalCalories: lastEntry.calories,
-          totalProtein: lastEntry.protein,
-          confidence: 0.95,
-          foods: [{ name: lastEntry.rawInput, quantity: 1 }]
-        });
+        showResult({ totalCalories: lastEntry.calories, totalProtein: lastEntry.protein, confidence: 0.95, foods: [{ name: lastEntry.rawInput, quantity: 1 }] });
       }
       processMetricsAndTimelineView();
     }
@@ -132,43 +207,34 @@ function showResult(data) {
 
   foodList.innerHTML = "";
   if (data.foods && Array.isArray(data.foods)) {
-    data.foods.forEach(f => {
-      foodList.innerHTML += "<li>" + f.quantity + " × " + f.name + "</li>";
-    });
+    data.foods.forEach(f => { foodList.innerHTML += "<li>" + f.quantity + " × " + f.name + "</li>"; });
   }
 }
 
 // ==========================================
-// FLEXIBLE DELETION FUNCTION WITH INDEX FALLBACK
+// DYNAMIC MODIFICATION ACTIONS ENGINE
 // ==========================================
 async function promptDeleteMeal(rowId, rowIndex) {
   if(!confirm("Are you sure you want to delete this logged meal?")) return;
   
+  if(isGuestModeActive) {
+    globalHistoryCache = globalHistoryCache.filter(item => item.rowId !== rowId);
+    processMetricsAndTimelineView();
+    return;
+  }
+  
   try {
     const response = await fetch(`${API_URL}?action=delete&rowId=${rowId}&rowIndex=${rowIndex}`);
     const result = await response.json();
-    if(result.success) {
-      loadDashboardOnStart();
-    } else {
-      alert("Delete transaction dropped by Google Cloud endpoint.");
-    }
-  } catch(err) {
-    alert("Connection Error on deletion query execution.");
-  }
+    if(result.success) { logBtn.click(); loadDashboardOnStart(); }
+  } catch(err) { alert("Connection Error on deletion query execution."); }
 }
 
-// ==========================================
-// QUICK INLINE ADJUSTMENT ENGINE WITH SYNC FIX
-// ==========================================
 function triggerAdjustMealPopup(rowId, rowIndex, currentText) {
   const newMealText = prompt("Adjust your logged entry descriptive metrics:", currentText);
   if (newMealText === null) return; 
-  
   const trimmed = newMealText.trim();
-  if (!trimmed) {
-    alert("Description cannot be empty.");
-    return;
-  }
+  if (!trimmed) return;
   executeMealAdjustment(rowId, rowIndex, trimmed);
 }
 
@@ -176,40 +242,40 @@ async function executeMealAdjustment(rowId, rowIndex, newText) {
   loading.style.display = "block";
   const activeSelectedDate = datePicker.value;
   
+  if(isGuestModeActive) {
+    // Local processing optimization hook
+    globalHistoryCache = globalHistoryCache.filter(item => item.rowId !== rowId);
+    let mockCal = 280; let mockProt = 10;
+    globalHistoryCache.push({
+      actualRowIndex: rowIndex, date: activeSelectedDate, time: new Date().toTimeString().substring(0,5),
+      rawInput: newText, calories: mockCal, protein: mockProt, rowId: rowId
+    });
+    processMetricsAndTimelineView();
+    loading.style.display = "none";
+    return;
+  }
+  
   try {
     const deleteResp = await fetch(`${API_URL}?action=delete&rowId=${rowId}&rowIndex=${rowIndex}`);
     const deleteJson = await deleteResp.json();
-    
     if(deleteJson.success) {
       const response = await fetch(`${API_URL}?meal=${encodeURIComponent(newText)}&customDate=${activeSelectedDate}`);
-      if (!response.ok) throw new Error("HTTP connection drop during overwrite script.");
-      
       const data = await response.json();
-      if(data.history) {
-        globalHistoryCache = data.history;
-        processMetricsAndTimelineView();
-      }
-    } else {
-      alert("Sheet baseline modifications rejected by Google Script Engine.");
+      if(data.history) { globalHistoryCache = data.history; processMetricsAndTimelineView(); }
     }
-  } catch(err) {
-    alert("Adjustment execution error details: " + err.message);
-  } finally {
-    loading.style.display = "none";
-  }
+  } catch(err) { alert("Adjustment execution fault."); }
+  finally { loading.style.display = "none"; }
 }
 
 // ==========================================
-// DYNAMIC COMPUTE FILTERS & TAB ANALYTICS 
+// ANALYTICS COMPUTE SYSTEM FILTERS
 // ==========================================
 function switchViewScope(scope) {
   currentFilterScope = scope;
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
   event.target.classList.add("active");
-  
   const titleMap = { "today": "Daily Progress", "weekly": "Weekly Summary Dashboard", "monthly": "Monthly View Metrics" };
   document.getElementById("dashboardScopeTitle").innerText = titleMap[scope];
-  
   processMetricsAndTimelineView();
 }
 
@@ -223,36 +289,28 @@ function filterTimelineByDate() {
 function processMetricsAndTimelineView() {
   const targetDateStr = datePicker.value; 
   const todayStr = new Date().toISOString().split('T')[0];
-
   let filteredList = [];
-  let sumCal = 0;
-  let sumProt = 0;
-  let calGoal = 2000;
-  let protGoal = 120;
-
+  let sumCal = 0; let sumProt = 0;
+  let calGoal = 2000; let protGoal = 120;
   const millisecondsInDay = 24 * 60 * 60 * 1000;
 
   globalHistoryCache.forEach(item => {
     const itemDate = new Date(item.date);
     const todayDate = new Date(todayStr);
     const dateDiff = (todayDate - itemDate) / millisecondsInDay;
-
     let match = false;
+    
     if (currentFilterScope === "today" && item.date === todayStr) match = true;
     else if (currentFilterScope === "date-specific" && item.date === targetDateStr) match = true;
     else if (currentFilterScope === "weekly" && dateDiff >= 0 && dateDiff < 7) { match = true; calGoal = 14000; protGoal = 840; }
     else if (currentFilterScope === "monthly" && dateDiff >= 0 && dateDiff < 30) { match = true; calGoal = 60000; protGoal = 3600; }
 
-    if (match) {
-      filteredList.push(item);
-      sumCal += item.calories;
-      sumProt += item.protein;
-    }
+    if (match) { filteredList.push(item); sumCal += item.calories; sumProt += item.protein; }
   });
 
   updateDashboard(sumCal, calGoal, sumProt, protGoal);
-
   timelineContainer.innerHTML = "";
+  
   if(filteredList.length === 0) {
     timelineContainer.innerHTML = "<p style='font-size:13px; color:#999; text-align:center; padding:20px;'>No logs tracked inside this analytical window.</p>";
     return;
@@ -264,19 +322,13 @@ function processMetricsAndTimelineView() {
       <div class="timeline-item">
         <div class="timeline-marker"></div>
         <div class="timeline-content">
-          
           <div class="timeline-actions">
-            <button class="action-icon-btn btn-adjust" data-tooltip="Adjust Meal" onclick="triggerAdjustMealPopup(${row.rowId}, ${row.actualRowIndex}, '${row.rawInput.replace(/'/g, "\\'")}')">
-              ✏️
-            </button>
-            <button class="action-icon-btn btn-delete" data-tooltip="Remove Meal" onclick="promptDeleteMeal(${row.rowId}, ${row.actualRowIndex})">
-              🗑️
-            </button>
+            <button class="action-icon-btn btn-adjust" data-tooltip="Adjust Meal" onclick="triggerAdjustMealPopup(${row.rowId}, ${row.actualRowIndex}, '${row.rawInput.replace(/'/g, "\\'")}')">✏️</button>
+            <button class="action-icon-btn btn-delete" data-tooltip="Remove Meal" onclick="promptDeleteMeal(${row.rowId}, ${row.actualRowIndex})">🗑️</button>
           </div>
-
           <div class="timeline-meta">
             <span class="timeline-time">${row.date} • ${row.time}</span>
-            <span class="timeline-tag">Logged</span>
+            <span class="timeline-tag">${isGuestModeActive ? "Sandbox" : "Logged"}</span>
           </div>
           <h4 class="timeline-title" style="margin-top:6px;">${row.rawInput}</h4>
           <p class="timeline-desc">${row.calories} kcal • ${row.protein}g Protein</p>
@@ -290,31 +342,16 @@ function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
   todayCalories.innerHTML = "<b>" + sumCal + " / " + calGoal + " kcal</b>";
   let calPercent = (sumCal / calGoal) * 100;
   calorieBar.style.width = Math.min(calPercent, 100) + "%";
-
-  if (sumCal > calGoal) {
-    calorieBar.style.backgroundColor = "#dc2626"; 
-  } else {
-    calorieBar.style.backgroundColor = "#16a34a"; 
-  }
+  calorieBar.style.backgroundColor = sumCal > calGoal ? "#dc2626" : "#16a34a";
 
   todayProtein.innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
   let protPercent = (sumProt / protGoal) * 100;
   proteinBar.style.width = Math.min(protPercent, 100) + "%";
+  proteinBar.style.backgroundColor = sumProt >= protGoal ? "#16a34a" : "#ea580c";
 
-  if (sumProt >= protGoal) {
-    proteinBar.style.backgroundColor = "#16a34a"; 
-  } else {
-    proteinBar.style.backgroundColor = "#ea580c"; 
-  }
-
-  const coachElement = document.getElementById("coach");
-  if (coachElement) {
-    if (sumCal > calGoal) {
-      coachElement.innerHTML = "⚠️ You are over your calorie goal today. Keep your next meal light and lean-protein rich.";
-    } else if (sumProt < (protGoal * 0.5)) {
-      coachElement.innerHTML = "💪 Protein intake is tracking low for this period. Consider adding clean sources like eggs, chicken, paneer, tofu, or dal.";
-    } else {
-      coachElement.innerHTML = "✅ You are doing beautifully today. Keep making balanced, clean whole-food choices.";
-    }
+  if (coach) {
+    if (sumCal > calGoal) coach.innerHTML = "⚠️ You are over your calorie goal today. Keep your next meal light.";
+    else if (sumProt < (protGoal * 0.5)) coach.innerHTML = "💪 Protein intake is tracking low. Add clean sources like eggs, chicken or paneer.";
+    else coach.innerHTML = "✅ You are doing beautifully today. Keep making balanced whole-food choices.";
   }
 }
