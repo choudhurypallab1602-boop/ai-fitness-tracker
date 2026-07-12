@@ -1,27 +1,31 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
 
-// 🔑 USERNAME & PASSWORD SETTINGS
+// 🔑 LOGIN CONFIGS
 const ALLOWED_USER = {
   username: "pallab",
   password: "123"
 };
 
 let globalHistoryCache = [];
-let currentFilterScope = "today"; 
 let isGuestModeActive = false; 
 let recognition;
 let isListening = false;
 
 window.addEventListener("load", () => {
+  // Bind standard clicks securely
   document.getElementById("loginBtn").addEventListener("click", handleLogin);
   document.getElementById("guestBtn").addEventListener("click", handleGuest);
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
-
-  document.getElementById("historyDatePicker").value = new Date().toISOString().split('T')[0];
+  
+  // Date Picker Sync
+  const picker = document.getElementById("historyDatePicker");
+  picker.value = new Date().toISOString().split('T')[0];
+  picker.addEventListener("change", processView);
 
   initializeVoice();
 
+  // Session recovery check
   const savedUser = sessionStorage.getItem("auth_user");
   if(savedUser) {
     activateDashboard(savedUser === "Guest", savedUser);
@@ -64,13 +68,13 @@ function activateDashboard(isGuest, name) {
   }
 }
 
-// 🎙️ FIXED: CONTINUOUS VOICE MICROPHONE RECOGNITION
+// 🎙️ CONTINUOUS MIC ENGINE (STAYS ON TILL YOU CHOOSE TO STOP IT)
 function initializeVoice() {
   if ("webkitSpeechRecognition" in window) {
     recognition = new webkitSpeechRecognition();
     recognition.lang = "en-IN";
-    recognition.continuous = true;       // Keeps mic on even during pauses
-    recognition.interimResults = false;   // Delivers only final clear text
+    recognition.continuous = true;       
+    recognition.interimResults = false;   
 
     const voiceBtn = document.getElementById("voiceBtn");
     const mealInput = document.getElementById("meal");
@@ -115,7 +119,7 @@ async function loadData() {
       globalHistoryCache = data.history; 
       processView();
     }
-  } catch (err) { console.log("Offline"); }
+  } catch (err) { console.log("Google sheet fetch failure."); }
 }
 
 async function logMeal() {
@@ -134,18 +138,19 @@ async function logMeal() {
       globalHistoryCache = data.history;
       processView();
     }
-  } catch (err) { alert("Error saving log."); }
+  } catch (err) { alert("Logging failed."); }
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
 function processView() {
   const container = document.querySelector(".timeline");
-  const today = new Date().toISOString().split('T')[0];
+  const selectedDate = document.getElementById("historyDatePicker").value;
+  
   let filtered = [];
   let cal = 0, prot = 0;
 
   globalHistoryCache.forEach(item => {
-    if (item.date === today) {
+    if (item.date === selectedDate) {
       filtered.push(item);
       cal += item.calories;
       prot += item.protein;
@@ -159,7 +164,7 @@ function processView() {
 
   container.innerHTML = "";
   if(filtered.length === 0) {
-    container.innerHTML = "<p style='font-size:12px;color:#999;text-align:center;'>No entries today.</p>";
+    container.innerHTML = "<p style='font-size:12px;color:#999;text-align:center;padding:12px;'>No entries recorded.</p>";
     return;
   }
   
