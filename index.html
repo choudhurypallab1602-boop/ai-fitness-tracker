@@ -3,101 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Pro</title>
+    <title>Aura Pro — Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="authScreen" class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Aura <span class="pro-badge">PRO</span></h1>
-                <p>Sign in to access your dashboard.</p>
+    <!-- Auth Screen Block -->
+    <div id="authScreen" class="auth-wrapper">
+        <div class="auth-panel">
+            <div class="auth-lead">
+                <div class="brand-emblem"><span>✦</span> Aura <span class="badge-pro">PRO</span></div>
+                <p>Sign in to access your minimalist workspace.</p>
             </div>
-            <div class="auth-form">
+            <div class="auth-fields">
                 <input type="text" id="authUsername" placeholder="Username">
                 <input type="password" id="authPassword" placeholder="Password">
-                <button id="loginBtn" class="btn-black">Sign In</button>
-                <div class="auth-divider"><span>OR</span></div>
-                <button id="guestBtn" class="btn-guest">Enter as Guest</button>
+                <button id="loginBtn" class="btn-primary">Sign In</button>
+                <div class="field-separator"><span>OR</span></div>
+                <button id="guestBtn" class="btn-secondary">Enter as Guest</button>
             </div>
         </div>
     </div>
 
-    <div id="mainDashboard" class="app-container" style="display: none;">
-        <div id="guestBanner" class="guest-alert-banner" style="display: none;">
-            Guest Mode Active (Data not synced).
-        </div>
-
-        <header class="main-header">
-            <div class="header-brand">
-                <h2>Aura <span class="pro-badge">PRO</span></h2>
-                <p>Logged in as: <span id="userDisplay" style="font-weight:700;">User</span></p>
+    <!-- Main Application Core Dashboard -->
+    <div id="mainDashboard" class="workspace-root" style="display: none;">
+        
+        <!-- Left Persistent Navigation Sidebar -->
+        <aside class="side-navigation">
+            <div class="side-top">
+                <div class="side-logo">
+                    <span class="logo-icon">✦</span>
+                    <span class="logo-text">Aura</span>
+                </div>
+                <nav class="nav-links">
+                    <button id="todayTabBtn" class="nav-item active">
+                        <span class="nav-icon">⌂</span> Home
+                    </button>
+                    <button id="weekTabBtn" class="nav-item">
+                        <span class="nav-icon">⌥</span> Journal
+                    </button>
+                    <button id="monthTabBtn" class="nav-item">
+                        <span class="nav-icon">✧</span> Coach
+                    </button>
+                </nav>
             </div>
-            <button id="logoutBtn" class="btn-logout">Logout</button>
-        </header>
-
-        <section class="card input-card">
-            <div class="input-wrapper">
-                <textarea id="meal" placeholder="Describe your meal..." rows="1"></textarea>
-                <div class="input-actions">
-                    <button id="voiceBtn" class="btn-voice">Speak</button>
-                    <button id="logBtn" class="btn-black-log">Log Meal</button>
+            <div class="side-bottom">
+                <div class="user-meta">
+                    <div class="avatar-thumb" id="userDisplay">P</div>
+                    <button id="logoutBtn" class="btn-icon-logout" title="Logout">Logout</button>
                 </div>
             </div>
-            <div id="loading" class="spinner-container" style="display: none; text-align: center; margin-top: 10px;">
-                <small style="color: #666;">Processing request...</small>
-            </div>
-        </section>
+        </aside>
 
-        <div class="navigation-bar">
-            <nav class="range-navigation">
-                <button id="todayTabBtn" class="tab-btn active">Today</button>
-                <button id="weekTabBtn" class="tab-btn">This Week</button>
-                <button id="monthTabBtn" class="tab-btn">This Month</button>
-            </nav>
-            <input type="date" id="historyDatePicker">
-        </div>
-
-        <main class="interaction-layout">
-            <div class="left-column">
-                <section class="card metrics-card">
-                    <h3 id="metricsTitle">Daily Progress</h3>
-                    <div class="metric-row">
-                        <div class="metric-labels">
-                            <span>Calories</span>
-                            <span id="todayCalories" class="metric-value">0 / 2000 kcal</span>
-                        </div>
-                        <div class="progress-bar-wrapper">
-                            <div id="calorieBar" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    <div class="metric-row">
-                        <div class="metric-labels">
-                            <span>Protein</span>
-                            <span id="todayProtein" class="metric-value">0 / 120 g</span>
-                        </div>
-                        <div class="progress-bar-wrapper">
-                            <div id="proteinBar" class="progress-fill"></div>
-                        </div>
-                    </div>
-                </section>
+        <!-- Main Fluid Content Workspace -->
+        <main class="content-container">
+            <div id="guestBanner" class="banner-alert" style="display: none;">
+                Guest Session — Local temporary environment active.
             </div>
 
-            <div class="right-column">
-                <section class="card coach-section">
-                    <div class="coach-header">
-                        <span class="info-icon">i</span>
-                        <h3>AI Coach</h3>
-                    </div>
-                    <div id="coach" class="coach-text">Ready to analyze.</div>
-                </section>
-                <section class="card timeline-card">
-                    <h3>Timeline Feed</h3>
-                    <div class="timeline"></div>
-                </section>
+            <!-- Two Column Split Master Grid Layout -->
+            <div class="split-workspace-grid">
+                
+                <!-- Left Main Column (2/3 Width Container) -->
+                <div class="workspace-left-column">
+                    
+                    <!-- Normalized Interactive Processing Input Bar -->
+                    <section class="log-input-card">
+                        <div class="log-input-group">
+                            <textarea id="meal" placeholder="Track breakfast, lunch or snack details..." rows="1"></textarea>
+                            <div class="log-input-controls">
+                                <button id="voiceBtn" class="btn-voice-trigger">
+                                    <span class="mic-glyph">🎤</span> <span class="voice-label">Speak</span>
+                                </button>
+                                <button id="logBtn" class="btn-action-submit">Log Meal</button>
+                            </div>
+                        </div>
+                        <div id="loading" class="processing-spinner" style="display: none;">
+                            <span class="spinner-dot"></span> Processing optimization rules...
+                        </div>
+                    </section>
+
+                    <!-- Radial Gauge Macro Matrix Card -->
+                    <section class="macro-gauge-card">
+                        <div class="card-header-minimal">
+                            <h3 id="metricsTitle">Daily Progress Matrix</h3>
+                            <input type="date" id="historyDatePicker" class="custom-date-ui">
+                        </div>
+                        
+                        <div class="radial-gauges-wrapper">
+                            <!-- Calories Radial Progress Ring -->
+                            <div class="gauge-component">
+                                <div class="radial-track-container">
+                                    <svg class="radial-gauge-svg" viewBox="0 0 120 120">
+                                        <circle class="gauge-bg-circle" cx="60" cy="60" r="50"></circle>
+                                        <circle id="calorieGaugeFill" class="gauge-fill-circle fill-calories" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"></circle>
+                                    </svg>
+                                    <div class="gauge-center-text">
+                                        <span id="todayCalories" class="gauge-val">0 kcal</span>
+                                        <span class="gauge-lbl">Kcal Target</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Protein Radial Progress Ring -->
+                            <div class="gauge-component">
+                                <div class="radial-track-container">
+                                    <svg class="radial-gauge-svg" viewBox="0 0 120 120">
+                                        <circle class="gauge-bg-circle" cx="60" cy="60" r="50"></circle>
+                                        <circle id="proteinGaugeFill" class="gauge-fill-circle fill-protein" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"></circle>
+                                    </svg>
+                                    <div class="gauge-center-text">
+                                        <span id="todayProtein" class="gauge-val">0 g</span>
+                                        <span class="gauge-lbl">Protein</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Premium Minimal Quick Log Panel -->
+                    <section class="quick-log-card">
+                        <div class="card-header-minimal">
+                            <h3>Quick Logging Matrix</h3>
+                        </div>
+                        <div class="quick-log-rows">
+                            <div class="quick-row" onclick="document.getElementById('meal').value='1 Whole fresh Banana'; document.getElementById('meal').focus();">
+                                <div class="quick-row-left">
+                                    <span class="quick-item-icon">🍌</span>
+                                    <span class="quick-item-name">Banana</span>
+                                </div>
+                                <span class="chevron-indicator">→</span>
+                            </div>
+                            <div class="quick-row" onclick="document.getElementById('meal').value='2 Boiled Whole Eggs'; document.getElementById('meal').focus();">
+                                <div class="quick-row-left">
+                                    <span class="quick-item-icon">🥚</span>
+                                    <span class="quick-item-name">Egg</span>
+                                </div>
+                                <span class="chevron-indicator">→</span>
+                            </div>
+                            <div class="quick-row" onclick="document.getElementById('meal').value='1 scoop Organic Whey Isolate Shake'; document.getElementById('meal').focus();">
+                                <div class="quick-row-left">
+                                    <span class="quick-item-icon">🥤</span>
+                                    <span class="quick-item-name">Whey Isolate Shake</span>
+                                </div>
+                                <span class="chevron-indicator">→</span>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Right Complementary Column (1/3 Width Timeline Tracker) -->
+                <div class="workspace-right-column">
+                    <section class="timeline-master-card">
+                        <div class="card-header-minimal">
+                            <h3>Daily Log Timeline</h3>
+                        </div>
+                        <div class="timeline-engine-track timeline">
+                            <!-- Dynamic Content Render Target -->
+                        </div>
+                    </section>
+                </div>
+
             </div>
         </main>
+
+        <!-- Docked Bottom-Right Minimalist AI Coach Toast Info Node -->
+        <div class="coach-toast-anchor">
+            <div class="coach-toast-card">
+                <div class="coach-toast-header">
+                    <span class="coach-pulse-icon">ℹ</span>
+                    <h4>Aura AI Systems Coach</h4>
+                </div>
+                <p id="coach" class="coach-toast-body">Ready to optimize macros. Standing by for meal entries...</p>
+            </div>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
