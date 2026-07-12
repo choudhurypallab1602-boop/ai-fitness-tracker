@@ -120,6 +120,9 @@ async function loadData() {
     const data = await res.json();
     if(data.history) {
       globalHistoryCache = data.history; 
+      if(data.coachResponse) {
+        document.getElementById("coach").innerText = data.coachResponse;
+      }
       processView();
     }
   } catch (err) { console.log("Google sheet fetch failure."); }
@@ -139,6 +142,9 @@ async function logMeal() {
     const data = await res.json();
     if(data.history) {
       globalHistoryCache = data.history;
+      if(data.coachResponse) {
+        document.getElementById("coach").innerText = data.coachResponse;
+      }
       processView();
     }
   } catch (err) { alert("Logging failed."); }
@@ -211,10 +217,25 @@ function processView() {
   });
 
   document.getElementById("todayCalories").innerText = cal + " / " + targetLimit + " kcal";
-  document.getElementById("calorieBar").style.width = Math.min((cal / targetLimit) * 100, 100) + "%";
+  const calBar = document.getElementById("calorieBar");
+  calBar.style.width = Math.min((cal / targetLimit) * 100, 100) + "%";
+  
+  // 🔥 OVER CALORIE DETECTION
+  if (cal > targetLimit) {
+    calBar.style.backgroundColor = "#ef4444"; 
+  } else {
+    calBar.style.backgroundColor = "#22c55e"; 
+  }
   
   document.getElementById("todayProtein").innerText = prot + " / " + proteinLimit + " g";
-  document.getElementById("proteinBar").style.width = Math.min((prot / proteinLimit) * 100, 100) + "%";
+  const proBar = document.getElementById("proteinBar");
+  proBar.style.width = Math.min((prot / proteinLimit) * 100, 100) + "%";
+  
+  if (prot > proteinLimit) {
+    proBar.style.backgroundColor = "#ef4444";
+  } else {
+    proBar.style.backgroundColor = "#3b82f6";
+  }
 
   container.innerHTML = "";
   if(filtered.length === 0) {
@@ -236,7 +257,6 @@ function processView() {
     const actionContainer = document.createElement("div");
     actionContainer.style.cssText = "display: flex; gap: 8px;";
 
-    // ✏️ EDIT BUTTON
     const editBtn = document.createElement("button");
     editBtn.innerText = "✏️";
     editBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px;";
@@ -246,7 +266,6 @@ function processView() {
       document.getElementById("meal").focus();
     });
 
-    // 🗑️ DELETE BUTTON WITH PREMIUM NO-BACKGROUND STYLE
     const delBtn = document.createElement("button");
     delBtn.innerText = "🗑️";
     delBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px;";
