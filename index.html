@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -55,9 +55,9 @@
 
         <div class="navigation-bar">
             <nav class="range-navigation">
-                <button class="tab-btn active" onclick="switchViewScope('today')">Today</button>
+                <button id="todayTabBtn" class="tab-btn active">Today</button>
             </nav>
-            <input type="date" id="historyDatePicker" onchange="filterTimelineByDate()">
+            <input type="date" id="historyDatePicker">
         </div>
 
         <main class="interaction-layout">
@@ -81,7 +81,7 @@
                     <div id="coach" class="coach-text">Ready to analyze.</div>
                 </section>
                 <section class="card timeline-card">
-                    <h3 id="dashboardScopeTitle">Timeline Feed</h3>
+                    <h3>Timeline Feed</h3>
                     <div class="timeline"></div>
                 </section>
             </div>
