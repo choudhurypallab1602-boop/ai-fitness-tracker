@@ -9,7 +9,7 @@ let globalHistoryCache = [];
 let isGuestModeActive = false; 
 let recognition;
 let isListening = false;
-let currentScope = 'today'; // Tracks 'today', 'week', or 'month'
+let currentScope = 'today'; 
 
 window.addEventListener("load", () => {
   document.getElementById("loginBtn").addEventListener("click", handleLogin);
@@ -17,10 +17,14 @@ window.addEventListener("load", () => {
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
   
+  // Tab click listeners binding
+  document.getElementById("todayTabBtn").addEventListener("click", () => switchViewScope('today'));
+  document.getElementById("weekTabBtn").addEventListener("click", () => switchViewScope('week'));
+  document.getElementById("monthTabBtn").addEventListener("click", () => switchViewScope('month'));
+
   const picker = document.getElementById("historyDatePicker");
   picker.value = new Date().toISOString().split('T')[0];
   
-  // When date picker changes, enforce today view tab active style
   picker.addEventListener("change", () => {
     switchViewScope('today');
   });
@@ -142,11 +146,9 @@ async function logMeal() {
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
-// 🌐 FUNCTION TO SWITCH TABS SAFELY
 function switchViewScope(scope) {
   currentScope = scope;
   
-  // Update Tab States Graphic UI Elements
   document.getElementById("todayTabBtn").classList.remove("active");
   document.getElementById("weekTabBtn").classList.remove("active");
   document.getElementById("monthTabBtn").classList.remove("active");
@@ -155,7 +157,6 @@ function switchViewScope(scope) {
   if(scope === 'week') document.getElementById("weekTabBtn").classList.add("active");
   if(scope === 'month') document.getElementById("monthTabBtn").classList.add("active");
 
-  // Dynamic Card Title Update
   const titleMap = { 'today': 'Daily Progress', 'week': 'Weekly total Progress', 'month': 'Monthly total Progress' };
   document.getElementById("metricsTitle").innerText = titleMap[scope];
 
@@ -174,14 +175,13 @@ function processView() {
   let filtered = [];
   let cal = 0, prot = 0;
 
-  // Range Math Targets
   let targetLimit = 2000; 
   let proteinLimit = 120;
 
   if (currentScope === 'week') { targetLimit = 14000; proteinLimit = 840; }
   if (currentScope === 'month') { targetLimit = 60000; proteinLimit = 3600; }
 
-  globalHistoryCache.forEach(item => {
+  globalHistoryCache.forEach((item, index) => {
     const itemDate = new Date(item.date);
     itemDate.setHours(0,0,0,0);
 
@@ -198,13 +198,12 @@ function processView() {
     }
 
     if (match) {
-      filtered.push(item);
+      filtered.push({ ...item, originalIndex: index });
       cal += item.calories;
       prot += item.protein;
     }
   });
 
-  // Render numbers cleanly
   document.getElementById("todayCalories").innerText = `${cal} / ${targetLimit} kcal`;
   document.getElementById("calorieBar").style.width = Math.min((cal / targetLimit) * 100, 100) + "%";
   
@@ -219,14 +218,41 @@ function processView() {
   
   filtered.reverse().forEach(row => {
     container.innerHTML += `
-      <div class="timeline-item" style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5;">
-        <small style="color:#999;">${row.date} • ${row.time}</small>
-        <h4 style="margin:2px 0; font-size:14px; font-weight:600;">${row.rawInput}</h4>
-        <small style="color:#666;">${row.calories} kcal • ${row.protein}g</small>
+      <div class="timeline-item" style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <small style="color:#999;">${row.date} • ${row.time}</small>
+          <h4 style="margin:2px 0; font-size:14px; font-weight:600;">${row.rawInput}</h4>
+          <small style="color:#666;">${row.calories} kcal • ${row.protein}g</small>
+        </div>
+        <button onclick="deleteMeal(${row.originalIndex})" style="background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 8px;" title="Delete Entry">🗑️</button>
       </div>`;
   });
 }
-// Add this event listeners snippet inside your window load or at the bottom of script.js
-document.getElementById("todayTabBtn").addEventListener("click", () => switchViewScope('today'));
-document.getElementById("weekTabBtn").addEventListener("click", () => switchViewScope('week'));
-document.getElementById("monthTabBtn").addEventListener("click", () => switchViewScope('month'));
+
+// 🗑️ DELETE METHOD FOR REMOVING LOGS
+async function deleteMeal(index) {
+  if(!confirm("Are you sure you want to delete this entry?")) return;
+
+  const loading = document.getElementById("loading");
+  if(loading) loading.style.display = "block";
+
+  if(isGuestModeActive) {
+    globalHistoryCache.splice(index, 1);
+    if(loading) loading.style.display = "none";
+    processView();
+  } else {
+    try {
+      const rowToDelete = index + 2; 
+      const res = await fetch(`${API_URL}?action=delete&row=${rowToDelete}`);
+      const data = await res.json();
+      if(data.history) {
+        globalHistoryCache = data.history;
+        processView();
+      }
+    } catch (err) { 
+      alert("Delete sync failed with Google Sheets."); 
+    } finally { 
+      if(loading) loading.style.display = "none"; 
+    }
+  }
+}
