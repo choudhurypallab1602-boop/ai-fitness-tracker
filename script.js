@@ -1,6 +1,5 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
 
-// 🔑 LOGIN CONFIGS
 const ALLOWED_USER = {
   username: "pallab",
   password: "123"
@@ -10,22 +9,24 @@ let globalHistoryCache = [];
 let isGuestModeActive = false; 
 let recognition;
 let isListening = false;
+let currentScope = 'today'; // Tracks 'today', 'week', or 'month'
 
 window.addEventListener("load", () => {
-  // Bind standard clicks securely
   document.getElementById("loginBtn").addEventListener("click", handleLogin);
   document.getElementById("guestBtn").addEventListener("click", handleGuest);
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
   
-  // Date Picker Sync
   const picker = document.getElementById("historyDatePicker");
   picker.value = new Date().toISOString().split('T')[0];
-  picker.addEventListener("change", processView);
+  
+  // When date picker changes, enforce today view tab active style
+  picker.addEventListener("change", () => {
+    switchViewScope('today');
+  });
 
   initializeVoice();
 
-  // Session recovery check
   const savedUser = sessionStorage.getItem("auth_user");
   if(savedUser) {
     activateDashboard(savedUser === "Guest", savedUser);
@@ -68,7 +69,6 @@ function activateDashboard(isGuest, name) {
   }
 }
 
-// 🎙️ CONTINUOUS MIC ENGINE (STAYS ON TILL YOU CHOOSE TO STOP IT)
 function initializeVoice() {
   if ("webkitSpeechRecognition" in window) {
     recognition = new webkitSpeechRecognition();
@@ -142,36 +142,85 @@ async function logMeal() {
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
+// 🌐 FUNCTION TO SWITCH TABS SAFELY
+function switchViewScope(scope) {
+  currentScope = scope;
+  
+  // Update Tab States Graphic UI Elements
+  document.getElementById("todayTabBtn").classList.remove("active");
+  document.getElementById("weekTabBtn").classList.remove("active");
+  document.getElementById("monthTabBtn").classList.remove("active");
+  
+  if(scope === 'today') document.getElementById("todayTabBtn").classList.add("active");
+  if(scope === 'week') document.getElementById("weekTabBtn").classList.add("active");
+  if(scope === 'month') document.getElementById("monthTabBtn").classList.add("active");
+
+  // Dynamic Card Title Update
+  const titleMap = { 'today': 'Daily Progress', 'week': 'Weekly total Progress', 'month': 'Monthly total Progress' };
+  document.getElementById("metricsTitle").innerText = titleMap[scope];
+
+  processView();
+}
+
 function processView() {
   const container = document.querySelector(".timeline");
-  const selectedDate = document.getElementById("historyDatePicker").value;
+  const selectedDateStr = document.getElementById("historyDatePicker").value;
   
+  if(!selectedDateStr) return;
+  
+  const targetDate = new Date(selectedDateStr);
+  targetDate.setHours(0,0,0,0);
+
   let filtered = [];
   let cal = 0, prot = 0;
 
+  // Range Math Targets
+  let targetLimit = 2000; 
+  let proteinLimit = 120;
+
+  if (currentScope === 'week') { targetLimit = 14000; proteinLimit = 840; }
+  if (currentScope === 'month') { targetLimit = 60000; proteinLimit = 3600; }
+
   globalHistoryCache.forEach(item => {
-    if (item.date === selectedDate) {
+    const itemDate = new Date(item.date);
+    itemDate.setHours(0,0,0,0);
+
+    let match = false;
+
+    if (currentScope === 'today') {
+      match = (item.date === selectedDateStr);
+    } else if (currentScope === 'week') {
+      const diffTime = targetDate - itemDate;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      match = (diffDays >= 0 && diffDays < 7);
+    } else if (currentScope === 'month') {
+      match = (itemDate.getMonth() === targetDate.getMonth() && itemDate.getFullYear() === targetDate.getFullYear());
+    }
+
+    if (match) {
       filtered.push(item);
       cal += item.calories;
       prot += item.protein;
     }
   });
 
-  document.getElementById("todayCalories").innerText = cal + " / 2000 kcal";
-  document.getElementById("calorieBar").style.width = Math.min((cal / 2000) * 100, 100) + "%";
-  document.getElementById("todayProtein").innerText = prot + " / 120 g";
-  document.getElementById("proteinBar").style.width = Math.min((prot / 120) * 100, 100) + "%";
+  // Render numbers cleanly
+  document.getElementById("todayCalories").innerText = `${cal} / ${targetLimit} kcal`;
+  document.getElementById("calorieBar").style.width = Math.min((cal / targetLimit) * 100, 100) + "%";
+  
+  document.getElementById("todayProtein").innerText = `${prot} / ${proteinLimit} g`;
+  document.getElementById("proteinBar").style.width = Math.min((prot / proteinLimit) * 100, 100) + "%";
 
   container.innerHTML = "";
   if(filtered.length === 0) {
-    container.innerHTML = "<p style='font-size:12px;color:#999;text-align:center;padding:12px;'>No entries recorded.</p>";
+    container.innerHTML = "<p style='font-size:12px;color:#999;text-align:center;padding:12px;'>No entries recorded for this range.</p>";
     return;
   }
   
   filtered.reverse().forEach(row => {
     container.innerHTML += `
-      <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5;">
-        <small style="color:#999;">${row.time}</small>
+      <div class="timeline-item" style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5;">
+        <small style="color:#999;">${row.date} • ${row.time}</small>
         <h4 style="margin:2px 0; font-size:14px; font-weight:600;">${row.rawInput}</h4>
         <small style="color:#666;">${row.calories} kcal • ${row.protein}g</small>
       </div>`;
