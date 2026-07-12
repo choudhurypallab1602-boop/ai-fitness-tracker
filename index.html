@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -54,9 +53,12 @@
             </div>
         </section>
 
+        <!-- Fixed Navigation tabs with Event Binding -->
         <div class="navigation-bar">
             <nav class="range-navigation">
-                <button id="todayTabBtn" class="tab-btn active">Today</button>
+                <button id="todayTabBtn" class="tab-btn active" onclick="switchViewScope('today')">Today</button>
+                <button id="weekTabBtn" class="tab-btn" onclick="switchViewScope('week')">This Week</button>
+                <button id="monthTabBtn" class="tab-btn" onclick="switchViewScope('month')">This Month</button>
             </nav>
             <input type="date" id="historyDatePicker">
         </div>
@@ -64,7 +66,7 @@
         <main class="interaction-layout">
             <div class="left-column">
                 <section class="card metrics-card">
-                    <h3>Daily Progress</h3>
+                    <h3 id="metricsTitle">Daily Progress</h3>
                     <div class="metric-row">
                         <div class="metric-labels">
                             <span>Calories</span>
