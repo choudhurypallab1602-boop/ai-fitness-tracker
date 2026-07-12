@@ -160,11 +160,7 @@
                             </div>
                         </section>
 
-                        <!-- Workspace Sticky Note Pad -->
-                        <section class="sticky-memo-card">
-                            <div class="card-header-minimal">
-                                <h3>Workspace Sticky Pad</h3>
-                                <span class="save-status" id="memoStatus">Autosaved</span>
+                       <span class="save-status" id="memoStatus">Autosaved</span>
                             </div>
                             <textarea id="dashboardMemo" placeholder="Write quick reminders, targets, or water goals here..." rows="3" class="memo-textarea"></textarea>
                         </section>
@@ -222,7 +218,14 @@
 
         </main>
     </div>
-
+<!-- Floating & Draggable Sticky Note Pad -->
+<div id="draggableSticky" class="sticky-memo-card floating-sticky">
+    <div class="card-header-minimal drag-handle" id="stickyHandle">
+        <h3>Sticky Pad (<span id="stickyDateLabel">Today</span>)</h3>
+        <span class="save-status" id="memoStatus">Saved</span>
+    </div>
+    <textarea id="dashboardMemo" placeholder="Write reminders for today..." rows="3" class="memo-textarea"></textarea>
+</div>
     <script src="script.js"></script>
 </body>
 </html>
