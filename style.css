@@ -94,10 +94,6 @@ textarea { flex: 1; border: none; resize: none; outline: none; font-size: 15px; 
 .quick-row-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; }
 .chevron-indicator { color: #94a3b8; font-size: 14px; }
 
-/* WORKSPACE STICKY NOTE PAD */
-.save-status { font-size: 11px; color: var(--teal-success); font-weight: 700; background: #ccfbf1; padding: 4px 10px; border-radius: 6px; }
-.memo-textarea { width: 100%; border: none; resize: none; outline: none; background: #fffbeb; border-radius: 12px; padding: 16px; font-size: 13px; color: #78350f; font-weight: 500; border-left: 4px solid #f59e0b; margin-top: 12px; font-family: inherit; line-height: 1.6; }
-
 /* ================= RIGHT TIMELINE STREAM ================= */
 .timeline-master-card { min-width: 340px; width: 100%; }
 .timeline-engine-track { display: flex; flex-direction: column; position: relative; padding-left: 8px; margin-top: 12px; }
@@ -135,3 +131,56 @@ textarea { flex: 1; border: none; resize: none; outline: none; font-size: 15px; 
 /* ANIMATION TIMELINES KEYFRAMES */
 @keyframes floatAnim { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes pulseGlow { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.35); opacity: 0; } }
+/* ================= FLOATING DRAGGABLE STICKY NOTE ================= */
+.floating-sticky {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 280px;
+    z-index: 9999;
+    background: #fffbeb !important;
+    border: 1px solid #fde68a !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    padding: 16px !important;
+    border-radius: 14px;
+    cursor: normal;
+    transition: box-shadow 0.2s;
+}
+
+.floating-sticky:active {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.drag-handle {
+    cursor: move; /* Drag cursor icon */
+    user-select: none;
+    background: #fef3c7;
+    margin: -16px -16px 12px -16px;
+    padding: 10px 16px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom: 1px solid #fde68a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drag-handle h3 {
+    font-size: 11px !important;
+    color: #92400e !important;
+}
+
+.floating-sticky .memo-textarea {
+    width: 100%;
+    border: none !important;
+    resize: none !important;
+    outline: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 13px;
+    color: #78350f;
+    font-family: inherit;
+    line-height: 1.5;
+    border-left: none !important;
+    margin-top: 0 !important;
+}
