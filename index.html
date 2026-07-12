@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Pro — Dashboard</title>
+    <title>Aura Pro Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Auth Screen Block -->
+    <!-- Authentication Area -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-panel">
             <div class="auth-lead">
                 <div class="brand-emblem"><span>✦</span> Aura <span class="badge-pro">PRO</span></div>
-                <p>Sign in to access your minimalist workspace.</p>
+                <p>Sign in to your premium minimal workspace.</p>
             </div>
             <div class="auth-fields">
                 <input type="text" id="authUsername" placeholder="Username">
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <!-- Main Application Core Dashboard -->
+    <!-- Core App Dashboard Workspace -->
     <div id="mainDashboard" class="workspace-root" style="display: none;">
         
         <!-- Left Persistent Navigation Sidebar -->
@@ -37,38 +37,32 @@
                     <span class="logo-text">Aura</span>
                 </div>
                 <nav class="nav-links">
-                    <button id="todayTabBtn" class="nav-item active">
-                        <span class="nav-icon">⌂</span> Home
-                    </button>
-                    <button id="weekTabBtn" class="nav-item">
-                        <span class="nav-icon">⌥</span> Journal
-                    </button>
-                    <button id="monthTabBtn" class="nav-item">
-                        <span class="nav-icon">✧</span> Coach
-                    </button>
+                    <button id="todayTabBtn" class="nav-item active"><span class="nav-icon">⌂</span> Home</button>
+                    <button id="weekTabBtn" class="nav-item"><span class="nav-icon">⌥</span> Journal</button>
+                    <button id="monthTabBtn" class="nav-item"><span class="nav-icon">✧</span> Coach</button>
                 </nav>
             </div>
             <div class="side-bottom">
                 <div class="user-meta">
-                    <div class="avatar-thumb" id="userDisplay">P</div>
-                    <button id="logoutBtn" class="btn-icon-logout" title="Logout">Logout</button>
+                    <div class="avatar-thumb" id="userDisplay">U</div>
+                    <button id="logoutBtn" class="btn-icon-logout">Logout</button>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Fluid Content Workspace -->
+        <!-- Main Workspace Viewport -->
         <main class="content-container">
             <div id="guestBanner" class="banner-alert" style="display: none;">
-                Guest Session — Local temporary environment active.
+                Guest Session — Temporary local sandbox mode active.
             </div>
 
-            <!-- Two Column Split Master Grid Layout -->
+            <!-- Dashboard Split Column System Grid -->
             <div class="split-workspace-grid">
                 
-                <!-- Left Main Column (2/3 Width Container) -->
+                <!-- Left Section (Inputs & Analytics Cards) -->
                 <div class="workspace-left-column">
                     
-                    <!-- Normalized Interactive Processing Input Bar -->
+                    <!-- Search Engine Input Bar -->
                     <section class="log-input-card">
                         <div class="log-input-group">
                             <textarea id="meal" placeholder="Track breakfast, lunch or snack details..." rows="1"></textarea>
@@ -80,11 +74,11 @@
                             </div>
                         </div>
                         <div id="loading" class="processing-spinner" style="display: none;">
-                            <span class="spinner-dot"></span> Processing optimization rules...
+                            <span class="spinner-dot"></span> Syncing metadata architecture...
                         </div>
                     </section>
 
-                    <!-- Radial Gauge Macro Matrix Card -->
+                    <!-- Radial Rings Segment Matrix Card -->
                     <section class="macro-gauge-card">
                         <div class="card-header-minimal">
                             <h3 id="metricsTitle">Daily Progress Matrix</h3>
@@ -92,7 +86,7 @@
                         </div>
                         
                         <div class="radial-gauges-wrapper">
-                            <!-- Calories Radial Progress Ring -->
+                            <!-- Calories Radial Progress System -->
                             <div class="gauge-component">
                                 <div class="radial-track-container">
                                     <svg class="radial-gauge-svg" viewBox="0 0 120 120">
@@ -106,7 +100,7 @@
                                 </div>
                             </div>
 
-                            <!-- Protein Radial Progress Ring -->
+                            <!-- Protein Radial Progress System -->
                             <div class="gauge-component">
                                 <div class="radial-track-container">
                                     <svg class="radial-gauge-svg" viewBox="0 0 120 120">
@@ -122,27 +116,27 @@
                         </div>
                     </section>
 
-                    <!-- Premium Minimal Quick Log Panel -->
+                    <!-- Quick Log Stream Component -->
                     <section class="quick-log-card">
                         <div class="card-header-minimal">
                             <h3>Quick Logging Matrix</h3>
                         </div>
                         <div class="quick-log-rows">
-                            <div class="quick-row" onclick="document.getElementById('meal').value='1 Whole fresh Banana'; document.getElementById('meal').focus();">
+                            <div class="quick-row" id="quickBanana">
                                 <div class="quick-row-left">
                                     <span class="quick-item-icon">🍌</span>
                                     <span class="quick-item-name">Banana</span>
                                 </div>
                                 <span class="chevron-indicator">→</span>
                             </div>
-                            <div class="quick-row" onclick="document.getElementById('meal').value='2 Boiled Whole Eggs'; document.getElementById('meal').focus();">
+                            <div class="quick-row" id="quickEgg">
                                 <div class="quick-row-left">
                                     <span class="quick-item-icon">🥚</span>
                                     <span class="quick-item-name">Egg</span>
                                 </div>
                                 <span class="chevron-indicator">→</span>
                             </div>
-                            <div class="quick-row" onclick="document.getElementById('meal').value='1 scoop Organic Whey Isolate Shake'; document.getElementById('meal').focus();">
+                            <div class="quick-row" id="quickWhey">
                                 <div class="quick-row-left">
                                     <span class="quick-item-icon">🥤</span>
                                     <span class="quick-item-name">Whey Isolate Shake</span>
@@ -151,17 +145,16 @@
                             </div>
                         </div>
                     </section>
-
                 </div>
 
-                <!-- Right Complementary Column (1/3 Width Timeline Tracker) -->
+                <!-- Right Section (Timeline Navigation Track) -->
                 <div class="workspace-right-column">
                     <section class="timeline-master-card">
                         <div class="card-header-minimal">
                             <h3>Daily Log Timeline</h3>
                         </div>
                         <div class="timeline-engine-track timeline">
-                            <!-- Dynamic Content Render Target -->
+                            <!-- JS Inject Target -->
                         </div>
                     </section>
                 </div>
@@ -169,7 +162,7 @@
             </div>
         </main>
 
-        <!-- Docked Bottom-Right Minimalist AI Coach Toast Info Node -->
+        <!-- Fixed Bottom Right AI Engine Alert -->
         <div class="coach-toast-anchor">
             <div class="coach-toast-card">
                 <div class="coach-toast-header">
