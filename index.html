@@ -3,142 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Pro - AI Fitness Tracker</title>
+    <title>Aura Pro</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- LOGIN LAYER -->
+    <!-- AUTH SCREEN -->
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
                 <h1>Aura <span class="pro-badge">PRO</span></h1>
-                <p>Enter your secure password to access your dashboard and sync live with Google Sheets.</p>
+                <p>Sign in to access your dashboard.</p>
             </div>
             <div class="auth-form">
-                <input type="password" id="authPassword" placeholder="Enter password..." autocomplete="current-password">
-                <button id="loginBtn" class="btn-black">Unlock Dashboard</button>
+                <input type="text" id="authUsername" placeholder="Username">
+                <input type="password" id="authPassword" placeholder="Password">
+                <button id="loginBtn" class="btn-black">Sign In</button>
                 <div class="auth-divider"><span>OR</span></div>
                 <button id="guestBtn" class="btn-guest">⚡ Enter as Guest</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP LAYER -->
+    <!-- MAIN DASHBOARD -->
     <div id="mainDashboard" class="app-container" style="display: none;">
-        
         <div id="guestBanner" class="guest-alert-banner" style="display: none;">
-            ⚠️ <b>Guest Mode Active:</b> Data is temporary and running in local memory.
+            ⚠️ Guest Mode Active (Data not synced).
         </div>
 
         <header class="main-header">
             <div class="header-brand">
                 <h2>Aura <span class="pro-badge">PRO</span></h2>
-                <p>Intelligent nutritional logging and multi-day historical dashboard tracking.</p>
+                <p>Logged in as: <span id="userDisplay" style="font-weight:700;">User</span></p>
             </div>
             <button id="logoutBtn" class="btn-logout">Logout 🚪</button>
         </header>
 
-        <!-- INPUT BOX FIELD -->
         <section class="card input-card">
             <div class="input-wrapper">
-                <textarea id="meal" placeholder="Describe your meal (e.g., '2 soft boiled eggs, 1 slice of sourdough toast')..." rows="1"></textarea>
+                <textarea id="meal" placeholder="Describe your meal..." rows="1"></textarea>
                 <div class="input-actions">
                     <button id="voiceBtn" class="btn-voice">🎤 Speak</button>
                     <button id="logBtn" class="btn-black-log">Log Meal</button>
                 </div>
             </div>
-            
-            <div id="loading" class="spinner-container" style="display: none;">
-                <div class="spinner"></div>
-                <p>AI Engine processing nutritional indexes...</p>
+            <div id="loading" class="spinner-container" style="display: none; text-align: center; margin-top: 10px;">
+                <small style="color: #666;">Syncing with Google Sheets...</small>
             </div>
         </section>
 
-        <!-- NAVIGATION RANGE AND DATE -->
         <div class="navigation-bar">
             <nav class="range-navigation">
                 <button class="tab-btn active" onclick="switchViewScope('today')">Today</button>
-                <button class="tab-btn" onclick="switchViewScope('weekly')">Weekly Summary</button>
-                <button class="tab-btn" onclick="switchViewScope('monthly')">Monthly View</button>
             </nav>
             <input type="date" id="historyDatePicker" onchange="filterTimelineByDate()">
         </div>
 
-        <!-- CORE INTERFACE ROW -->
         <main class="interaction-layout">
-            
-            <!-- LEFT COLUMN: PROGRESS & METRICS -->
             <div class="left-column">
                 <section class="card metrics-card">
                     <h3>Daily Progress</h3>
                     <div class="metric-row">
-                        <div class="metric-labels">
-                            <span>Calories</span>
-                            <span id="todayCalories" class="metric-value">0 / 2000 kcal</span>
-                        </div>
-                        <div class="progress-bar-wrapper">
-                            <div id="calorieBar" class="progress-fill"></div>
-                        </div>
+                        <div class="metric-labels"><span>Calories</span><span id="todayCalories" class="metric-value">0 / 2000 kcal</span></div>
+                        <div class="progress-bar-wrapper"><div id="calorieBar" class="progress-fill"></div></div>
                     </div>
-
                     <div class="metric-row">
-                        <div class="metric-labels">
-                            <span>Protein</span>
-                            <span id="todayProtein" class="metric-value">0 / 120 g</span>
-                        </div>
-                        <div class="progress-bar-wrapper">
-                            <div id="proteinBar" class="progress-fill"></div>
-                        </div>
+                        <div class="metric-labels"><span>Protein</span><span id="todayProtein" class="metric-value">0 / 120 g</span></div>
+                        <div class="progress-bar-wrapper"><div id="proteinBar" class="progress-fill"></div></div>
                     </div>
-                </section>
-
-                <!-- ANALYSIS RESULTS DISPLAY -->
-                <section id="result" class="card result-card" style="display: none;">
-                    <div class="result-header">
-                        <h3>Analysis</h3>
-                        <span id="confidence" class="confidence-badge">🎯 Confidence : 0%</span>
-                    </div>
-                    <div class="macro-blocks">
-                        <div class="macro-box box-calories">
-                            <span class="box-icon">🔥</span>
-                            <div>
-                                <h4 id="mealCalories">0 kcal</h4>
-                                <p>Meal Calories</p>
-                            </div>
-                        </div>
-                        <div class="macro-box box-protein">
-                            <span class="box-icon">💪</span>
-                            <div>
-                                <h4 id="mealProtein">0 g protein</h4>
-                                <p>Meal Protein</p>
-                            </div>
-                        </div>
-                    </div>
-                    <h4>IDENTIFIED BREAKDOWN</h4>
-                    <ul id="foodList" class="breakdown-list"></ul>
                 </section>
             </div>
 
-            <!-- RIGHT COLUMN: COACH & TIMELINE -->
             <div class="right-column">
                 <section class="card coach-section">
-                    <div class="coach-header">
-                        <span class="info-icon">ⓘ</span>
-                        <h3>AI Coach</h3>
-                    </div>
-                    <div id="coach" class="coach-text">
-                        Log your first meal to initialize live context-aware coaching feedback.
-                    </div>
+                    <div class="coach-header"><span class="info-icon">ⓘ</span><h3>AI Coach</h3></div>
+                    <div id="coach" class="coach-text">Ready to analyze.</div>
                 </section>
-
                 <section class="card timeline-card">
                     <h3 id="dashboardScopeTitle">Timeline Feed</h3>
                     <div class="timeline"></div>
                 </section>
             </div>
-
         </main>
     </div>
 
