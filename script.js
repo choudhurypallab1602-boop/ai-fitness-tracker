@@ -21,6 +21,11 @@ window.addEventListener("load", function() {
   document.getElementById("weekTabBtn").addEventListener("click", function() { switchViewScope('week'); });
   document.getElementById("monthTabBtn").addEventListener("click", function() { switchViewScope('month'); });
 
+  // Quick action listeners assignment
+  document.getElementById("quickBanana").addEventListener("click", function() { triggerQuickMacro("1 Whole fresh Banana"); });
+  document.getElementById("quickEgg").addEventListener("click", function() { triggerQuickMacro("2 Boiled Whole Eggs"); });
+  document.getElementById("quickWhey").addEventListener("click", function() { triggerQuickMacro("1 scoop Organic Whey Isolate Shake"); });
+
   const picker = document.getElementById("historyDatePicker");
   picker.value = new Date().toISOString().split('T')[0];
   picker.addEventListener("change", function() { switchViewScope('today'); });
@@ -32,6 +37,12 @@ window.addEventListener("load", function() {
     activateDashboard(savedUser === "Guest", savedUser);
   }
 });
+
+function triggerQuickMacro(text) {
+  const inputField = document.getElementById("meal");
+  inputField.value = text;
+  inputField.focus();
+}
 
 function handleLogin() {
   const u = document.getElementById("authUsername").value.trim().toLowerCase();
@@ -165,7 +176,7 @@ function updateRadialGauge(elementId, current, limit, overColor, baseColor) {
     el.style.stroke = baseColor;
   }
   const offset = circumference - (percent * circumference);
-  el.style.strokeDasharray = `${circumference} ${circumference}`;
+  el.style.strokeDasharray = circumference + " " + circumference;
   el.style.strokeDashoffset = offset;
 }
 
@@ -198,7 +209,14 @@ function processView() {
     }
 
     if (match) {
-      filtered.push({ ...item, originalIndex: index });
+      filtered.push({
+        date: item.date,
+        time: item.time,
+        rawInput: item.rawInput,
+        calories: item.calories,
+        protein: item.protein,
+        originalIndex: index
+      });
       cal += item.calories;
       prot += item.protein;
     }
@@ -207,7 +225,6 @@ function processView() {
   document.getElementById("todayCalories").innerText = cal + " / " + targetLimit + " kcal";
   document.getElementById("todayProtein").innerText = prot + " / " + proteinLimit + " g";
 
-  // 🔥 Update Radial SVG Rings mathematically
   updateRadialGauge("calorieGaugeFill", cal, targetLimit, "#ef4444", "#0d9488");
   updateRadialGauge("proteinGaugeFill", prot, proteinLimit, "#ef4444", "#6366f1");
 
@@ -226,8 +243,8 @@ function processView() {
         "<div class='node-meta-row'>" +
           "<span class='node-timestamp'>" + row.time + "</span>" +
           "<div class='node-crud-triggers'>" +
-            "<button class='action-trigger-btn' id='edit-"+row.originalIndex+"'>✏️</button>" +
-            "<button class='action-trigger-btn' id='del-"+row.originalIndex+"'>🗑️</button>" +
+            "<button class='action-trigger-btn' id='edit-" + row.originalIndex + "'>✏️</button>" +
+            "<button class='action-trigger-btn' id='del-" + row.originalIndex + "'>🗑️</button>" +
           "</div>" +
         "</div>" +
         "<h4 class='node-title-meal'>" + normalizeInputString(row.rawInput) + "</h4>" +
@@ -236,11 +253,11 @@ function processView() {
 
     container.appendChild(itemEl);
 
-    document.getElementById("edit-"+row.originalIndex).addEventListener("click", function() {
+    document.getElementById("edit-" + row.originalIndex).addEventListener("click", function() {
       document.getElementById("meal").value = row.rawInput;
       document.getElementById("meal").focus();
     });
-    document.getElementById("del-"+row.originalIndex).addEventListener("click", function() {
+    document.getElementById("del-" + row.originalIndex).addEventListener("click", function() {
       deleteMeal(row.originalIndex);
     });
   });
