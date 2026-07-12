@@ -12,23 +12,53 @@ let isListening = false;
 let currentScope = 'today'; 
 
 window.addEventListener("load", function() {
+  // Authentication Engine Handlers
   document.getElementById("loginBtn").addEventListener("click", handleLogin);
   document.getElementById("guestBtn").addEventListener("click", handleGuest);
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
   
-  document.getElementById("todayTabBtn").addEventListener("click", function() { switchViewScope('today'); });
-  document.getElementById("weekTabBtn").addEventListener("click", function() { switchViewScope('week'); });
-  document.getElementById("monthTabBtn").addEventListener("click", function() { switchViewScope('month'); });
+  // Navigation Router Switches
+  document.getElementById("menuHome").addEventListener("click", function() { routeToView('home'); });
+  document.getElementById("menuJournal").addEventListener("click", function() { routeToView('journal'); });
+  document.getElementById("menuCoach").addEventListener("click", function() { routeToView('coach'); });
 
-  // Quick action listeners assignment
+  // Quick Action Matrix Links
   document.getElementById("quickBanana").addEventListener("click", function() { triggerQuickMacro("1 Whole fresh Banana"); });
   document.getElementById("quickEgg").addEventListener("click", function() { triggerQuickMacro("2 Boiled Whole Eggs"); });
   document.getElementById("quickWhey").addEventListener("click", function() { triggerQuickMacro("1 scoop Organic Whey Isolate Shake"); });
 
+  // Segmented Pill Filtering Logic Loop
+  const pills = document.querySelectorAll(".segment-pills .pill-btn");
+  pills.forEach(function(pill) {
+    pill.addEventListener("click", function() {
+      pills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      currentScope = pill.getAttribute("data-scope");
+      
+      // Title Update dynamically
+      const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
+      document.getElementById("metricsTitle").innerText = titleMap[currentScope] || 'Progress Indicators';
+      processView();
+    });
+  });
+
+  // Sticky Pad Notepad Event Persistence Loop
+  const notepad = document.getElementById("dashboardMemo");
+  const memoStatus = document.getElementById("memoStatus");
+  
+  if(localStorage.getItem("aura_workspace_memo")) {
+    notepad.value = localStorage.getItem("aura_workspace_memo");
+  }
+  notepad.addEventListener("input", function() {
+    memoStatus.innerText = "Saving...";
+    localStorage.setItem("aura_workspace_memo", notepad.value);
+    setTimeout(() => { memoStatus.innerText = "Autosaved"; }, 800);
+  });
+
   const picker = document.getElementById("historyDatePicker");
   picker.value = new Date().toISOString().split('T')[0];
-  picker.addEventListener("change", function() { switchViewScope('today'); });
+  picker.addEventListener("change", function() { processView(); });
 
   initializeVoice();
 
@@ -37,6 +67,29 @@ window.addEventListener("load", function() {
     activateDashboard(savedUser === "Guest", savedUser);
   }
 });
+
+function routeToView(target) {
+  // Menu highlight updates
+  document.getElementById("menuHome").classList.remove("active");
+  document.getElementById("menuJournal").classList.remove("active");
+  document.getElementById("menuCoach").classList.remove("active");
+  
+  // Clean page targets toggle
+  document.getElementById("viewHome").style.display = "none";
+  document.getElementById("viewJournal").style.display = "none";
+  document.getElementById("viewCoach").style.display = "none";
+
+  if(target === 'home') {
+    document.getElementById("menuHome").classList.add("active");
+    document.getElementById("viewHome").style.display = "block";
+  } else if(target === 'journal') {
+    document.getElementById("menuJournal").classList.add("active");
+    document.getElementById("viewJournal").style.display = "block";
+  } else if(target === 'coach') {
+    document.getElementById("menuCoach").classList.add("active");
+    document.getElementById("viewCoach").style.display = "block";
+  }
+}
 
 function triggerQuickMacro(text) {
   const inputField = document.getElementById("meal");
@@ -122,11 +175,14 @@ async function loadData() {
     const res = await fetch(API_URL);
     const data = await res.json();
     if(data.history) globalHistoryCache = data.history; 
+    
+    // Inject speech system into dynamic companion window interface
     if(data.coach || data.coachResponse) {
-      document.getElementById("coach").innerText = data.coach || data.coachResponse;
+      const speechText = data.coach || data.coachResponse;
+      document.getElementById("coachCharacterSpeech").innerText = speechText;
     }
     processView();
-  } catch (err) { console.log("System data sync failure."); }
+  } catch (err) { console.log("System initialization data sync failure."); }
 }
 
 async function logMeal() {
@@ -142,25 +198,11 @@ async function logMeal() {
     const data = await res.json();
     if(data.history) globalHistoryCache = data.history;
     if(data.coach || data.coachResponse) {
-      document.getElementById("coach").innerText = data.coach || data.coachResponse;
+      document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
     }
     processView();
-  } catch (err) { alert("Logging engine sync fault."); }
+  } catch (err) { alert("Logging engine payload sync fault."); }
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
-}
-
-function switchViewScope(scope) {
-  currentScope = scope;
-  document.getElementById("todayTabBtn").classList.remove("active");
-  document.getElementById("weekTabBtn").classList.remove("active");
-  document.getElementById("monthTabBtn").classList.remove("active");
-  
-  if(scope === 'today') document.getElementById("todayTabBtn").classList.add("active");
-  if(scope === 'week') document.getElementById("weekTabBtn").classList.add("active");
-  if(scope === 'month') document.getElementById("monthTabBtn").classList.add("active");
-
-  document.getElementById("metricsTitle").innerText = scope === 'today' ? 'Daily Progress Matrix' : (scope === 'week' ? 'Weekly total Metrics' : 'Monthly total Metrics');
-  processView();
 }
 
 function updateRadialGauge(elementId, current, limit, overColor, baseColor) {
@@ -181,7 +223,8 @@ function updateRadialGauge(elementId, current, limit, overColor, baseColor) {
 }
 
 function processView() {
-  const container = document.querySelector(".timeline");
+  const homeTimeline = document.querySelector(".timeline");
+  const journalTimeline = document.querySelector(".journal-timeline-target");
   const selectedDateStr = document.getElementById("historyDatePicker").value;
   if(!selectedDateStr) return;
   
@@ -228,36 +271,49 @@ function processView() {
   updateRadialGauge("calorieGaugeFill", cal, targetLimit, "#ef4444", "#0d9488");
   updateRadialGauge("proteinGaugeFill", prot, proteinLimit, "#ef4444", "#6366f1");
 
-  container.innerHTML = "";
-  if(filtered.length === 0) {
-    container.innerHTML = "<div class='null-state-msg'>No entries registered in this selection scope.</div>";
+  // Render Layout Feed Function
+  renderTimelineDom(filtered, homeTimeline);
+  renderTimelineDom(filtered, journalTimeline);
+}
+
+function renderTimelineDom(dataset, targetContainer) {
+  if(!targetContainer) return;
+  targetContainer.innerHTML = "";
+  
+  if(dataset.length === 0) {
+    targetContainer.innerHTML = "<div class='null-state-msg'>No entries registered in this selection scope.</div>";
     return;
   }
   
-  filtered.reverse().forEach(function(row) {
+  // Create safe explicit copies to prevent double reversing references
+  let localCopy = dataset.slice().reverse();
+
+  localCopy.forEach(function(row) {
     const itemEl = document.createElement("div");
     itemEl.className = "timeline-node";
     
     itemEl.innerHTML = "<div class='node-dot-track'><span class='node-dot'></span></div>" +
-      "<div class='node-payload'>" +
+      "<div class='node-payload' style='width: 100%;'>" +
         "<div class='node-meta-row'>" +
           "<span class='node-timestamp'>" + row.time + "</span>" +
           "<div class='node-crud-triggers'>" +
-            "<button class='action-trigger-btn' id='edit-" + row.originalIndex + "'>✏️</button>" +
-            "<button class='action-trigger-btn' id='del-" + row.originalIndex + "'>🗑️</button>" +
+            "<button class='action-trigger-btn unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
+            "<button class='action-trigger-btn unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
           "</div>" +
         "</div>" +
-        "<h4 class='node-title-meal'>" + normalizeInputString(row.rawInput) + "</h4>" +
-        "<p class='node-macro-summary'>" + row.calories + " kcal  ·  " + row.protein + "g Protein</p>" +
+        "<div class='node-title-meal'>" + normalizeInputString(row.rawInput) + "</div>" +
+        "<p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:#64748b;'>" + row.calories + " kcal  ·  " + row.protein + "g Protein</p>" +
       "</div>";
 
-    container.appendChild(itemEl);
+    targetContainer.appendChild(itemEl);
 
-    document.getElementById("edit-" + row.originalIndex).addEventListener("click", function() {
+    // Context-independent target matching loops
+    itemEl.querySelector(".unique-edit-btn-" + row.originalIndex).addEventListener("click", function() {
       document.getElementById("meal").value = row.rawInput;
+      routeToView('home');
       document.getElementById("meal").focus();
     });
-    document.getElementById("del-" + row.originalIndex).addEventListener("click", function() {
+    itemEl.querySelector(".unique-del-btn-" + row.originalIndex).addEventListener("click", function() {
       deleteMeal(row.originalIndex);
     });
   });
@@ -278,10 +334,10 @@ async function deleteMeal(index) {
       const data = await res.json();
       if(data.history) globalHistoryCache = data.history;
       if(data.coach || data.coachResponse) {
-        document.getElementById("coach").innerText = data.coach || data.coachResponse;
+        document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
       }
       processView();
-    } catch (err) { alert("Delete pipeline drop error."); }
+    } catch (err) { alert("Delete pipeline drop synchronization error."); }
     finally { if(loading) loading.style.display = "none"; }
   }
 }
