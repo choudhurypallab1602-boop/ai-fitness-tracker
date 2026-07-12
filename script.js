@@ -121,9 +121,10 @@ async function loadData() {
     if(data.history) {
       globalHistoryCache = data.history; 
     }
-    // 🔥 Fix AI Coach setting text on first load
-    if(data.coach || data.coachResponse) {
-      document.getElementById("coach").innerText = data.coach || data.coachResponse;
+    if(data.coach) {
+      document.getElementById("coach").innerText = data.coach;
+    } else if(data.coachResponse) {
+      document.getElementById("coach").innerText = data.coachResponse;
     }
     processView();
   } catch (err) { console.log("Fetch failure."); }
@@ -144,9 +145,10 @@ async function logMeal() {
     if(data.history) {
       globalHistoryCache = data.history;
     }
-    // 🔥 Fix AI Coach setting text on log response
-    if(data.coach || data.coachResponse) {
-      document.getElementById("coach").innerText = data.coach || data.coachResponse;
+    if(data.coach) {
+      document.getElementById("coach").innerText = data.coach;
+    } else if(data.coachResponse) {
+      document.getElementById("coach").innerText = data.coachResponse;
     }
     processView();
   } catch (err) { alert("Logging failed."); }
@@ -196,7 +198,14 @@ function processView() {
     }
 
     if (match) {
-      filtered.push({ ...item, originalIndex: index });
+      filtered.push({ 
+        date: item.date, 
+        time: item.time, 
+        rawInput: item.rawInput, 
+        calories: item.calories, 
+        protein: item.protein, 
+        originalIndex: index 
+      });
       cal += item.calories;
       prot += item.protein;
     }
@@ -232,14 +241,12 @@ function processView() {
     const actionContainer = document.createElement("div");
     actionContainer.style.cssText = "display: flex; gap: 8px;";
 
-    // 🔥 FIX EDIT BUTTON
     const editBtn = document.createElement("button");
     editBtn.innerText = "✏️";
-    editBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px; transition: transform 0.2s;";
+    editBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px;";
     editBtn.addEventListener("click", function() {
-      const txtArea = document.getElementById("meal");
-      txtArea.value = row.rawInput;
-      txtArea.focus();
+      document.getElementById("meal").value = row.rawInput;
+      document.getElementById("meal").focus();
     });
 
     const delBtn = document.createElement("button");
@@ -272,8 +279,10 @@ async function deleteMeal(index) {
       if(data.history) {
         globalHistoryCache = data.history;
       }
-      if(data.coach || data.coachResponse) {
-        document.getElementById("coach").innerText = data.coach || data.coachResponse;
+      if(data.coach) {
+        document.getElementById("coach").innerText = data.coach;
+      } else if(data.coachResponse) {
+        document.getElementById("coach").innerText = data.coachResponse;
       }
       processView();
     } catch (err) { alert("Delete failed."); }
