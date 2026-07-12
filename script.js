@@ -226,3 +226,7 @@ function processView() {
       </div>`;
   });
 }
+// Add this event listeners snippet inside your window load or at the bottom of script.js
+document.getElementById("todayTabBtn").addEventListener("click", () => switchViewScope('today'));
+document.getElementById("weekTabBtn").addEventListener("click", () => switchViewScope('week'));
+document.getElementById("monthTabBtn").addEventListener("click", () => switchViewScope('month'));
