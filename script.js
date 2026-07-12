@@ -66,14 +66,12 @@ function executeInterfaceActivation(guestFlag) {
   
   if(isGuestModeActive) {
     document.getElementById("guestBanner").style.display = "block";
-    document.getElementById("userModeLabel").innerText = "Connected Engine: Sandbox Guest Mode Memory";
     globalHistoryCache = [
-      { actualRowIndex: 2, date: new Date().toISOString().split('T')[0], time: "08:30", rawInput: "Guest Demo: 3 Egg Whites & Oats", calories: 290, protein: 18, rowId: 10001 }
+      { actualRowIndex: 2, date: new Date().toISOString().split('T')[0], time: "22:20", rawInput: "Guest Demo: 2 aloo chop", calories: 380, protein: 7, rowId: 10001 }
     ];
     processMetricsAndTimelineView();
   } else {
     document.getElementById("guestBanner").style.display = "none";
-    document.getElementById("userModeLabel").innerText = "Connected Engine: Google Cloud Sync";
     loadDashboardOnStart();
   }
 }
@@ -106,7 +104,7 @@ async function loadDashboardOnStart() {
       globalHistoryCache = data.history; 
       processMetricsAndTimelineView();
     }
-  } catch (err) { console.log("Database fetch layout drop."); }
+  } catch (err) { console.log("Database fetch failed."); }
 }
 
 async function logMeal() {
@@ -116,20 +114,21 @@ async function logMeal() {
   if (!meal) { alert("Please enter a meal."); return; }
 
   const loading = document.getElementById("loading");
-  const resultCard = document.getElementById("result");
   const datePicker = document.getElementById("historyDatePicker");
   const activeSelectedDate = datePicker ? datePicker.value : new Date().toISOString().split('T')[0];
 
+  if(loading) loading.style.display = "block";
+
   if(isGuestModeActive) {
     setTimeout(() => {
-      let mockCal = 380; let mockProt = 14;
+      let mockCal = 440; let mockProt = 7;
       if (meal.toLowerCase().includes("egg")) { mockCal = 180; mockProt = 15; }
       
       globalHistoryCache.push({
         actualRowIndex: globalHistoryCache.length + 2, date: activeSelectedDate,
         time: new Date().toTimeString().substring(0,5), rawInput: meal, calories: mockCal, protein: mockProt, rowId: new Date().getTime()
       });
-      showResult({ totalCalories: mockCal, totalProtein: mockProt, confidence: 0.95, foods: [{ name: meal, quantity: 1 }] });
+      showResult({ totalCalories: mockCal, totalProtein: mockProt, confidence: 0.90, foods: [{ name: meal, quantity: 1 }] });
       processMetricsAndTimelineView();
       if(loading) loading.style.display = "none";
       mealInput.value = "";
@@ -137,7 +136,6 @@ async function logMeal() {
     return;
   }
 
-  if(loading) loading.style.display = "block";
   try {
     const response = await fetch(`${API_URL}?meal=${encodeURIComponent(meal)}&customDate=${activeSelectedDate}`);
     const data = await response.json();
@@ -145,11 +143,11 @@ async function logMeal() {
       globalHistoryCache = data.history;
       if (data.history.length > 0) {
         const lastEntry = data.history[data.history.length - 1];
-        showResult({ totalCalories: lastEntry.calories, totalProtein: lastEntry.protein, confidence: 0.95, foods: [{ name: lastEntry.rawInput, quantity: 1 }] });
+        showResult({ totalCalories: lastEntry.calories, totalProtein: lastEntry.protein, confidence: 0.90, foods: [{ name: lastEntry.rawInput, quantity: 1 }] });
       }
       processMetricsAndTimelineView();
     }
-  } catch (err) { alert("Error log point: " + err.message); }
+  } catch (err) { alert("Error logging meal: " + err.message); }
   finally { if(loading) loading.style.display = "none"; mealInput.value = ""; }
 }
 
@@ -158,8 +156,8 @@ function showResult(data) {
   if (!data || !resultCard) return;
   resultCard.style.display = "block";
   
-  if(document.getElementById("mealCalories")) document.getElementById("mealCalories").innerHTML = "🔥 <b>" + (data.totalCalories || 0) + "</b> kcal";
-  if(document.getElementById("mealProtein")) document.getElementById("mealProtein").innerHTML = "💪 <b>" + (data.totalProtein || 0) + "</b> g protein";
+  if(document.getElementById("mealCalories")) document.getElementById("mealCalories").innerHTML = (data.totalCalories || 0) + " kcal";
+  if(document.getElementById("mealProtein")) document.getElementById("mealProtein").innerHTML = (data.totalProtein || 0) + " g protein";
   if(document.getElementById("confidence")) document.getElementById("confidence").innerHTML = "🎯 Confidence : " + Math.round((data.confidence || 0) * 100) + "%";
 
   const foodList = document.getElementById("foodList");
@@ -170,7 +168,7 @@ function showResult(data) {
 }
 
 async function promptDeleteMeal(rowId, rowIndex) {
-  if(!confirm("Are you sure?")) return;
+  if(!confirm("Are you sure you want to delete this log?")) return;
   if(isGuestModeActive) {
     globalHistoryCache = globalHistoryCache.filter(item => item.rowId !== rowId);
     processMetricsAndTimelineView();
@@ -180,50 +178,14 @@ async function promptDeleteMeal(rowId, rowIndex) {
     const response = await fetch(`${API_URL}?action=delete&rowId=${rowId}&rowIndex=${rowIndex}`);
     const result = await response.json();
     if(result.success) { loadDashboardOnStart(); }
-  } catch(err) { alert("Deletion fault."); }
-}
-
-function triggerAdjustMealPopup(rowId, rowIndex, currentText) {
-  const newMealText = prompt("Adjust entry:", currentText);
-  if (newMealText === null) return; 
-  const trimmed = newMealText.trim();
-  if (!trimmed) return;
-  executeMealAdjustment(rowId, rowIndex, trimmed);
-}
-
-async function executeMealAdjustment(rowId, rowIndex, newText) {
-  const loading = document.getElementById("loading");
-  if(loading) loading.style.display = "block";
-  const datePicker = document.getElementById("historyDatePicker");
-  const activeSelectedDate = datePicker ? datePicker.value : new Date().toISOString().split('T')[0];
-  
-  if(isGuestModeActive) {
-    globalHistoryCache = globalHistoryCache.filter(item => item.rowId !== rowId);
-    globalHistoryCache.push({
-      actualRowIndex: rowIndex, date: activeSelectedDate, time: new Date().toTimeString().substring(0,5),
-      rawInput: newText, calories: 250, protein: 12, rowId: rowId
-    });
-    processMetricsAndTimelineView();
-    if(loading) loading.style.display = "none";
-    return;
-  }
-  try {
-    const deleteResp = await fetch(`${API_URL}?action=delete&rowId=${rowId}&rowIndex=${rowIndex}`);
-    const deleteJson = await deleteResp.json();
-    if(deleteJson.success) {
-      const response = await fetch(`${API_URL}?meal=${encodeURIComponent(newText)}&customDate=${activeSelectedDate}`);
-      const data = await response.json();
-      if(data.history) { globalHistoryCache = data.history; processMetricsAndTimelineView(); }
-    }
-  } catch(err) { alert("Adjustment execution fault."); }
-  finally { if(loading) loading.style.display = "none"; }
+  } catch(err) { alert("Deletion error."); }
 }
 
 function switchViewScope(scope) {
   currentFilterScope = scope;
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
   if(event && event.target) event.target.classList.add("active");
-  const titleMap = { "today": "Daily Progress", "weekly": "Weekly Summary Dashboard", "monthly": "Monthly View Metrics" };
+  const titleMap = { "today": "Timeline Feed", "weekly": "Weekly Summary Dashboard", "monthly": "Monthly View Metrics" };
   if(document.getElementById("dashboardScopeTitle")) document.getElementById("dashboardScopeTitle").innerText = titleMap[scope];
   processMetricsAndTimelineView();
 }
@@ -268,32 +230,29 @@ function processMetricsAndTimelineView() {
         <div class="timeline-marker"></div>
         <div class="timeline-content">
           <div class="timeline-actions">
-            <button class="action-icon-btn" onclick="triggerAdjustMealPopup(${row.rowId}, ${row.actualRowIndex}, '${row.rawInput.replace(/'/g, "\\'")}')">✏️</button>
-            <button class="action-icon-btn" onclick="promptDeleteMeal(${row.rowId}, ${row.actualRowIndex})">🗑️</button>
+            <button class="btn-remove" onclick="promptDeleteMeal(${row.rowId}, ${row.actualRowIndex})">Remove</button>
           </div>
-          <div class="timeline-meta"><span>${row.date} • ${row.time}</span></div>
-          <h4 style="margin:6px 0;">${row.rawInput}</h4>
-          <p style="margin:0;font-size:13px;color:#64748b;">${row.calories} kcal • ${row.protein}g Protein</p>
+          <div class="timeline-meta">${row.date} • ${row.time} <span>Logged</span></div>
+          <h4>${row.rawInput}</h4>
+          <p>${row.calories} kcal • ${row.protein}g Protein</p>
         </div>
       </div>`;
   }
 }
 
 function updateDashboard(sumCal, calGoal, sumProt, protGoal) {
-  if(document.getElementById("todayCalories")) document.getElementById("todayCalories").innerHTML = "<b>" + sumCal + " / " + calGoal + " kcal</b>";
+  if(document.getElementById("todayCalories")) document.getElementById("todayCalories").innerText = sumCal + " / " + calGoal + " kcal";
   if(document.getElementById("calorieBar")) {
     document.getElementById("calorieBar").style.width = Math.min((sumCal / calGoal) * 100, 100) + "%";
-    document.getElementById("calorieBar").style.backgroundColor = sumCal > calGoal ? "#dc2626" : "#16a34a";
   }
-  if(document.getElementById("todayProtein")) document.getElementById("todayProtein").innerHTML = "<b>" + sumProt + " / " + protGoal + " g</b>";
+  if(document.getElementById("todayProtein")) document.getElementById("todayProtein").innerText = sumProt + " / " + protGoal + " g";
   if(document.getElementById("proteinBar")) {
     document.getElementById("proteinBar").style.width = Math.min((sumProt / protGoal) * 100, 100) + "%";
-    document.getElementById("proteinBar").style.backgroundColor = sumProt >= protGoal ? "#16a34a" : "#ea580c";
   }
   const coach = document.getElementById("coach");
   if (coach) {
-    if (sumCal > calGoal) coach.innerHTML = "⚠️ You are over your calorie goal today.";
-    else if (sumProt < (protGoal * 0.5)) coach.innerHTML = "💪 Protein intake is tracking low.";
-    else coach.innerHTML = "✅ You are doing beautifully today.";
+    if(sumCal === 0) coach.innerHTML = "Log your first meal to initialize live context-aware coaching feedback.";
+    else if (sumCal > calGoal) coach.innerHTML = "You have crossed your optimal target calories limit for this structural frame.";
+    else coach.innerHTML = "Great job tracking! Your nutritional targets are perfectly aligned.";
   }
 }
