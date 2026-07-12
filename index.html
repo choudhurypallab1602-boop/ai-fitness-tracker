@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -65,19 +65,32 @@
                 <section class="card metrics-card">
                     <h3>Daily Progress</h3>
                     <div class="metric-row">
-                        <div class="metric-labels"><span>Calories</span><span id="todayCalories" class="metric-value">0 / 2000 kcal</span></div>
-                        <div class="progress-bar-wrapper"><div id="calorieBar" class="progress-fill"></div></div>
+                        <div class="metric-labels">
+                            <span>Calories</span>
+                            <span id="todayCalories" class="metric-value">0 / 2000 kcal</span>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div id="calorieBar" class="progress-fill"></div>
+                        </div>
                     </div>
                     <div class="metric-row">
-                        <div class="metric-labels"><span>Protein</span><span id="todayProtein" class="metric-value">0 / 120 g</span></div>
-                        <div class="progress-bar-wrapper"><div id="proteinBar" class="progress-fill"></div></div>
+                        <div class="metric-labels">
+                            <span>Protein</span>
+                            <span id="todayProtein" class="metric-value">0 / 120 g</span>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div id="proteinBar" class="progress-fill"></div>
+                        </div>
                     </div>
                 </section>
             </div>
 
             <div class="right-column">
                 <section class="card coach-section">
-                    <div class="coach-header"><span class="info-icon">ⓘ</span><h3>AI Coach</h3></div>
+                    <div class="coach-header">
+                        <span class="info-icon">ⓘ</span>
+                        <h3>AI Coach</h3>
+                    </div>
                     <div id="coach" class="coach-text">Ready to analyze.</div>
                 </section>
                 <section class="card timeline-card">
