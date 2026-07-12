@@ -233,16 +233,31 @@ function processView() {
         "<small style='color:#666;'>" + row.calories + " kcal * " + row.protein + "g</small>" +
       "</div>";
 
+    const actionContainer = document.createElement("div");
+    actionContainer.style.cssText = "display: flex; gap: 8px;";
+
+    // ✏️ EDIT BUTTON
+    const editBtn = document.createElement("button");
+    editBtn.innerText = "✏️";
+    editBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px;";
+    editBtn.title = "Edit Entry";
+    editBtn.addEventListener("click", function() {
+      document.getElementById("meal").value = row.rawInput;
+      document.getElementById("meal").focus();
+    });
+
+    // 🗑️ DELETE BUTTON WITH PREMIUM NO-BACKGROUND STYLE
     const delBtn = document.createElement("button");
-    delBtn.innerText = "Delete";
-    delBtn.style.cssText = "background: #ff4d4d; border: none; color: white; cursor: pointer; font-size: 11px; padding: 4px 8px; border-radius: 4px;";
+    delBtn.innerText = "🗑️";
+    delBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px;";
     delBtn.title = "Delete Entry";
-    
     delBtn.addEventListener("click", function() {
       deleteMeal(row.originalIndex);
     });
     
-    itemEl.appendChild(delBtn);
+    actionContainer.appendChild(editBtn);
+    actionContainer.appendChild(delBtn);
+    itemEl.appendChild(actionContainer);
     container.appendChild(itemEl);
   });
 }
