@@ -17,7 +17,7 @@ window.addEventListener("load", () => {
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
   
-  // Tab click listeners binding
+  // Tab Event Listeners
   document.getElementById("todayTabBtn").addEventListener("click", () => switchViewScope('today'));
   document.getElementById("weekTabBtn").addEventListener("click", () => switchViewScope('week'));
   document.getElementById("monthTabBtn").addEventListener("click", () => switchViewScope('month'));
@@ -217,19 +217,32 @@ function processView() {
   }
   
   filtered.reverse().forEach(row => {
-    container.innerHTML += `
-      <div class="timeline-item" style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <small style="color:#999;">${row.date} • ${row.time}</small>
-          <h4 style="margin:2px 0; font-size:14px; font-weight:600;">${row.rawInput}</h4>
-          <small style="color:#666;">${row.calories} kcal • ${row.protein}g</small>
-        </div>
-        <button onclick="deleteMeal(${row.originalIndex})" style="background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 8px;" title="Delete Entry">🗑️</button>
-      </div>`;
+    // 💡 Create elements dynamically to avoid browser blocking
+    const itemEl = document.createElement("div");
+    itemEl.className = "timeline-item";
+    itemEl.style.cssText = "margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center;";
+    
+    itemEl.innerHTML = `
+      <div>
+        <small style="color:#999;">${row.date} • ${row.time}</small>
+        <h4 style="margin:2px 0; font-size:14px; font-weight:600;">${row.rawInput}</h4>
+        <small style="color:#666;">${row.calories} kcal • ${row.protein}g</small>
+      </div>
+    `;
+
+    const delBtn = document.createElement("button");
+    delBtn.innerText = "🗑️";
+    delBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 8px;";
+    delBtn.title = "Delete Entry";
+    
+    // Safety Event Binding without inline html
+    delBtn.addEventListener("click", () => deleteMeal(row.originalIndex));
+    
+    itemEl.appendChild(delBtn);
+    container.appendChild(itemEl);
   });
 }
 
-// 🗑️ DELETE METHOD FOR REMOVING LOGS
 async function deleteMeal(index) {
   if(!confirm("Are you sure you want to delete this entry?")) return;
 
