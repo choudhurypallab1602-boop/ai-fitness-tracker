@@ -11,21 +11,20 @@ let recognition;
 let isListening = false;
 let currentScope = 'today'; 
 
-window.addEventListener("load", () => {
+window.addEventListener("load", function() {
   document.getElementById("loginBtn").addEventListener("click", handleLogin);
   document.getElementById("guestBtn").addEventListener("click", handleGuest);
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
   
-  // Tab Event Listeners
-  document.getElementById("todayTabBtn").addEventListener("click", () => switchViewScope('today'));
-  document.getElementById("weekTabBtn").addEventListener("click", () => switchViewScope('week'));
-  document.getElementById("monthTabBtn").addEventListener("click", () => switchViewScope('month'));
+  document.getElementById("todayTabBtn").addEventListener("click", function() { switchViewScope('today'); });
+  document.getElementById("weekTabBtn").addEventListener("click", function() { switchViewScope('week'); });
+  document.getElementById("monthTabBtn").addEventListener("click", function() { switchViewScope('month'); });
 
   const picker = document.getElementById("historyDatePicker");
   picker.value = new Date().toISOString().split('T')[0];
   
-  picker.addEventListener("change", () => {
+  picker.addEventListener("change", function() {
     switchViewScope('today');
   });
 
@@ -83,19 +82,19 @@ function initializeVoice() {
     const voiceBtn = document.getElementById("voiceBtn");
     const mealInput = document.getElementById("meal");
 
-    recognition.onstart = () => {
+    recognition.onstart = function() {
       isListening = true;
-      voiceBtn.innerHTML = "🛑 Stop Listening";
+      voiceBtn.innerHTML = "Stop Listening";
       voiceBtn.style.color = "red";
     };
 
-    recognition.onend = () => {
+    recognition.onend = function() {
       isListening = false;
-      voiceBtn.innerHTML = "🎤 Speak";
+      voiceBtn.innerHTML = "Speak";
       voiceBtn.style.color = "";
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = function(event) {
       let speechText = "";
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
@@ -107,7 +106,7 @@ function initializeVoice() {
       }
     };
 
-    voiceBtn.addEventListener("click", (e) => {
+    voiceBtn.addEventListener("click", function(e) {
       e.preventDefault();
       if (isListening) recognition.stop();
       else recognition.start();
@@ -136,7 +135,7 @@ async function logMeal() {
   const date = document.getElementById("historyDatePicker").value;
 
   try {
-    const res = await fetch(`${API_URL}?meal=${encodeURIComponent(meal)}&customDate=${date}`);
+    const res = await fetch(API_URL + "?meal=" + encodeURIComponent(meal) + "&customDate=" + date);
     const data = await res.json();
     if(data.history) {
       globalHistoryCache = data.history;
@@ -181,7 +180,7 @@ function processView() {
   if (currentScope === 'week') { targetLimit = 14000; proteinLimit = 840; }
   if (currentScope === 'month') { targetLimit = 60000; proteinLimit = 3600; }
 
-  globalHistoryCache.forEach((item, index) => {
+  globalHistoryCache.forEach(function(item, index) {
     const itemDate = new Date(item.date);
     itemDate.setHours(0,0,0,0);
 
@@ -198,16 +197,23 @@ function processView() {
     }
 
     if (match) {
-      filtered.push({ ...item, originalIndex: index });
+      filtered.push({ 
+        date: item.date, 
+        time: item.time, 
+        rawInput: item.rawInput, 
+        calories: item.calories, 
+        protein: item.protein, 
+        originalIndex: index 
+      });
       cal += item.calories;
       prot += item.protein;
     }
   });
 
-  document.getElementById("todayCalories").innerText = `${cal} / ${targetLimit} kcal`;
+  document.getElementById("todayCalories").innerText = cal + " / " + targetLimit + " kcal";
   document.getElementById("calorieBar").style.width = Math.min((cal / targetLimit) * 100, 100) + "%";
   
-  document.getElementById("todayProtein").innerText = `${prot} / ${proteinLimit} g`;
+  document.getElementById("todayProtein").innerText = prot + " / " + proteinLimit + " g";
   document.getElementById("proteinBar").style.width = Math.min((prot / proteinLimit) * 100, 100) + "%";
 
   container.innerHTML = "";
@@ -216,27 +222,25 @@ function processView() {
     return;
   }
   
-  filtered.reverse().forEach(row => {
-    // 💡 Create elements dynamically to avoid browser blocking
+  filtered.reverse().forEach(function(row) {
     const itemEl = document.createElement("div");
     itemEl.className = "timeline-item";
     itemEl.style.cssText = "margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center;";
     
-    itemEl.innerHTML = `
-      <div>
-        <small style="color:#999;">${row.date} • ${row.time}</small>
-        <h4 style="margin:2px 0; font-size:14px; font-weight:600;">${row.rawInput}</h4>
-        <small style="color:#666;">${row.calories} kcal • ${row.protein}g</small>
-      </div>
-    `;
+    itemEl.innerHTML = "<div>" +
+        "<small style='color:#999;'>" + row.date + " * " + row.time + "</small>" +
+        "<h4 style='margin:2px 0; font-size:14px; font-weight:600;'>" + row.rawInput + "</h4>" +
+        "<small style='color:#666;'>" + row.calories + " kcal * " + row.protein + "g</small>" +
+      "</div>";
 
     const delBtn = document.createElement("button");
-    delBtn.innerText = "🗑️";
-    delBtn.style.cssText = "background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 8px;";
+    delBtn.innerText = "Delete";
+    delBtn.style.cssText = "background: #ff4d4d; border: none; color: white; cursor: pointer; font-size: 11px; padding: 4px 8px; border-radius: 4px;";
     delBtn.title = "Delete Entry";
     
-    // Safety Event Binding without inline html
-    delBtn.addEventListener("click", () => deleteMeal(row.originalIndex));
+    delBtn.addEventListener("click", function() {
+      deleteMeal(row.originalIndex);
+    });
     
     itemEl.appendChild(delBtn);
     container.appendChild(itemEl);
@@ -256,7 +260,7 @@ async function deleteMeal(index) {
   } else {
     try {
       const rowToDelete = index + 2; 
-      const res = await fetch(`${API_URL}?action=delete&row=${rowToDelete}`);
+      const res = await fetch(API_URL + "?action=delete&row=" + rowToDelete);
       const data = await res.json();
       if(data.history) {
         globalHistoryCache = data.history;
