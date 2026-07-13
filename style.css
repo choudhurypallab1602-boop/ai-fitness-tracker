@@ -10,10 +10,23 @@
     --red-alert: #ef4444;
 }
 
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
+/* ================= RESET RULES ================= */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, textarea, input, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body { 
@@ -85,7 +98,13 @@ body {
     transition: all 0.15s; 
 }
 
-.nav-item:hover, .nav-item.active { 
+.nav-item:hover { 
+    background: #f1f5f9; 
+    color: var(--primary-txt); 
+    font-weight: 600; 
+}
+
+.nav-item.active { 
     background: #f1f5f9; 
     color: var(--primary-txt); 
     font-weight: 600; 
@@ -150,7 +169,13 @@ body {
     align-items: start; 
 }
 
-.workspace-left-column, .workspace-right-column { 
+.workspace-left-column { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 24px; 
+}
+
+.workspace-right-column { 
     display: flex; 
     flex-direction: column; 
     gap: 24px; 
@@ -305,7 +330,13 @@ textarea {
     margin-bottom: 8px; 
 }
 
-.calories-row-label, .protein-row-label { 
+.calories-row-label { 
+    font-size: 14px; 
+    font-weight: 600; 
+    color: #475569; 
+} 
+
+.protein-row-label { 
     font-size: 14px; 
     font-weight: 600; 
     color: #475569; 
@@ -588,7 +619,7 @@ textarea {
 }
 
 /* =========================================================================
-   🚨 ULTRA MOBILE & RESPONSIVE GRID OVERRIDES (ANTI-CROSS OVERLAP FIX)
+   🚨 RESPONSIVE GRID OVERRIDES (FLAT UN-NESTED STRUCTURE)
 ========================================================================= */
 @media (max-width: 1024px) {
     .workspace-root { 
@@ -656,7 +687,11 @@ textarea {
     .log-input-controls { 
         flex-direction: column; 
     }
-    .btn-action-submit, .btn-voice-trigger { 
+    .btn-action-submit { 
+        width: 100%; 
+        justify-content: center; 
+    }
+    .btn-voice-trigger { 
         width: 100%; 
         justify-content: center; 
     }
