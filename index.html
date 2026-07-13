@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Pro Workspace</title>
+    <title>Aura Workspace</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <!-- Authentication Area -->
-    <div id="authScreen" class="auth-wrapper">
+    <div id="authScreen" class="auth-wrapper" style="display: none;">
         <div class="auth-panel">
             <div class="auth-lead">
-                <div class="brand-emblem"><span>✦</span> Aura <span class="badge-pro">PRO</span></div>
-                <p>Sign in to your premium minimal workspace.</p>
+                <div class="brand-emblem"><span>✦</span> Aura</div>
+                <p>Sign in to your minimal workspace.</p>
             </div>
             <div class="auth-fields">
                 <input type="text" id="authUsername" placeholder="Username">
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Core App Dashboard Workspace -->
-    <div id="mainDashboard" class="workspace-root" style="display: none;">
+    <div id="mainDashboard" class="workspace-root">
         
         <!-- Left Persistent Navigation Sidebar -->
         <aside class="side-navigation">
@@ -83,48 +83,42 @@
                                 <textarea id="meal" placeholder="Track breakfast, lunch, or snack details..." rows="1"></textarea>
                                 <div class="log-input-controls">
                                     <button id="voiceBtn" class="btn-voice-trigger">
-                                        <span class="mic-glyph">🎤</span><span class="voice-label">Speak</span>
+                                        <span class="mic-glyph">🎤</span><span>Speak</span>
                                     </button>
                                     <button id="logBtn" class="btn-action-submit">Log Meal</button>
                                 </div>
                             </div>
                             <div id="loading" class="processing-spinner" style="display: none;">
-                                <span class="spinner-dot"></span> Syncing metadata architecture...
+                                <span class="spinner-dot"></span> Syncing metadata...
                             </div>
                         </section>
 
-                        <!-- Progress Gauges Elements -->
+                        <!-- Progress Linear System -->
                         <section class="macro-gauge-card">
                             <div class="card-header-minimal">
-                                <h3 id="metricsTitle">Daily Progress Matrix</h3>
+                                <h3>Daily Progress Matrix</h3>
                             </div>
                             
-                            <div class="radial-gauges-wrapper">
-                                <!-- Calories Radial Progress System -->
-                                <div class="gauge-component">
-                                    <div class="radial-track-container">
-                                        <svg class="radial-gauge-svg" viewBox="0 0 120 120">
-                                            <circle class="gauge-bg-circle" cx="60" cy="60" r="50"></circle>
-                                            <circle id="calorieGaugeFill" class="gauge-fill-circle fill-calories" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"></circle>
-                                        </svg>
-                                        <div class="gauge-center-text">
-                                            <span id="todayCalories" class="gauge-val">0 kcal</span>
-                                            <span class="gauge-lbl">Kcal Target</span>
-                                        </div>
+                            <div class="linear-metrics-grid">
+                                <!-- Calories Progress Element -->
+                                <div class="metric-progress-block">
+                                    <div class="metric-info-row">
+                                        <span class="metric-label">Calories Target</span>
+                                        <span class="metric-value-display"><strong id="todayCalories">0</strong> / 2000 kcal</span>
+                                    </div>
+                                    <div class="progress-bar-track">
+                                        <div id="calorieBarFill" class="progress-fill fill-calories" style="width: 0%;"></div>
                                     </div>
                                 </div>
 
-                                <!-- Protein Radial Progress System -->
-                                <div class="gauge-component">
-                                    <div class="radial-track-container">
-                                        <svg class="radial-gauge-svg" viewBox="0 0 120 120">
-                                            <circle class="gauge-bg-circle" cx="60" cy="60" r="50"></circle>
-                                            <circle id="proteinGaugeFill" class="gauge-fill-circle fill-protein" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"></circle>
-                                        </svg>
-                                        <div class="gauge-center-text">
-                                            <span id="todayProtein" class="gauge-val">0 g</span>
-                                            <span class="gauge-lbl">Protein</span>
-                                        </div>
+                                <!-- Protein Progress Element -->
+                                <div class="metric-progress-block">
+                                    <div class="metric-info-row">
+                                        <span class="metric-label">Protein Target</span>
+                                        <span class="metric-value-display"><strong id="todayProtein">0</strong> / 120 g</span>
+                                    </div>
+                                    <div class="progress-bar-track">
+                                        <div id="proteinBarFill" class="progress-fill fill-protein" style="width: 0%;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -137,44 +131,55 @@
                             </div>
                             <div class="quick-log-rows">
                                 <div class="quick-row" id="quickBanana">
-                                    <div class="quick-row-left">
-                                        <span class="quick-item-icon">🍌</span>
-                                        <span class="quick-item-name">Banana</span>
-                                    </div>
+                                    <div class="quick-row-left"><span>🍌</span><span>Banana</span></div>
                                     <span class="chevron-indicator">→</span>
                                 </div>
                                 <div class="quick-row" id="quickEgg">
-                                    <div class="quick-row-left">
-                                        <span class="quick-item-icon">🥚</span>
-                                        <span class="quick-item-name">Egg</span>
-                                    </div>
+                                    <div class="quick-row-left"><span>🥚</span><span>Egg</span></div>
                                     <span class="chevron-indicator">→</span>
                                 </div>
                                 <div class="quick-row" id="quickWhey">
-                                    <div class="quick-row-left">
-                                        <span class="quick-item-icon">🥤</span>
-                                        <span class="quick-item-name">Whey Isolate Shake</span>
-                                    </div>
+                                    <div class="quick-row-left"><span>🥤</span><span>Whey Isolate Shake</span></div>
                                     <span class="chevron-indicator">→</span>
                                 </div>
                             </div>
                         </section>
 
-                       <span class="save-status" id="memoStatus">Autosaved</span>
+                        <!-- Integrated Notepad Pad (Replaced Sticky Note) -->
+                        <section class="notepad-card">
+                            <div class="card-header-minimal">
+                                <h3>Daily Notes & Focus</h3>
+                                <span class="save-status" id="memoStatus">Saved</span>
                             </div>
-                            <textarea id="dashboardMemo" placeholder="Write quick reminders, targets, or water goals here..." rows="3" class="memo-textarea"></textarea>
+                            <textarea id="dashboardMemo" placeholder="Type here... updates are automatically linked to the selected date above." class="notepad-textarea"></textarea>
                         </section>
 
                     </div>
 
-                    <!-- Right Section: Chronological Timeline Feed -->
+                    <!-- Right Section: Persistent Timeline & Coach Info Stream -->
                     <div class="workspace-right-column">
+                        
+                        <!-- Inline Companion Engine -->
+                        <section class="companion-window">
+                            <div class="avatar-character-box">
+                                <div class="character-face-graphic">
+                                    <span>✨</span>
+                                </div>
+                                <div class="character-pulse-glow"></div>
+                            </div>
+                            <div class="companion-speech-bubble">
+                                <h3 class="character-title">Aura AI</h3>
+                                <p id="coachCharacterSpeech">Ready to target today's metrics. Speak or log your entry.</p>
+                            </div>
+                        </section>
+
+                        <!-- Chronological Timeline Feed -->
                         <section class="timeline-master-card">
                             <div class="card-header-minimal">
                                 <h3>Daily Log Timeline</h3>
                             </div>
                             <div class="timeline-engine-track timeline">
-                                <!-- Appends via JS Dynamic Render Loop -->
+                                <!-- Appends dynamically -->
                             </div>
                         </section>
                     </div>
@@ -189,10 +194,8 @@
                         <h2>Advanced Analytical Log Stream</h2>
                     </div>
                     <div class="journal-matrix-box">
-                        <p class="section-desc">Historical timeline record map of all incoming structural logs.</p>
-                        <div class="timeline-engine-track journal-timeline-target">
-                            <!-- JS Dynamic Clone Target Box -->
-                        </div>
+                        <p class="section-desc">Historical timeline record map.</p>
+                        <div class="timeline-engine-track journal-timeline-target"></div>
                     </div>
                 </div>
             </div>
@@ -200,32 +203,13 @@
             <!-- VIEW 3: INTERACTIVE CHARACTER ENGINE COMPANION -->
             <div id="viewCoach" class="app-view" style="display: none;">
                 <div class="companion-avatar-stage">
-                    <div class="companion-window">
-                        <div class="avatar-character-box">
-                            <div class="character-face-graphic">
-                                <div class="character-eyes">✨ ✨</div>
-                                <div class="character-mouth">✦</div>
-                            </div>
-                            <div class="character-pulse-glow"></div>
-                        </div>
-                        <div class="companion-speech-bubble">
-                            <h3 class="character-title">Aura Guardian V2</h3>
-                            <p id="coachCharacterSpeech">Hello! I am parsing your dashboard matrix inputs. Let's hit our goals together today!</p>
-                        </div>
-                    </div>
+                    <!-- Synced stage -->
                 </div>
             </div>
 
         </main>
     </div>
-<!-- Floating & Draggable Sticky Note Pad -->
-<div id="draggableSticky" class="sticky-memo-card floating-sticky">
-    <div class="card-header-minimal drag-handle" id="stickyHandle">
-        <h3>Sticky Pad (<span id="stickyDateLabel">Today</span>)</h3>
-        <span class="save-status" id="memoStatus">Saved</span>
-    </div>
-    <textarea id="dashboardMemo" placeholder="Write reminders for today..." rows="3" class="memo-textarea"></textarea>
-</div>
+
     <script src="script.js"></script>
 </body>
 </html>
