@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura — Macro & Progress Matrix</title>
     <style>
-        /* Modern Design System Tokens */
         :root {
             --bg-main: #f8fafc;
             --bg-card: #ffffff;
@@ -19,347 +18,51 @@
             --warning-bg: #fef3c7;
             --warning-text: #b45309;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        /* Main Dashboard Responsive Grid */
-        .dashboard-container {
-            width: 100%;
-            max-width: 1200px;
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 24px;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* App Header & Navigation Row */
-        .app-header {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-card);
-            padding: 16px 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-
-        .brand-title {
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-cluster {
-            display: flex;
-            gap: 8px;
-        }
-
-        .nav-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .nav-btn.active, .nav-btn:hover {
-            background: #f1f5f9;
-            color: var(--text-primary);
-            border-color: var(--border-color);
-        }
-
-        /* Sidebar Panels Layout */
-        .sidebar-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .panel-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-
-        .panel-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Memo Notepad */
-        .memo-textarea {
-            width: 100%;
-            height: 120px;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 13px;
-            resize: none;
-            outline: none;
-            color: var(--text-primary);
-            background: #f8fafc;
-        }
-
-        .memo-status-badge {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: var(--success-bg);
-            color: var(--success);
-            font-weight: 500;
-        }
-
-        /* Main Workspace Content Area */
-        .main-workspace {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Centralized Chrono Controller Bar */
-        .view-filter-segment-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-card);
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            gap: 16px;
-        }
-
-        .segment-pills {
-            display: flex;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 8px;
-        }
-
-        .pill-btn {
-            padding: 6px 18px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: transparent;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .pill-btn.active {
-            background: var(--accent) !important;
-            color: #ffffff !important;
-        }
-
-        .custom-date-ui {
-            padding: 6px 12px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-primary);
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        /* Metric Analytics Counter Cards */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .metric-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 12px;
-        }
-
-        .metric-val {
-            font-size: 28px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        /* Linear Progress Fill Rails */
-        .progress-rail {
-            width: 100%;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 99px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--accent);
-            border-radius: 99px;
-            transition: width 0.4s ease-out;
-        }
-
-        /* Dynamic Timeline Nodes */
-        .timeline, .journal-timeline-target {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .timeline-node {
-            display: flex;
-            gap: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 12px;
-            position: relative;
-        }
-
-        .node-payload {
-            flex-grow: 1;
-        }
-
-        .node-meta-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .node-timestamp {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .node-title-meal {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .node-crud-triggers button {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 2px 6px;
-            font-size: 14px;
-            transition: transform 0.1s;
-        }
-        
-        .node-crud-triggers button:active {
-            transform: scale(0.85);
-        }
-
-        /* Action Forms inputs */
-        .input-group {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .text-field {
-            flex-grow: 1;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            outline: none;
-            font-size: 14px;
-        }
-
-        .action-btn {
-            padding: 10px 20px;
-            background: var(--accent);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .action-btn:hover { background: var(--accent-hover); }
-
-        .quick-chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            background: #f1f5f9;
-            border-radius: 99px;
-            font-size: 13px;
-            cursor: pointer;
-            margin-right: 6px;
-            margin-top: 8px;
-            border: 1px solid transparent;
-        }
-
-        .quick-chip:hover { border-color: #cbd5e1; }
-
-        /* Auth Screen Shield Overlay */
-        #authScreen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .auth-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 32px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-primary); padding: 20px; display: flex; justify-content: center; }
+        .dashboard-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-top: 20px; }
+        @media (max-width: 1024px) { .dashboard-container { grid-template-columns: 1fr; } }
+        .app-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .brand-title { font-size: 20px; font-weight: 700; }
+        .nav-cluster { display: flex; gap: 8px; }
+        .nav-btn { padding: 8px 16px; font-size: 14px; font-weight: 500; background: transparent; border: 1px solid transparent; border-radius: 8px; color: var(--text-secondary); cursor: pointer; }
+        .nav-btn.active, .nav-btn:hover { background: #f1f5f9; color: var(--text-primary); border-color: var(--border-color); }
+        .sidebar-stack { display: flex; flex-direction: column; gap: 20px; }
+        .panel-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .panel-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .memo-textarea { width: 100%; height: 120px; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13px; resize: none; background: #f8fafc; }
+        .memo-status-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--success-bg); color: var(--success); }
+        .main-workspace { display: flex; flex-direction: column; gap: 20px; }
+        .view-filter-segment-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .segment-pills { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; }
+        .pill-btn { padding: 6px 18px; font-size: 13px; font-weight: 600; color: var(--text-secondary); background: transparent; border: none; border-radius: 6px; cursor: pointer; }
+        .pill-btn.active { background: var(--accent) !important; color: #ffffff !important; }
+        .custom-date-ui { padding: 6px 12px; font-size: 13px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .metric-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; }
+        .metric-val { font-size: 28px; font-weight: 700; margin-top: 4px; }
+        .progress-rail { width: 100%; height: 6px; background: #e2e8f0; border-radius: 99px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width 0.4s ease-out; }
+        .timeline, .journal-timeline-target { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .timeline-node { display: flex; gap: 16px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; }
+        .node-payload { flex-grow: 1; }
+        .node-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .node-timestamp { font-size: 12px; color: var(--text-secondary); }
+        .node-title-meal { font-size: 14px; font-weight: 600; }
+        .node-crud-triggers button { background: transparent; border: none; cursor: pointer; padding: 2px 6px; font-size: 14px; }
+        .input-group { display: flex; gap: 8px; margin-top: 10px; }
+        .text-field { flex-grow: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 14px; }
+        .action-btn { padding: 10px 20px; background: var(--accent); color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .quick-chip { display: inline-flex; align-items: center; padding: 6px 12px; background: #f1f5f9; border-radius: 99px; font-size: 13px; cursor: pointer; margin-right: 6px; margin-top: 8px; }
+        #authScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-main); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .auth-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 32px; border-radius: 16px; width: 100%; max-width: 400px; }
     </style>
 </head>
 <body>
 
-    <!-- SECTION 1: AUTHENTICATION CONTAINER -->
     <div id="authScreen">
         <div class="auth-card">
-            <h2 style="margin-bottom: 20px; font-weight: 800; letter-spacing: -0.5px;">✦ Sign in to Aura</h2>
+            <h2 style="margin-bottom: 20px; font-weight: 800;">✦ Sign in to Aura</h2>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <input type="text" id="authUsername" class="text-field" placeholder="Username">
                 <input type="password" id="authPassword" class="text-field" placeholder="Password">
@@ -369,10 +72,7 @@
         </div>
     </div>
 
-    <!-- SECTION 2: CORE APPLICATION DASHBOARD -->
     <div class="dashboard-container" id="mainDashboard" style="display: none;">
-        
-        <!-- Header Row -->
         <header class="app-header">
             <div class="brand-title">✦ Aura</div>
             <nav class="nav-cluster">
@@ -381,57 +81,40 @@
                 <button class="nav-btn" id="menuCoach">Coach</button>
             </nav>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span id="userDisplay" style="font-weight: 600; background: #eaeaea; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 14px;">U</span>
+                <span id="userDisplay" style="font-weight: 600; background: #eaeaea; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">U</span>
                 <button id="logoutBtn" style="font-size:12px; background:none; border:none; color:var(--text-secondary); cursor:pointer;">Logout</button>
             </div>
         </header>
 
-        <!-- Left Column: Sidebars -->
         <aside class="sidebar-stack">
-            <!-- Guest Mode Alert Banner -->
-            <div class="panel-card" id="guestBanner" style="display:none; background: #fffbeb; border-color:#fef08a; color:#b45309; font-size:13px; font-weight:500;">
-                ⚠️ Running on Sandbox Mode. Data persistence is limited to active memory.
-            </div>
-
-            <!-- Notes Panel -->
+            <div class="panel-card" id="guestBanner" style="display:none; background: #fffbeb; color:#b45309; font-size:13px;">⚠️ Sandbox Mode active.</div>
             <div class="panel-card">
-                <div class="panel-title">
-                    <span>DAILY NOTEPAD</span>
-                    <span id="memoStatus" class="memo-status-badge">Saved</span>
-                </div>
-                <textarea id="dashboardMemo" class="memo-textarea" placeholder="Draft reflections, routine configurations or tasks..."></textarea>
+                <div class="panel-title"><span>DAILY NOTEPAD</span><span id="memoStatus" class="memo-status-badge">Saved</span></div>
+                <textarea id="dashboardMemo" class="memo-textarea" placeholder="Draft notes..."></textarea>
             </div>
-
-            <!-- Macro Reference Cards -->
             <div class="panel-card">
                 <div class="panel-title">QUICK LOG MATRIX</div>
-                <div class="quick-chip" id="quickBanana">🍌 1 Whole Banana</div>
-                <div class="quick-chip" id="quickEgg">🥚 2 Whole Eggs</div>
-                <div class="quick-chip" id="quickWhey">🥛 1 Scoop Whey</div>
+                <div class="quick-chip" id="quickBanana">🍌 Banana</div>
+                <div class="quick-chip" id="quickEgg">🥚 2 Eggs</div>
+                <div class="quick-chip" id="quickWhey">🥛 Whey</div>
             </div>
         </aside>
 
-        <!-- Right Column: Main Dynamic Viewboards -->
         <main class="main-workspace">
-            
-            <!-- Unified Dynamic Filter Bar Section -->
             <div class="view-filter-segment-bar">
                 <div class="segment-pills">
                     <button class="pill-btn active" data-scope="today">Daily</button>
                     <button class="pill-btn" data-scope="week">Weekly</button>
                     <button class="pill-btn" data-scope="month">Monthly</button>
                 </div>
-                <div class="chrono-pickers-wrapper">
+                <div>
                     <input type="date" id="historyDatePicker" class="custom-date-ui">
                     <input type="month" id="historyMonthPicker" class="custom-date-ui" style="display: none;">
                 </div>
             </div>
 
-            <!-- Dynamic Subviews Module Container -->
             <div id="viewHome">
                 <h3 id="metricsTitle" style="margin-bottom: 12px; font-weight: 700;">Daily Progress Matrix</h3>
-                
-                <!-- Macro Track Counters -->
                 <div class="metrics-grid">
                     <div class="metric-card">
                         <span style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">CALORIES LOGGED</span>
@@ -445,45 +128,30 @@
                     </div>
                 </div>
 
-                <!-- Input Console Box -->
                 <div class="panel-card" style="margin-top: 20px;">
-                    <div class="panel-title">LOG NEW MEAL OR DIET COMPONENT</div>
+                    <div class="panel-title">LOG NEW MEAL</div>
                     <div class="input-group">
-                        <input type="text" id="meal" class="text-field" placeholder="Try typing '1 cup oats with milk and 10 almonds'...">
-                        <button id="voiceBtn" class="action-btn" style="background:#f1f5f9; color:var(--text-primary); border:1px solid var(--border-color); font-weight:500;">
-                            🎙️ <span class="voice-label">Speak</span>
-                        </button>
+                        <input type="text" id="meal" class="text-field" placeholder="Type food details...">
+                        <button id="voiceBtn" class="action-btn" style="background:#f1f5f9; color:var(--text-primary);">🎙️ <span class="voice-label">Speak</span></button>
                         <button id="logBtn" class="action-btn">Log Meal</button>
                     </div>
                     <div id="loading" style="display:none; font-size:12px; color:var(--text-secondary); margin-top:8px;">✦ Processing...</div>
                 </div>
 
-                <!-- Time-Series Node Chain -->
                 <div style="margin-top: 24px;">
                     <h4 style="font-size:14px; font-weight:700; margin-bottom:12px; color:var(--text-secondary);">ACTIVITY LOG TIMELINE</h4>
                     <div class="timeline"></div>
                 </div>
             </div>
 
-            <div id="viewJournal" style="display: none;">
-                <h3 style="margin-bottom: 12px; font-weight: 700;">Complete Analytical Journal</h3>
-                <div class="journal-timeline-target"></div>
-            </div>
-
-            <div id="viewCoach" style="display: none;">
-                <h3 style="margin-bottom: 12px; font-weight: 700;">Aura AI System Coach</h3>
-                <div class="panel-card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-                    <p id="coachCharacterSpeech" style="font-size: 15px; line-height: 1.6; font-weight: 500; color: #334155;">Ready to target today's metrics.</p>
-                </div>
-            </div>
-
+            <div id="viewJournal" style="display: none;"><h3 style="margin-bottom: 12px;">Analytical Journal</h3><div class="journal-timeline-target"></div></div>
+            <div id="viewCoach" style="display: none;"><h3 style="margin-bottom: 12px;">Aura AI Coach</h3><div class="panel-card"><p id="coachCharacterSpeech">System Ready.</p></div></div>
         </main>
     </div>
 
-    <!-- SECTION 3: APP CODE SCRIPT ENGINE -->
     <script>
-        // UPDATED DYNAMIC ENDPOINT
-        const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
+        // PASTE YOUR NEW DEPLOYMENT URL HERE BELOW
+        const API_URL = "YOUR_NEW_DEPLOYMENT_URL_HERE";
         const ALLOWED_USER = { username: "pallab", password: "123" };
 
         let globalHistoryCache = [];
@@ -515,7 +183,6 @@
                     e.preventDefault();
                     pills.forEach(p => p.classList.remove("active"));
                     this.classList.add("active");
-                    
                     currentScope = this.getAttribute("data-scope");
                     
                     if (currentScope === 'month') {
@@ -531,11 +198,6 @@
                         if(monthPicker) monthPicker.style.display = "none";
                         if(dailyPicker) dailyPicker.style.display = "block";
                     }
-                    
-                    const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
-                    const metricsTitle = document.getElementById("metricsTitle");
-                    if(metricsTitle) metricsTitle.innerText = titleMap[currentScope] || 'Progress Indicators';
-                    
                     processView();
                 });
             });
@@ -547,53 +209,33 @@
                     const adjustedDate = new Date(localToday.getTime() - (offset * 60 * 1000));
                     dailyPicker.value = adjustedDate.toISOString().split('T')[0];
                 }
-                dailyPicker.addEventListener("change", function() { 
-                    processView(); 
-                    loadDailyMemo(); 
-                });
+                dailyPicker.addEventListener("change", function() { processView(); loadDailyMemo(); });
             }
-
-            if (monthPicker) {
-                monthPicker.addEventListener("change", processView);
-            }
+            if (monthPicker) monthPicker.addEventListener("change", processView);
 
             const notepad = document.getElementById("dashboardMemo");
             if (notepad) notepad.addEventListener("input", saveDailyMemo);
 
             initializeVoice();
-
             const savedUser = sessionStorage.getItem("auth_user");
             if(savedUser) activateDashboard(savedUser === "Guest", savedUser);
-            
             loadDailyMemo();
         });
 
         function routeToView(target) {
-            const tabs = ['menuHome', 'menuJournal', 'menuCoach'];
-            const views = ['viewHome', 'viewJournal', 'viewCoach'];
-            
-            tabs.forEach(t => document.getElementById(t)?.classList.remove("active"));
-            views.forEach(v => { const el = document.getElementById(v); if(el) el.style.display = "none"; });
-
+            ['menuHome', 'menuJournal', 'menuCoach'].forEach(t => document.getElementById(t)?.classList.remove("active"));
+            ['viewHome', 'viewJournal', 'viewCoach'].forEach(v => { const el = document.getElementById(v); if(el) el.style.display = "none"; });
             if(target === 'home') { document.getElementById("menuHome")?.classList.add("active"); document.getElementById("viewHome").style.display = "block"; }
             if(target === 'journal') { document.getElementById("menuJournal")?.classList.add("active"); document.getElementById("viewJournal").style.display = "block"; }
             if(target === 'coach') { document.getElementById("menuCoach")?.classList.add("active"); document.getElementById("viewCoach").style.display = "block"; }
         }
 
-        function triggerQuickMacro(text) {
-            const inputField = document.getElementById("meal");
-            if(inputField) { inputField.value = text; inputField.focus(); }
-        }
-
+        function triggerQuickMacro(text) { const mb = document.getElementById("meal"); if(mb) { mb.value = text; mb.focus(); } }
         function handleLogin() {
             const u = document.getElementById("authUsername").value.trim().toLowerCase();
             const p = document.getElementById("authPassword").value.trim();
-            if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) {
-                sessionStorage.setItem("auth_user", u);
-                activateDashboard(false, u);
-            } else { alert("Incorrect Credentials."); }
+            if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) { sessionStorage.setItem("auth_user", u); activateDashboard(false, u); } else { alert("Error."); }
         }
-
         function handleGuest() { sessionStorage.setItem("auth_user", "Guest"); activateDashboard(true, "Guest"); }
         function handleLogout() { sessionStorage.clear(); window.location.reload(); }
 
@@ -602,45 +244,23 @@
             document.getElementById("authScreen").style.display = "none";
             const mainDash = document.getElementById("mainDashboard");
             mainDash.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
-            if(document.getElementById("userDisplay") && name) document.getElementById("userDisplay").innerText = name.substring(0,1).toUpperCase();
-
-            if(isGuestModeActive) {
-                document.getElementById("guestBanner").style.display = "block";
-                processView();
-            } else { loadData(); }
+            if(isGuestModeActive) { document.getElementById("guestBanner").style.display = "block"; processView(); } else { loadData(); }
         }
 
-        function normalizeInputString(str) {
-            if(!str) return "";
-            let clean = str.trim().toLowerCase();
-            return clean.charAt(0).toUpperCase() + clean.slice(1);
-        }
+        function normalizeInputString(str) { return str ? str.trim().charAt(0).toUpperCase() + str.trim().slice(1) : ""; }
 
         function initializeVoice() {
             if ("webkitSpeechRecognition" in window) {
                 recognition = new webkitSpeechRecognition();
-                recognition.lang = "en-IN"; recognition.continuous = true; recognition.interimResults = false;   
-                const voiceBtn = document.getElementById("voiceBtn");
-                const mealInput = document.getElementById("meal");
-
-                recognition.onstart = function() {
-                    isListening = true;
-                    if(voiceBtn.querySelector('.voice-label')) voiceBtn.querySelector('.voice-label').innerText = "Stop";
-                    voiceBtn.style.background = "#fee2e2";
-                };
-                recognition.onend = function() {
-                    isListening = false;
-                    if(voiceBtn.querySelector('.voice-label')) voiceBtn.querySelector('.voice-label').innerText = "Speak";
-                    voiceBtn.style.background = "#f1f5f9";
-                };
+                recognition.lang = "en-IN"; recognition.continuous = true;
+                recognition.onstart = function() { isListening = true; document.querySelector('.voice-label').innerText = "Stop"; };
+                recognition.onend = function() { isListening = false; document.querySelector('.voice-label').innerText = "Speak"; };
                 recognition.onresult = function(event) {
                     let txt = "";
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) txt += event.results[i][0].transcript + " ";
-                    }
-                    if(txt.trim() && mealInput) mealInput.value += normalizeInputString(txt);
+                    for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) txt += event.results[i][0].transcript + " "; }
+                    if(txt.trim()) document.getElementById("meal").value += normalizeInputString(txt);
                 };
-                voiceBtn.addEventListener("click", function(e) { e.preventDefault(); if (isListening) recognition.stop(); else recognition.start(); });
+                document.getElementById("voiceBtn").addEventListener("click", function(e) { e.preventDefault(); if (isListening) recognition.stop(); else recognition.start(); });
             }
         }
 
@@ -649,31 +269,21 @@
                 const res = await fetch(API_URL);
                 const data = await res.json();
                 if(data.history) globalHistoryCache = data.history; 
-                if(data.coach || data.coachResponse) {
-                    document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
-                }
                 processView();
-            } catch (err) { console.log("Data layer error."); }
+            } catch (err) { console.log("Load error."); }
         }
 
         async function logMeal() {
             const input = document.getElementById("meal");
-            if(!input) return;
-            let meal = normalizeInputString(input.value);
-            if (!meal) return;
-            
+            if(!input || !input.value.trim()) return;
             document.getElementById("loading").style.display = "block";
             const date = document.getElementById("historyDatePicker").value || new Date().toISOString().split('T')[0];
-
             try {
-                const res = await fetch(API_URL + "?meal=" + encodeURIComponent(meal) + "&customDate=" + date);
+                const res = await fetch(API_URL + "?meal=" + encodeURIComponent(input.value) + "&customDate=" + date);
                 const data = await res.json();
                 if(data.history) globalHistoryCache = data.history;
-                if(data.coach || data.coachResponse) {
-                    document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
-                }
                 processView();
-            } catch (err) { alert("Logging processing failure."); }
+            } catch (err) { alert("Error."); }
             finally { document.getElementById("loading").style.display = "none"; input.value = ""; }
         }
 
@@ -693,51 +303,33 @@
             let filtered = [];
             let cal = 0, prot = 0;
             let targetLimit = 2000, proteinLimit = 120;
+            const selectedDateStr = dailyPicker.value;
 
-            if (currentScope === 'today') {
-                const selectedDateStr = dailyPicker.value;
-                globalHistoryCache.forEach(function(item, index) {
-                    if(item.date === selectedDateStr) {
-                        filtered.push(Object.assign({}, item, {originalIndex: index}));
-                        cal += Number(item.calories) || 0;
-                        prot += Number(item.protein) || 0;
-                    }
-                });
-            } 
-            else if (currentScope === 'week') {
-                const selectedDateStr = dailyPicker.value;
-                const parts = selectedDateStr.split('-');
-                const endDate = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 0,0,0,0);
-                const startDate = new Date(endDate);
-                startDate.setDate(endDate.getDate() - 6);
+            globalHistoryCache.forEach(function(item, index) {
+                if(!item || !item.date) return;
+                
+                let isMatch = false;
+                if (currentScope === 'today' && item.date === selectedDateStr) isMatch = true;
+                else if (currentScope === 'month' && item.date.startsWith(monthPicker.value)) isMatch = true;
+                else if (currentScope === 'week') {
+                    const parts = selectedDateStr.split('-');
+                    const endDate = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+                    const startDate = new Date(endDate); startDate.setDate(endDate.getDate() - 6);
+                    const iP = item.date.split('-'); const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10));
+                    if(itemDate >= startDate && itemDate <= endDate) isMatch = true;
+                }
 
-                targetLimit = 14000; proteinLimit = 840;
-
-                globalHistoryCache.forEach(function(item, index) {
-                    if(!item.date) return;
-                    const iP = item.date.split('-');
-                    const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10), 0,0,0,0);
+                if(isMatch) {
+                    filtered.push(Object.assign({}, item, {originalIndex: index}));
                     
-                    if(itemDate >= startDate && itemDate <= endDate) {
-                        filtered.push(Object.assign({}, item, {originalIndex: index}));
-                        cal += Number(item.calories) || 0;
-                        prot += Number(item.protein) || 0;
-                    }
-                });
-            } 
-            else if (currentScope === 'month') {
-                const selectedMonthStr = monthPicker.value; 
-                targetLimit = 60000; proteinLimit = 3600;
+                    // Adjusted strictly to read accurate parsed keys matching Column E & F
+                    cal += parseFloat(item.calories) || 0;
+                    prot += parseFloat(item.protein) || 0;
+                }
+            });
 
-                globalHistoryCache.forEach(function(item, index) {
-                    if(!item.date) return;
-                    if(item.date.startsWith(selectedMonthStr)) {
-                        filtered.push(Object.assign({}, item, {originalIndex: index}));
-                        cal += Number(item.calories) || 0;
-                        prot += Number(item.protein) || 0;
-                    }
-                });
-            }
+            if(currentScope === 'week') { targetLimit = 14000; proteinLimit = 840; }
+            if(currentScope === 'month') { targetLimit = 60000; proteinLimit = 3600; }
 
             document.getElementById("todayCalories").innerText = cal.toFixed(0);
             document.getElementById("todayProtein").innerText = prot.toFixed(1);
@@ -751,112 +343,63 @@
 
         function renderTimelineDom(dataset, targetContainer) {
             if(!targetContainer) return;
-            targetContainer.innerHTML = "";
+            targetContainer.innerHTML = dataset.length === 0 ? "<div style='padding:20px; font-size:12px; color:var(--text-secondary); text-align:center;'>No entries.</div>" : "";
             
-            if(dataset.length === 0) {
-                targetContainer.innerHTML = "<div class='null-state-msg' style='padding:20px; font-size:12px; color:var(--text-secondary); text-align:center;'>No entries registered in this scope.</div>";
-                return;
-            }
-            
-            let localCopy = dataset.slice().reverse();
-
-            localCopy.forEach(function(row) {
+            dataset.slice().reverse().forEach(function(row) {
                 const itemEl = document.createElement("div");
                 itemEl.className = "timeline-node";
-                itemEl.innerHTML = "<div class='node-payload'>" +
-                    "<div class='node-meta-row'>" +
-                        "<span class='node-timestamp'>" + row.date + " · " + (row.time || "00:00") + "</span>" +
-                        "<div class='node-crud-triggers'>" +
-                            "<button class='edit-trigger-btn' data-idx='" + row.originalIndex + "'>✏️</button> " +
-                            "<button class='delete-trigger-btn' data-idx='" + row.originalIndex + "'>🗑️</button>" +
-                        "</div>" +
-                    "</div>" +
-                    "<div class='node-title-meal'>" + normalizeInputString(row.rawInput || row.meal) + "</div>" +
-                    "<p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:var(--text-secondary);'>" + row.calories + " kcal · " + row.protein + "g Protein</p>" +
-                "</div>";
-
+                itemEl.innerHTML = `<div class='node-payload'>
+                    <div class='node-meta-row'>
+                        <span class='node-timestamp'>${row.date} · ${row.time}</span>
+                        <div class='node-crud-triggers'>
+                            <button class='edit-trigger-btn' data-idx='${row.originalIndex}'>✏️</button>
+                            <button class='delete-trigger-btn' data-idx='${row.originalIndex}'>🗑️</button>
+                        </div>
+                    </div>
+                    <div class='node-title-meal'>${normalizeInputString(row.rawInput)}</div>
+                    <div style='font-size:11px; color:var(--text-secondary); margin-top:2px;'>Parsed: <i>${row.parsedFoods || 'N/A'}</i></div>
+                    <p style='margin-top:6px; font-size:12px; font-weight:600;'>${row.calories} kcal · ${row.protein}g Protein</p>
+                </div>`;
                 targetContainer.appendChild(itemEl);
 
                 itemEl.querySelector(".edit-trigger-btn").addEventListener("click", function() {
                     const idx = this.getAttribute("data-idx");
-                    const targetMeal = globalHistoryCache[idx];
-                    const mb = document.getElementById("meal"); 
-                    if(mb && targetMeal) { 
-                        mb.value = targetMeal.rawInput || targetMeal.meal; 
-                        routeToView('home'); 
-                        mb.focus(); 
-                    }
+                    if(globalHistoryCache[idx]) document.getElementById("meal").value = globalHistoryCache[idx].rawInput;
                 });
-
                 itemEl.querySelector(".delete-trigger-btn").addEventListener("click", function() {
-                    const idx = this.getAttribute("data-idx");
-                    deleteMeal(parseInt(idx, 10));
+                    deleteMeal(parseInt(this.getAttribute("data-idx"), 10));
                 });
             });
         }
 
-        // FULLY OPTIMIZED OVERHAULED SYNC ENGINE FOR DELETION
         async function deleteMeal(index) {
-            if(isNaN(index) || !confirm("Purge recorded entry?")) return;
+            if(isNaN(index) || !confirm("Delete item?")) return;
             document.getElementById("loading").style.display = "block";
-
-            if(isGuestModeActive) {
+            try {
+                const targetItem = globalHistoryCache[index];
+                const queryUrl = `${API_URL}?action=delete&row=${index + 2}&meal=${encodeURIComponent(targetItem.rawInput || "")}`;
+                const res = await fetch(queryUrl);
+                const data = await res.json();
+                
                 globalHistoryCache.splice(index, 1);
-                document.getElementById("loading").style.display = "none";
+                if(data && data.history) globalHistoryCache = data.history;
                 processView();
-            } else {
-                try {
-                    const targetItem = globalHistoryCache[index];
-                    const mealStr = encodeURIComponent(targetItem.meal || targetItem.rawInput || "");
-                    const dateStr = encodeURIComponent(targetItem.date || "");
-                    
-                    // Sending fully redundant row metrics for safety matching (+2 skips the headers)
-                    const queryUrl = `${API_URL}?action=delete&row=${index + 2}&meal=${mealStr}&date=${dateStr}`;
-                    
-                    const res = await fetch(queryUrl);
-                    const data = await res.json();
-                    
-                    // Instantly slice array to reflect local state immediately
-                    globalHistoryCache.splice(index, 1);
-                    if(data && data.history) {
-                        globalHistoryCache = data.history;
-                    }
-                    processView();
-                } catch (err) { 
-                    console.log("Network lag, forced local deletion active.");
-                    globalHistoryCache.splice(index, 1);
-                    processView();
-                }
-                finally { document.getElementById("loading").style.display = "none"; }
-            }
+            } catch (err) {
+                globalHistoryCache.splice(index, 1);
+                processView();
+            } finaly { document.getElementById("loading").style.display = "none"; }
         }
 
-        function getActiveTimelineDate() {
-            return document.getElementById("historyDatePicker").value || new Date().toISOString().split('T')[0];
-        }
-
+        function getActiveTimelineDate() { return document.getElementById("historyDatePicker").value || new Date().toISOString().split('T')[0]; }
         function loadDailyMemo() {
-            const mt = document.getElementById("dashboardMemo"); const ms = document.getElementById("memoStatus"); if (!mt) return;
-            const cachedData = localStorage.getItem("aura_notes_" + getActiveTimelineDate());
-            mt.value = cachedData ? cachedData : "";
-            if (ms) { ms.textContent = "Saved"; ms.style.background = "var(--success-bg)"; ms.style.color = "var(--success)"; }
+            const val = localStorage.getItem("aura_notes_" + getActiveTimelineDate());
+            if(document.getElementById("dashboardMemo")) document.getElementById("dashboardMemo").value = val || "";
         }
-
         let saveTimeout;
         function saveDailyMemo() {
-            const ms = document.getElementById("memoStatus");
-            if (ms) { ms.textContent = "Saving..."; ms.style.background = "var(--warning-bg)"; ms.style.color = "var(--warning-text)"; }
             clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(function() {
-                localStorage.setItem("aura_notes_" + getActiveTimelineDate(), document.getElementById("dashboardMemo").value);
-                if (ms) { ms.textContent = "Saved"; ms.style.background = "var(--success-bg)"; ms.style.color = "var(--success)"; }
-            }, 400);
+            saveTimeout = setTimeout(function() { localStorage.setItem("aura_notes_" + getActiveTimelineDate(), document.getElementById("dashboardMemo").value); }, 400);
         }
-
-        window.addEventListener("resize", function() {
-            const mb = document.getElementById("mainDashboard");
-            if (mb && mb.style.display !== "none") mb.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
-        });
     </script>
 </body>
 </html>
