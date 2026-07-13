@@ -237,7 +237,7 @@
         }
 
         /* Dynamic Timeline Nodes */
-        .timeline {
+        .timeline, .journal-timeline-target {
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -279,8 +279,13 @@
             background: transparent;
             border: none;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 2px 6px;
             font-size: 14px;
+            transition: transform 0.1s;
+        }
+        
+        .node-crud-triggers button:active {
+            transform: scale(0.85);
         }
 
         /* Action Forms inputs */
@@ -756,6 +761,7 @@
                 return;
             }
             
+            // Create a safe structural reverse copy
             let localCopy = dataset.slice().reverse();
 
             localCopy.forEach(function(row) {
@@ -765,8 +771,8 @@
                     "<div class='node-meta-row'>" +
                         "<span class='node-timestamp'>" + row.date + " · " + (row.time || "00:00") + "</span>" +
                         "<div class='node-crud-triggers'>" +
-                            "<button class='unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
-                            "<button class='unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
+                            "<button class='edit-trigger-btn' data-idx='" + row.originalIndex + "'>✏️</button>" +
+                            "<button class='delete-trigger-btn' data-idx='" + row.originalIndex + "'>🗑️</button>" +
                         "</div>" +
                     "</div>" +
                     "<div class='node-title-meal'>" + normalizeInputString(row.rawInput || row.meal) + "</div>" +
@@ -775,15 +781,27 @@
 
                 targetContainer.appendChild(itemEl);
 
-                itemEl.querySelector(".unique-edit-btn-" + row.originalIndex).addEventListener("click", function() {
-                    const mb = document.getElementById("meal"); if(mb) { mb.value = row.rawInput || row.meal; routeToView('home'); mb.focus(); }
+                // Safe index event assignments
+                itemEl.querySelector(".edit-trigger-btn").addEventListener("click", function() {
+                    const idx = this.getAttribute("data-idx");
+                    const targetMeal = globalHistoryCache[idx];
+                    const mb = document.getElementById("meal"); 
+                    if(mb && targetMeal) { 
+                        mb.value = targetMeal.rawInput || targetMeal.meal; 
+                        routeToView('home'); 
+                        mb.focus(); 
+                    }
                 });
-                itemEl.querySelector(".unique-del-btn-" + row.originalIndex).addEventListener("click", function() { deleteMeal(row.originalIndex); });
+
+                itemEl.querySelector(".delete-trigger-btn").addEventListener("click", function() {
+                    const idx = this.getAttribute("data-idx");
+                    deleteMeal(parseInt(idx, 10));
+                });
             });
         }
 
         async function deleteMeal(index) {
-            if(!confirm("Purge recorded entry?")) return;
+            if(isNaN(index) || !confirm("Purge recorded entry?")) return;
             document.getElementById("loading").style.display = "block";
 
             if(isGuestModeActive) {
@@ -792,6 +810,7 @@
                 processView();
             } else {
                 try {
+                    // +2 maps the index safely to the specific row in Google Sheet architecture
                     const res = await fetch(API_URL + "?action=delete&row=" + (index + 2));
                     const data = await res.json();
                     if(data.history) globalHistoryCache = data.history;
