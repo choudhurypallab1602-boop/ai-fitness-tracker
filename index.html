@@ -205,9 +205,10 @@
             if (dailyPicker) {
                 if (!dailyPicker.value) {
                     const localToday = new Date();
-                    const offset = localToday.getTimezoneOffset();
-                    const adjustedDate = new Date(localToday.getTime() - (offset * 60 * 1000));
-                    dailyPicker.value = adjustedDate.toISOString().split('T')[0];
+                    const year = localToday.getFullYear();
+                    const month = String(localToday.getMonth() + 1).padStart(2, '0');
+                    const day = String(localToday.getDate()).padStart(2, '0');
+                    dailyPicker.value = `${year}-${month}-${day}`;
                 }
                 dailyPicker.addEventListener("change", function() { processView(); loadDailyMemo(); });
             }
@@ -234,7 +235,7 @@
         function handleLogin() {
             const u = document.getElementById("authUsername").value.trim().toLowerCase();
             const p = document.getElementById("authPassword").value.trim();
-            if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) { sessionStorage.setItem("auth_user", u); activateDashboard(false, u); } else { alert("Error."); }
+            if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) { sessionStorage.setItem("auth_user", u); activateDashboard(false, u); } else { alert("Credentials Error."); }
         }
         function handleGuest() { sessionStorage.setItem("auth_user", "Guest"); activateDashboard(true, "Guest"); }
         function handleLogout() { sessionStorage.clear(); window.location.reload(); }
@@ -303,26 +304,29 @@
             let filtered = [];
             let cal = 0, prot = 0;
             let targetLimit = 2000, proteinLimit = 120;
-            const selectedDateStr = dailyPicker.value;
+            const selectedDateStr = dailyPicker.value; // Format: YYYY-MM-DD
 
             globalHistoryCache.forEach(function(item, index) {
                 if(!item || !item.date) return;
                 
+                // Pure String-Based Date Checking to eliminate Timezone Offset shifts
+                let cleanItemDate = item.date.split('T')[0];
                 let isMatch = false;
-                if (currentScope === 'today' && item.date === selectedDateStr) isMatch = true;
-                else if (currentScope === 'month' && item.date.startsWith(monthPicker.value)) isMatch = true;
+                
+                if (currentScope === 'today' && cleanItemDate === selectedDateStr) isMatch = true;
+                else if (currentScope === 'month' && cleanItemDate.startsWith(monthPicker.value)) isMatch = true;
                 else if (currentScope === 'week') {
                     const parts = selectedDateStr.split('-');
                     const endDate = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
                     const startDate = new Date(endDate); startDate.setDate(endDate.getDate() - 6);
-                    const iP = item.date.split('-'); const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10));
+                    
+                    const iP = cleanItemDate.split('-'); 
+                    const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10));
                     if(itemDate >= startDate && itemDate <= endDate) isMatch = true;
                 }
 
                 if(isMatch) {
-                    filtered.push(Object.assign({}, item, {originalIndex: index}));
-                    
-                    // Adjusted strictly to read accurate parsed keys matching Column E & F
+                    filtered.push(Object.assign({}, item, {originalIndex: index, date: cleanItemDate}));
                     cal += parseFloat(item.calories) || 0;
                     prot += parseFloat(item.protein) || 0;
                 }
