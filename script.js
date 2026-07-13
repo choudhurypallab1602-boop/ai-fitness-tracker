@@ -22,7 +22,7 @@ window.addEventListener("load", function() {
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
   document.getElementById("logBtn").addEventListener("click", logMeal);
   
-  // Navigation Router Switches (Desktop + Mobile Layout Safe)
+  // Navigation Router Switches
   document.getElementById("menuHome").addEventListener("click", function() { routeToView('home'); });
   document.getElementById("menuJournal").addEventListener("click", function() { routeToView('journal'); });
   document.getElementById("menuCoach").addEventListener("click", function() { routeToView('coach'); });
@@ -44,7 +44,6 @@ window.addEventListener("load", function() {
       pill.classList.add("active");
       currentScope = pill.getAttribute("data-scope") || 'today';
       
-      // Title Update dynamically
       const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
       const metricsTitle = document.getElementById("metricsTitle");
       if(metricsTitle) {
@@ -80,7 +79,6 @@ window.addEventListener("load", function() {
     activateDashboard(savedUser === "Guest", savedUser);
   }
   
-  // Launch state load
   loadDailyMemo();
 });
 
@@ -96,12 +94,10 @@ function routeToView(target) {
   const vJournal = document.getElementById("viewJournal");
   const vCoach = document.getElementById("viewCoach");
 
-  // Reset Active Tab Highlights safely
   if(mHome) mHome.classList.remove("active");
   if(mJournal) mJournal.classList.remove("active");
   if(mCoach) mCoach.classList.remove("active");
   
-  // Toggle Layout Visibility Layers
   if(vHome) vHome.style.display = "none";
   if(vJournal) vJournal.style.display = "none";
   if(vCoach) vCoach.style.display = "none";
@@ -187,7 +183,7 @@ function normalizeInputString(str) {
 }
 
 /**
- * Web Speech Webkit Voice Recognition Implementation
+ * Web Speech Webkit Voice Recognition
  */
 function initializeVoice() {
   if ("webkitSpeechRecognition" in window) {
@@ -281,7 +277,7 @@ function updateLinearProgress(barFillId, current, limit) {
 }
 
 /**
- * Advanced Dynamic Chrono-Filtering & Historical Window Calculation
+ * Advanced Dynamic Chrono-Filtering Window Calculation
  */
 function processView() {
   const homeTimeline = document.querySelector(".timeline");
@@ -291,7 +287,6 @@ function processView() {
   const selectedDateStr = datePicker.value;
   if(!selectedDateStr) return;
   
-  // Create an explicit date tracking token normalized to absolute midnight local time
   const targetEndDate = new Date(selectedDateStr + "T00:00:00");
 
   let filtered = [];
@@ -304,7 +299,6 @@ function processView() {
   globalHistoryCache.forEach(function(item, index) {
     if(!item.date) return;
     
-    // Parse logging payload elements normalizing explicitly against timezones
     const itemDate = new Date(item.date + "T00:00:00");
     let match = false;
 
@@ -312,14 +306,11 @@ function processView() {
       match = (item.date === selectedDateStr);
     } 
     else if (currentScope === 'week') {
-      // Calculate retrospective rolling sliding window from chosen anchor date backwards
       const targetStartDate = new Date(targetEndDate);
-      targetStartDate.setDate(targetEndDate.getDate() - 6); // 7-day retrospective window inclusive
-      
+      targetStartDate.setDate(targetEndDate.getDate() - 6); 
       match = (itemDate >= targetStartDate && itemDate <= targetEndDate);
     } 
     else if (currentScope === 'month') {
-      // Pin to exact year and calendar month matched directly inside chosen timeline
       match = (itemDate.getMonth() === targetEndDate.getMonth() && itemDate.getFullYear() === targetEndDate.getFullYear());
     }
 
@@ -351,7 +342,7 @@ function processView() {
 }
 
 /**
- * Dynamic Chrono Timeline Node Elements Builder
+ * Dynamic Chrono Timeline Node Builder
  */
 function renderTimelineDom(dataset, targetContainer) {
   if(!targetContainer) return;
