@@ -1,5 +1,5 @@
 /**
- * Aura Core Application State & UI Engineering Engine (UTC-Timezone Glitch Fixed)
+ * Aura Core Application State & UI Engineering Engine (Range Sorting Fixed)
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
@@ -36,19 +36,22 @@ window.addEventListener("load", function() {
   if(eggBtn) eggBtn.addEventListener("click", function() { triggerQuickMacro("2 Boiled Whole Eggs"); });
   if(wheyBtn) wheyBtn.addEventListener("click", function() { triggerQuickMacro("1 scoop Organic Whey Isolate Shake"); });
 
-  // Segmented Pill Filtering Logic Loop
+  // FIXED: Explicit Range Selector Mapping Loop
   const pills = document.querySelectorAll(".segment-pills .pill-btn");
   pills.forEach(function(pill) {
-    pill.addEventListener("click", function() {
+    pill.addEventListener("click", function(e) {
+      e.preventDefault();
       pills.forEach(p => p.classList.remove("active"));
-      pill.classList.add("active");
-      currentScope = pill.getAttribute("data-scope") || 'today';
+      this.classList.add("active");
+      
+      currentScope = this.getAttribute("data-scope");
       
       const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
       const metricsTitle = document.getElementById("metricsTitle");
       if(metricsTitle) {
         metricsTitle.innerText = titleMap[currentScope] || 'Progress Indicators';
       }
+      // Instantly trigger re-sorting and chronological distribution
       processView();
     });
   });
@@ -57,7 +60,6 @@ window.addEventListener("load", function() {
   const picker = document.getElementById("historyDatePicker");
   if (picker) {
     if (!picker.value) {
-      // Local Timezone-safe string injection
       const localToday = new Date();
       const offset = localToday.getTimezoneOffset();
       const adjustedDate = new Date(localToday.getTime() - (offset * 60 * 1000));
@@ -243,7 +245,7 @@ async function loadData() {
       if(speechBox) speechBox.innerText = speechText;
     }
     processView();
-  } catch (err) { console.log("System initialization data sync failure."); }
+  } catch (err) { console.log("System data sync failure."); }
 }
 
 async function logMeal() {
@@ -281,7 +283,7 @@ function updateLinearProgress(barFillId, current, limit) {
 }
 
 /**
- * FIXED TIMEZONE SAFE FILTER ENGINE
+ * RE-ENGINEERED RANGE SORTING & FILTER MATRIX ENGINE
  */
 function processView() {
   const homeTimeline = document.querySelector(".timeline");
@@ -289,22 +291,23 @@ function processView() {
   const datePicker = document.getElementById("historyDatePicker");
   if(!datePicker) return;
   
-  const selectedDateStr = datePicker.value; // Format: "YYYY-MM-DD"
+  const selectedDateStr = datePicker.value; 
   if(!selectedDateStr) return;
   
-  // Strict String Parsing instead of unsafe UTC evaluation
+  // Safe integer component parsing
   const parts = selectedDateStr.split('-');
   const targetYear = parseInt(parts[0], 10);
-  const targetMonth = parseInt(parts[1], 10) - 1; // JS 0-indexed Months
+  const targetMonth = parseInt(parts[1], 10) - 1; 
   const targetDay = parseInt(parts[2], 10);
 
-  // Timezone-safe execution anchor
+  // Timezone locked anchor point
   const targetEndDate = new Date(targetYear, targetMonth, targetDay, 0, 0, 0, 0);
 
   let filtered = [];
   let cal = 0, prot = 0;
+  
+  // Dynamic Targets scaling based on active sort scope
   let targetLimit = 2000, proteinLimit = 120;
-
   if (currentScope === 'week') { targetLimit = 14000; proteinLimit = 840; }
   if (currentScope === 'month') { targetLimit = 60000; proteinLimit = 3600; }
 
@@ -323,11 +326,13 @@ function processView() {
       match = (item.date === selectedDateStr);
     } 
     else if (currentScope === 'week') {
+      // Logic to grab trailing 7 calendar days cleanly
       const targetStartDate = new Date(targetEndDate);
       targetStartDate.setDate(targetEndDate.getDate() - 6); 
       match = (itemDate >= targetStartDate && itemDate <= targetEndDate);
     } 
     else if (currentScope === 'month') {
+      // Match current target calendar month context
       match = (itemDate.getMonth() === targetEndDate.getMonth() && itemDate.getFullYear() === targetEndDate.getFullYear());
     }
 
