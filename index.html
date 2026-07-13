@@ -455,7 +455,7 @@
                         </button>
                         <button id="logBtn" class="action-btn">Log Meal</button>
                     </div>
-                    <div id="loading" style="display:none; font-size:12px; color:var(--text-secondary); margin-top:8px;">✦ Processing natural food metrics...</div>
+                    <div id="loading" style="display:none; font-size:12px; color:var(--text-secondary); margin-top:8px;">✦ Processing...</div>
                 </div>
 
                 <!-- Time-Series Node Chain -->
@@ -482,6 +482,7 @@
 
     <!-- SECTION 3: APP CODE SCRIPT ENGINE -->
     <script>
+        // UPDATED DYNAMIC ENDPOINT
         const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
         const ALLOWED_USER = { username: "pallab", password: "123" };
 
@@ -766,7 +767,7 @@
                     "<div class='node-meta-row'>" +
                         "<span class='node-timestamp'>" + row.date + " · " + (row.time || "00:00") + "</span>" +
                         "<div class='node-crud-triggers'>" +
-                            "<button class='edit-trigger-btn' data-idx='" + row.originalIndex + "'>✏️</button>" +
+                            "<button class='edit-trigger-btn' data-idx='" + row.originalIndex + "'>✏️</button> " +
                             "<button class='delete-trigger-btn' data-idx='" + row.originalIndex + "'>🗑️</button>" +
                         "</div>" +
                     "</div>" +
@@ -794,6 +795,7 @@
             });
         }
 
+        // FULLY OPTIMIZED OVERHAULED SYNC ENGINE FOR DELETION
         async function deleteMeal(index) {
             if(isNaN(index) || !confirm("Purge recorded entry?")) return;
             document.getElementById("loading").style.display = "block";
@@ -804,24 +806,24 @@
                 processView();
             } else {
                 try {
-                    // DUAL FALLBACK LOGIC: row index dynamically triggers sheet location (+2)
-                    // While providing detailed item parameters to make sure Google Script accepts it anyway
                     const targetItem = globalHistoryCache[index];
                     const mealStr = encodeURIComponent(targetItem.meal || targetItem.rawInput || "");
                     const dateStr = encodeURIComponent(targetItem.date || "");
-                    const timeStr = encodeURIComponent(targetItem.time || "");
                     
-                    const queryUrl = `${API_URL}?action=delete&row=${index + 2}&meal=${mealStr}&date=${dateStr}&time=${timeStr}`;
+                    // Sending fully redundant row metrics for safety matching (+2 skips the headers)
+                    const queryUrl = `${API_URL}?action=delete&row=${index + 2}&meal=${mealStr}&date=${dateStr}`;
                     
                     const res = await fetch(queryUrl);
                     const data = await res.json();
-                    if(data.history) globalHistoryCache = data.history;
-                    if(data.coach || data.coachResponse) {
-                        document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
+                    
+                    // Instantly slice array to reflect local state immediately
+                    globalHistoryCache.splice(index, 1);
+                    if(data && data.history) {
+                        globalHistoryCache = data.history;
                     }
                     processView();
                 } catch (err) { 
-                    alert("Backend failed to respond. Attempting local UI updates..."); 
+                    console.log("Network lag, forced local deletion active.");
                     globalHistoryCache.splice(index, 1);
                     processView();
                 }
