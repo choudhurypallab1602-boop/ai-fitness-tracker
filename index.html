@@ -2,212 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aura Workspace</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Authentication Area -->
-    <div id="authScreen" class="auth-wrapper" style="display: none;">
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-wrapper">
         <div class="auth-panel">
-            <div class="auth-lead">
-                <div class="brand-emblem"><span>✦</span> Aura</div>
-                <p>Sign in to your minimal workspace.</p>
-            </div>
+            <h2>✦ Aura</h2>
+            <p style="color: var(--secondary-txt); margin-top: 4px; font-size: 14px;">Sign in to your dashboard</p>
             <div class="auth-fields">
                 <input type="text" id="authUsername" placeholder="Username">
                 <input type="password" id="authPassword" placeholder="Password">
                 <button id="loginBtn" class="btn-primary">Sign In</button>
-                <div class="field-separator"><span>OR</span></div>
                 <button id="guestBtn" class="btn-secondary">Enter as Guest</button>
             </div>
         </div>
     </div>
 
-    <!-- Core App Dashboard Workspace -->
-    <div id="mainDashboard" class="workspace-root">
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="workspace-root" style="display: none;">
         
-        <!-- Left Persistent Navigation Sidebar -->
+        <!-- Sidebar Navigation -->
         <aside class="side-navigation">
             <div class="side-top">
                 <div class="side-logo">
-                    <span class="logo-icon">✦</span>
-                    <span class="logo-text">Aura</span>
+                    <span class="logo-icon">✦</span><span>Aura</span>
                 </div>
                 <nav class="nav-links">
-                    <button id="menuHome" class="nav-item active"><span class="nav-icon">⌂</span> Home</button>
-                    <button id="menuJournal" class="nav-item"><span class="nav-icon">⌥</span> Journal</button>
-                    <button id="menuCoach" class="nav-item"><span class="nav-icon">✧</span> AI Companion</button>
+                    <button class="nav-item active">⌂ Home</button>
                 </nav>
             </div>
 
-            <!-- Integrated Sidebar Notepad (Date-Synced) -->
+            <!-- Notepad Notes -->
             <div class="sidebar-notepad-block">
                 <div class="sidebar-notepad-header">
                     <span>DAILY NOTES</span>
                     <span class="save-status" id="memoStatus">Saved</span>
                 </div>
-                <textarea id="dashboardMemo" placeholder="Type notes for the selected date..." class="sidebar-notepad-textarea" rows="5"></textarea>
+                <textarea id="dashboardMemo" placeholder="Type notes..." class="sidebar-notepad-textarea"></textarea>
             </div>
 
+            <!-- Safe Bottom Meta with Logout Trigger -->
             <div class="side-bottom">
                 <div class="user-meta">
-                    <div class="avatar-thumb" id="userDisplay">U</div>
+                    <div class="avatar-thumb" id="userDisplay">A</div>
                     <button id="logoutBtn" class="btn-icon-logout">Logout</button>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Workspace Viewport -->
+        <!-- Main Dashboard View -->
         <main class="content-container">
-            <div id="guestBanner" class="banner-alert" style="display: none;">
-                Guest Session — Temporary local sandbox mode active.
+            <div class="view-filter-segment-bar">
+                <div class="segment-pills">
+                    <button class="pill-btn active">Daily</button>
+                    <button class="pill-btn">Weekly</button>
+                    <button class="pill-btn">Monthly</button>
+                </div>
+                <input type="date" id="historyDatePicker" class="custom-date-ui">
             </div>
 
-            <!-- VIEW 1: HOME DASHBOARD VIEW -->
-            <div id="viewHome" class="app-view">
-                
-                <!-- Dynamic Filter Switcher Bar -->
-                <div class="view-filter-segment-bar">
-                    <div class="segment-pills">
-                        <button class="pill-btn active" data-scope="today">Daily</button>
-                        <button class="pill-btn" data-scope="week">Weekly</button>
-                        <button class="pill-btn" data-scope="month">Monthly</button>
-                    </div>
-                    <div class="date-picker-wrapper">
-                        <span class="date-label">Timeline Target:</span>
-                        <input type="date" id="historyDatePicker" class="custom-date-ui">
-                    </div>
-                </div>
-
-                <div class="split-workspace-grid">
+            <div class="split-workspace-grid">
+                <div class="workspace-left-column">
                     
-                    <!-- Left Section: Inputs and Gauges -->
-                    <div class="workspace-left-column">
-                        
-                        <!-- Main Textarea Log Input -->
-                        <section class="log-input-card">
-                            <div class="log-input-group">
-                                <textarea id="meal" placeholder="Track breakfast, lunch, or snack details..." rows="1"></textarea>
-                                <div class="log-input-controls">
-                                    <button id="voiceBtn" class="btn-voice-trigger">
-                                        <span class="mic-glyph">🎤</span><span class="voice-label">Speak</span>
-                                    </button>
-                                    <button id="logBtn" class="btn-action-submit">Log Meal</button>
+                    <!-- Text Box -->
+                    <section class="log-input-card">
+                        <div class="log-input-group">
+                            <textarea id="meal" placeholder="Track breakfast, lunch, or snack details..."></textarea>
+                            <div class="log-input-controls">
+                                <button id="voiceBtn" class="btn-voice-trigger">🎤 Speak</button>
+                                <button id="logBtn" class="btn-action-submit">Log Meal</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Synced Linear Gauges -->
+                    <section class="macro-gauge-card">
+                        <div class="card-header-minimal"><h3>Daily Progress Matrix</h3></div>
+                        <div class="linear-metrics-grid">
+                            <div>
+                                <div class="metric-info-row">
+                                    <span class="calories-row-label">Calories Target</span>
+                                    <span class="metric-value-display"><strong id="todayCalories">3623</strong> / 2000 kcal</span>
+                                </div>
+                                <div class="progress-bar-track">
+                                    <div id="calorieBarFill" class="progress-fill fill-calories" style="width: 85%;"></div>
                                 </div>
                             </div>
-                            <div id="loading" class="processing-spinner" style="display: none;">
-                                <span class="spinner-dot"></span> Syncing metadata...
-                            </div>
-                        </section>
-
-                        <!-- Progress Linear System (Color Fixed) -->
-                        <section class="macro-gauge-card">
-                            <div class="card-header-minimal">
-                                <h3 id="metricsTitle">Daily Progress Matrix</h3>
-                            </div>
-                            
-                            <div class="linear-metrics-grid">
-                                <!-- Calories Progress Element -->
-                                <div class="metric-progress-block">
-                                    <div class="metric-info-row">
-                                        <span class="calories-row-label">Calories Target</span>
-                                        <span class="metric-value-display"><strong id="todayCalories">0</strong> / 2000 kcal</span>
-                                    </div>
-                                    <div class="progress-bar-track">
-                                        <div id="calorieBarFill" class="progress-fill fill-calories" style="width: 0%;"></div>
-                                    </div>
+                            <div>
+                                <div class="metric-info-row">
+                                    <span class="protein-row-label">Protein Target</span>
+                                    <span class="metric-value-display"><strong id="todayProtein">98.7</strong> / 120 g</span>
                                 </div>
-
-                                <!-- Protein Progress Element -->
-                                <div class="metric-progress-block">
-                                    <div class="metric-info-row">
-                                        <span class="protein-row-label">Protein Target</span>
-                                        <span class="metric-value-display"><strong id="todayProtein">0</strong> / 120 g</span>
-                                    </div>
-                                    <div class="progress-bar-track">
-                                        <div id="proteinBarFill" class="progress-fill fill-protein" style="width: 0%;"></div>
-                                    </div>
+                                <div class="progress-bar-track">
+                                    <div id="proteinBarFill" class="progress-fill fill-protein" style="width: 70%;"></div>
                                 </div>
                             </div>
-                        </section>
+                        </div>
+                    </section>
+                </div>
 
-                        <!-- Quick Log Stream Component -->
-                        <section class="quick-log-card">
-                            <div class="card-header-minimal">
-                                <h3>Quick Logging Matrix</h3>
-                            </div>
-                            <div class="quick-log-rows">
-                                <div class="quick-row" id="quickBanana">
-                                    <div class="quick-row-left"><span>🍌</span><span>Banana</span></div>
-                                    <span class="chevron-indicator">→</span>
-                                </div>
-                                <div class="quick-row" id="quickEgg">
-                                    <div class="quick-row-left"><span>🥚</span><span>Egg</span></div>
-                                    <span class="chevron-indicator">→</span>
-                                </div>
-                                <div class="quick-row" id="quickWhey">
-                                    <div class="quick-row-left"><span>🥤</span><span>Whey Isolate Shake</span></div>
-                                    <span class="chevron-indicator">→</span>
-                                </div>
-                            </div>
-                        </section>
-
-                    </div>
-
-                    <!-- Right Section: Persistent Timeline & Coach Info Stream -->
-                    <div class="workspace-right-column">
-                        
-                        <!-- Inline Companion Engine -->
-                        <section class="companion-window">
-                            <div class="avatar-character-box">
-                                <div class="character-face-graphic">
-                                    <span>✨</span>
-                                </div>
-                                <div class="character-pulse-glow"></div>
-                            </div>
-                            <div class="companion-speech-bubble">
-                                <h3 class="character-title">Aura AI</h3>
-                                <p id="coachCharacterSpeech">Ready to target today's metrics. Speak or log your entry.</p>
-                            </div>
-                        </section>
-
-                        <!-- Chronological Timeline Feed -->
-                        <section class="timeline-master-card">
-                            <div class="card-header-minimal">
-                                <h3>Daily Log Timeline</h3>
-                            </div>
-                            <div class="timeline-engine-track timeline">
-                                <!-- Appends dynamically -->
-                            </div>
-                        </section>
-                    </div>
-
+                <div class="workspace-right-column">
+                    <section class="companion-window">
+                        <div class="avatar-character-box">✨</div>
+                        <div class="companion-speech-bubble">
+                            <h3 class="character-title">Aura AI</h3>
+                            <p>Ready to target today's metrics.</p>
+                        </div>
+                    </section>
                 </div>
             </div>
-
-            <!-- VIEW 2: FULL JOURNAL RECORD MAP -->
-            <div id="viewJournal" class="app-view" style="display: none;">
-                <div class="journal-full-workspace">
-                    <div class="card-header-minimal">
-                        <h2>Advanced Analytical Log Stream</h2>
-                    </div>
-                    <div class="journal-matrix-box">
-                        <p class="section-desc">Historical timeline record map.</p>
-                        <div class="timeline-engine-track journal-timeline-target"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW 3: INTERACTIVE CHARACTER ENGINE COMPANION -->
-            <div id="viewCoach" class="app-view" style="display: none;">
-                <div class="companion-avatar-stage">
-                     <!-- Synced stage component -->
-                </div>
-            </div>
-
         </main>
     </div>
 
