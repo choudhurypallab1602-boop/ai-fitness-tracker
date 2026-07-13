@@ -33,7 +33,9 @@
                     <span class="logo-icon">✦</span><span>Aura</span>
                 </div>
                 <nav class="nav-links">
-                    <button class="nav-item active">⌂ Home</button>
+                    <button id="menuHome" class="nav-item active">⌂ Home</button>
+                    <button id="menuJournal" class="nav-item">▤ Journal</button>
+                    <button id="menuCoach" class="nav-item">✨ Coach</button>
                 </nav>
             </div>
 
@@ -55,67 +57,112 @@
             </div>
         </aside>
 
-        <!-- Main Dashboard View -->
+        <!-- Main Dashboard View Layer -->
         <main class="content-container">
             <div class="view-filter-segment-bar">
                 <div class="segment-pills">
-                    <button class="pill-btn active">Daily</button>
-                    <button class="pill-btn">Weekly</button>
-                    <button class="pill-btn">Monthly</button>
+                    <button class="pill-btn active" data-scope="today">Daily</button>
+                    <button class="pill-btn" data-scope="week">Weekly</button>
+                    <button class="pill-btn" data-scope="month">Monthly</button>
                 </div>
                 <input type="date" id="historyDatePicker" class="custom-date-ui">
             </div>
 
-            <div class="split-workspace-grid">
-                <div class="workspace-left-column">
-                    
-                    <!-- Text Box -->
-                    <section class="log-input-card">
-                        <div class="log-input-group">
-                            <textarea id="meal" placeholder="Track breakfast, lunch, or snack details..."></textarea>
-                            <div class="log-input-controls">
-                                <button id="voiceBtn" class="btn-voice-trigger">🎤 Speak</button>
-                                <button id="logBtn" class="btn-action-submit">Log Meal</button>
+            <!-- SPA TARGET VIEWS -->
+            <div id="viewHome" style="display: block;">
+                <div class="split-workspace-grid">
+                    <div class="workspace-left-column">
+                        
+                        <!-- Text Entry Box -->
+                        <section class="log-input-card">
+                            <div class="log-input-group">
+                                <textarea id="meal" placeholder="Track breakfast, lunch, or snack details..."></textarea>
+                                <div class="log-input-controls">
+                                    <button id="voiceBtn" class="btn-voice-trigger"><span class="voice-label">🎤 Speak</span></button>
+                                    <button id="logBtn" class="btn-action-submit">Log Meal</button>
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <!-- Synced Linear Gauges -->
-                    <section class="macro-gauge-card">
-                        <div class="card-header-minimal"><h3>Daily Progress Matrix</h3></div>
-                        <div class="linear-metrics-grid">
-                            <div>
-                                <div class="metric-info-row">
-                                    <span class="calories-row-label">Calories Target</span>
-                                    <span class="metric-value-display"><strong id="todayCalories">3623</strong> / 2000 kcal</span>
+                        <!-- Synced Linear Gauges -->
+                        <section class="macro-gauge-card">
+                            <div class="card-header-minimal"><h3 id="metricsTitle">Daily Progress Matrix</h3></div>
+                            <div class="linear-metrics-grid">
+                                <div>
+                                    <div class="metric-info-row">
+                                        <span class="calories-row-label">Calories Target</span>
+                                        <span class="metric-value-display"><strong id="todayCalories">0</strong> kcal</span>
+                                    </div>
+                                    <div class="progress-bar-track">
+                                        <div id="calorieBarFill" class="progress-fill fill-calories" style="width: 0%;"></div>
+                                    </div>
                                 </div>
-                                <div class="progress-bar-track">
-                                    <div id="calorieBarFill" class="progress-fill fill-calories" style="width: 85%;"></div>
+                                <div>
+                                    <div class="metric-info-row">
+                                        <span class="protein-row-label">Protein Target</span>
+                                        <span class="metric-value-display"><strong id="todayProtein">0</strong> g Protein</span>
+                                    </div>
+                                    <div class="progress-bar-track">
+                                        <div id="proteinBarFill" class="progress-fill fill-protein" style="width: 0%;"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="metric-info-row">
-                                    <span class="protein-row-label">Protein Target</span>
-                                    <span class="metric-value-display"><strong id="todayProtein">98.7</strong> / 120 g</span>
-                                </div>
-                                <div class="progress-bar-track">
-                                    <div id="proteinBarFill" class="progress-fill fill-protein" style="width: 70%;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+                        </section>
 
-                <div class="workspace-right-column">
-                    <section class="companion-window">
-                        <div class="avatar-character-box">✨</div>
-                        <div class="companion-speech-bubble">
-                            <h3 class="character-title">Aura AI</h3>
-                            <p>Ready to target today's metrics.</p>
-                        </div>
-                    </section>
+                        <!-- Timeline Track Component -->
+                        <section class="timeline-master-card">
+                            <div class="card-header-minimal"><h3>Activity Log Timeline</h3></div>
+                            <div class="timeline-engine-track timeline"></div>
+                        </section>
+                    </div>
+
+                    <div class="workspace-right-column">
+                        <!-- Quick Matrices -->
+                        <section class="quick-log-card">
+                            <div class="card-header-minimal"><h3>Quick Log Matrix</h3></div>
+                            <div class="quick-log-rows">
+                                <div id="quickBanana" class="quick-row">🍌 1 Fresh Banana</div>
+                                <div id="quickEgg" class="quick-row">🥚 2 Boiled Eggs</div>
+                                <div id="quickWhey" class="quick-row">🥛 1 Scoop Whey</div>
+                            </div>
+                        </section>
+
+                        <!-- AI Companion Bubble -->
+                        <section class="companion-window">
+                            <div class="avatar-character-box">✨</div>
+                            <div class="companion-speech-bubble">
+                                <h3 class="character-title">Aura AI</h3>
+                                <p id="coachCharacterSpeech">Ready to target today's metrics.</p>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
+
+            <!-- View Layers for Journal SPA Target -->
+            <div id="viewJournal" style="display: none;">
+                <div class="macro-gauge-card">
+                    <div class="card-header-minimal"><h3>Journal Ledger Historical Entries</h3></div>
+                    <div class="timeline-engine-track journal-timeline-target"></div>
+                </div>
+            </div>
+
+            <!-- View Layers for Coach SPA Target -->
+            <div id="viewCoach" style="display: none;">
+                <div class="companion-window">
+                    <div class="avatar-character-box">🤖</div>
+                    <div>
+                        <h3 class="character-title">Aura Analytical Coach</h3>
+                        <p style="margin-top:6px; font-size:14px; color:var(--secondary-txt);">Deep health profiling metrics and insights module loaded.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Context Alerts and UI States -->
+            <div id="guestBanner" style="display:none; padding:10px; background:#ffedd5; color:#c2410c; font-size:12px; font-weight:600; text-align:center; border-radius:8px; margin-top:20px;">
+                Running in Guest Session. Dynamic Google Sheets sync is inactive.
+            </div>
+            <div id="loading" style="display:none; position:fixed; bottom:20px; right:20px; background:#000; color:#fff; padding:8px 16px; border-radius:20px; font-size:12px; z-index:999;">Syncing with Sheets...</div>
         </main>
     </div>
 
