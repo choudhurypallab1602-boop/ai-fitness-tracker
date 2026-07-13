@@ -1,5 +1,6 @@
 /**
- * Aura Core Application State & UI Engineering Engine (Range Sorting Fixed)
+ * Aura Core Application State & UI Engineering Engine 
+ * Core Fixed: Dynamic Month Dropdown Toggle & Local Timezone Verification
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
@@ -36,8 +37,11 @@ window.addEventListener("load", function() {
   if(eggBtn) eggBtn.addEventListener("click", function() { triggerQuickMacro("2 Boiled Whole Eggs"); });
   if(wheyBtn) wheyBtn.addEventListener("click", function() { triggerQuickMacro("1 scoop Organic Whey Isolate Shake"); });
 
-  // FIXED: Explicit Range Selector Mapping Loop
+  // DYNAMIC SELECTION UI TOGGLE ENGINE (Daily Date vs Month Dropdown)
   const pills = document.querySelectorAll(".segment-pills .pill-btn");
+  const dailyPicker = document.getElementById("historyDatePicker");
+  const monthPicker = document.getElementById("historyMonthPicker");
+
   pills.forEach(function(pill) {
     pill.addEventListener("click", function(e) {
       e.preventDefault();
@@ -46,32 +50,50 @@ window.addEventListener("load", function() {
       
       currentScope = this.getAttribute("data-scope");
       
+      // UI Dropdown Controller Switch
+      if (currentScope === 'month') {
+        if(dailyPicker) dailyPicker.style.display = "none";
+        if(monthPicker) {
+          monthPicker.style.display = "block";
+          if(!monthPicker.value) {
+            const now = new Date();
+            monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          }
+        }
+      } else {
+        if(monthPicker) monthPicker.style.display = "none";
+        if(dailyPicker) dailyPicker.style.display = "block";
+      }
+      
       const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
       const metricsTitle = document.getElementById("metricsTitle");
-      if(metricsTitle) {
-        metricsTitle.innerText = titleMap[currentScope] || 'Progress Indicators';
-      }
-      // Instantly trigger re-sorting and chronological distribution
+      if(metricsTitle) metricsTitle.innerText = titleMap[currentScope] || 'Progress Indicators';
+      
       processView();
     });
   });
 
-  // Date picker Initialization & Listener
-  const picker = document.getElementById("historyDatePicker");
-  if (picker) {
-    if (!picker.value) {
+  // Date Pickers Change Triggers
+  if (dailyPicker) {
+    if (!dailyPicker.value) {
       const localToday = new Date();
       const offset = localToday.getTimezoneOffset();
       const adjustedDate = new Date(localToday.getTime() - (offset * 60 * 1000));
-      picker.value = adjustedDate.toISOString().split('T')[0];
+      dailyPicker.value = adjustedDate.toISOString().split('T')[0];
     }
-    picker.addEventListener("change", function() { 
+    dailyPicker.addEventListener("change", function() { 
       processView(); 
       loadDailyMemo(); 
     });
   }
 
-  // Sidebar Notepad Real-time Input Sync
+  if (monthPicker) {
+    monthPicker.addEventListener("change", function() {
+      processView();
+    });
+  }
+
+  // Sidebar Notepad Sync
   const notepad = document.getElementById("dashboardMemo");
   if (notepad) {
     notepad.addEventListener("input", saveDailyMemo);
@@ -79,7 +101,7 @@ window.addEventListener("load", function() {
 
   initializeVoice();
 
-  // Session Persistent Login Checker
+  // Session Checker
   const savedUser = sessionStorage.getItem("auth_user");
   if(savedUser) {
     activateDashboard(savedUser === "Guest", savedUser);
@@ -88,14 +110,10 @@ window.addEventListener("load", function() {
   loadDailyMemo();
 });
 
-/**
- * Single Page Application Core Routing Logic
- */
 function routeToView(target) {
   const mHome = document.getElementById("menuHome");
   const mJournal = document.getElementById("menuJournal");
   const mCoach = document.getElementById("menuCoach");
-
   const vHome = document.getElementById("viewHome");
   const vJournal = document.getElementById("viewJournal");
   const vCoach = document.getElementById("viewCoach");
@@ -103,83 +121,47 @@ function routeToView(target) {
   if(mHome) mHome.classList.remove("active");
   if(mJournal) mJournal.classList.remove("active");
   if(mCoach) mCoach.classList.remove("active");
-  
   if(vHome) vHome.style.display = "none";
   if(vJournal) vJournal.style.display = "none";
   if(vCoach) vCoach.style.display = "none";
 
-  if(target === 'home') {
-    if(mHome) mHome.classList.add("active");
-    if(vHome) vHome.style.display = "block";
-  } else if(target === 'journal') {
-    if(mJournal) mJournal.classList.add("active");
-    if(vJournal) vJournal.style.display = "block";
-  } else if(target === 'coach') {
-    if(mCoach) mCoach.classList.add("active");
-    if(vCoach) vCoach.style.display = "block";
-  }
+  if(target === 'home') { if(mHome) mHome.classList.add("active"); if(vHome) vHome.style.display = "block"; }
+  else if(target === 'journal') { if(mJournal) mJournal.classList.add("active"); if(vJournal) vJournal.style.display = "block"; }
+  else if(target === 'coach') { if(mCoach) mCoach.classList.add("active"); if(vCoach) vCoach.style.display = "block"; }
 }
 
 function triggerQuickMacro(text) {
   const inputField = document.getElementById("meal");
-  if(inputField) {
-    inputField.value = text;
-    inputField.focus();
-  }
+  if(inputField) { inputField.value = text; inputField.focus(); }
 }
 
-/**
- * Authentication Engine Sequence Vectors
- */
 function handleLogin() {
   const u = document.getElementById("authUsername").value.trim().toLowerCase();
   const p = document.getElementById("authPassword").value.trim();
   if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) {
     sessionStorage.setItem("auth_user", u);
     activateDashboard(false, u);
-  } else {
-    alert("Incorrect Credentials.");
-  }
+  } else { alert("Incorrect Credentials."); }
 }
 
-function handleGuest() {
-  sessionStorage.setItem("auth_user", "Guest");
-  activateDashboard(true, "Guest");
-}
-
-function handleLogout() {
-  sessionStorage.clear();
-  window.location.reload();
-}
+function handleGuest() { sessionStorage.setItem("auth_user", "Guest"); activateDashboard(true, "Guest"); }
+function handleLogout() { sessionStorage.clear(); window.location.reload(); }
 
 function activateDashboard(isGuest, name) {
   isGuestModeActive = isGuest;
-  
   const authScreen = document.getElementById("authScreen");
   const mainDashboard = document.getElementById("mainDashboard");
   const guestBanner = document.getElementById("guestBanner");
   const userDisplay = document.getElementById("userDisplay");
 
   if(authScreen) authScreen.style.display = "none";
-  
-  if(mainDashboard) {
-    if(window.innerWidth <= 1024) {
-      mainDashboard.style.display = "block";
-    } else {
-      mainDashboard.style.display = "grid";
-    }
-  }
-
-  if(userDisplay && name) {
-    userDisplay.innerText = name.substring(0,1).toUpperCase();
-  }
+  if(mainDashboard) mainDashboard.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
+  if(userDisplay && name) userDisplay.innerText = name.substring(0,1).toUpperCase();
 
   if(isGuestModeActive) {
     if(guestBanner) guestBanner.style.display = "block";
     processView();
-  } else {
-    loadData();
-  }
+  } else { loadData(); }
 }
 
 function normalizeInputString(str) {
@@ -188,30 +170,22 @@ function normalizeInputString(str) {
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
-/**
- * Web Speech Webkit Voice Recognition
- */
 function initializeVoice() {
   if ("webkitSpeechRecognition" in window) {
     recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-IN";
-    recognition.continuous = true;       
-    recognition.interimResults = false;   
+    recognition.lang = "en-IN"; recognition.continuous = true; recognition.interimResults = false;   
     const voiceBtn = document.getElementById("voiceBtn");
     const mealInput = document.getElementById("meal");
-
     if(!voiceBtn) return;
 
     recognition.onstart = function() {
       isListening = true;
-      const label = voiceBtn.querySelector('.voice-label');
-      if(label) label.innerText = "Stop";
+      if(voiceBtn.querySelector('.voice-label')) voiceBtn.querySelector('.voice-label').innerText = "Stop";
       voiceBtn.style.background = "#fee2e2";
     };
     recognition.onend = function() {
       isListening = false;
-      const label = voiceBtn.querySelector('.voice-label');
-      if(label) label.innerText = "Speak";
+      if(voiceBtn.querySelector('.voice-label')) voiceBtn.querySelector('.voice-label').innerText = "Speak";
       voiceBtn.style.background = "#f1f5f9";
     };
     recognition.onresult = function(event) {
@@ -219,33 +193,23 @@ function initializeVoice() {
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) txt += event.results[i][0].transcript + " ";
       }
-      if(txt.trim() && mealInput) {
-        mealInput.value += normalizeInputString(txt);
-      }
+      if(txt.trim() && mealInput) mealInput.value += normalizeInputString(txt);
     };
-    voiceBtn.addEventListener("click", function(e) {
-      e.preventDefault();
-      if (isListening) recognition.stop(); else recognition.start();
-    });
+    voiceBtn.addEventListener("click", function(e) { e.preventDefault(); if (isListening) recognition.stop(); else recognition.start(); });
   }
 }
 
-/**
- * Server Pipeline Integration Async Drivers
- */
 async function loadData() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
     if(data.history) globalHistoryCache = data.history; 
-    
     if(data.coach || data.coachResponse) {
-      const speechText = data.coach || data.coachResponse;
       const speechBox = document.getElementById("coachCharacterSpeech");
-      if(speechBox) speechBox.innerText = speechText;
+      if(speechBox) speechBox.innerText = data.coach || data.coachResponse;
     }
     processView();
-  } catch (err) { console.log("System data sync failure."); }
+  } catch (err) { console.log("Data core fetch fault."); }
 }
 
 async function logMeal() {
@@ -256,7 +220,6 @@ async function logMeal() {
   
   const loading = document.getElementById("loading");
   if(loading) loading.style.display = "block";
-  
   const datePicker = document.getElementById("historyDatePicker");
   const date = datePicker ? datePicker.value : new Date().toISOString().split('T')[0];
 
@@ -265,11 +228,11 @@ async function logMeal() {
     const data = await res.json();
     if(data.history) globalHistoryCache = data.history;
     if(data.coach || data.coachResponse) {
-      const speechBox = document.getElementById("coachCharacterSpeech");
-      if(speechBox) speechBox.innerText = data.coach || data.coachResponse;
+      const sb = document.getElementById("coachCharacterSpeech");
+      if(sb) sb.innerText = data.coach || data.coachResponse;
     }
     processView();
-  } catch (err) { alert("Logging engine payload sync fault."); }
+  } catch (err) { alert("Logging processing failure."); }
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
@@ -283,78 +246,69 @@ function updateLinearProgress(barFillId, current, limit) {
 }
 
 /**
- * RE-ENGINEERED RANGE SORTING & FILTER MATRIX ENGINE
+ * PRODUCTION-READY CHRONO FILTER ENGINE (Timezone Glitch Fixed)
  */
 function processView() {
   const homeTimeline = document.querySelector(".timeline");
   const journalTimeline = document.querySelector(".journal-timeline-target");
-  const datePicker = document.getElementById("historyDatePicker");
-  if(!datePicker) return;
+  const dailyPicker = document.getElementById("historyDatePicker");
+  const monthPicker = document.getElementById("historyMonthPicker");
   
-  const selectedDateStr = datePicker.value; 
-  if(!selectedDateStr) return;
+  if(!dailyPicker || !monthPicker) return;
   
-  // Safe integer component parsing
-  const parts = selectedDateStr.split('-');
-  const targetYear = parseInt(parts[0], 10);
-  const targetMonth = parseInt(parts[1], 10) - 1; 
-  const targetDay = parseInt(parts[2], 10);
-
-  // Timezone locked anchor point
-  const targetEndDate = new Date(targetYear, targetMonth, targetDay, 0, 0, 0, 0);
-
   let filtered = [];
   let cal = 0, prot = 0;
-  
-  // Dynamic Targets scaling based on active sort scope
   let targetLimit = 2000, proteinLimit = 120;
-  if (currentScope === 'week') { targetLimit = 14000; proteinLimit = 840; }
-  if (currentScope === 'month') { targetLimit = 60000; proteinLimit = 3600; }
 
-  globalHistoryCache.forEach(function(item, index) {
-    if(!item.date) return;
-    
-    const itemParts = item.date.split('-');
-    const iYear = parseInt(itemParts[0], 10);
-    const iMonth = parseInt(itemParts[1], 10) - 1;
-    const iDay = parseInt(itemParts[2], 10);
-    const itemDate = new Date(iYear, iMonth, iDay, 0, 0, 0, 0);
+  if (currentScope === 'today') {
+    const selectedDateStr = dailyPicker.value;
+    globalHistoryCache.forEach(function(item, index) {
+      if(item.date === selectedDateStr) {
+        filtered.push({...item, originalIndex: index});
+        cal += Number(item.calories) || 0;
+        prot += Number(item.protein) || 0;
+      }
+    });
+  } 
+  else if (currentScope === 'week') {
+    const selectedDateStr = dailyPicker.value;
+    const parts = selectedDateStr.split('-');
+    const endDate = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 0,0,0,0);
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 6); // Pure trailing week loop
 
-    let match = false;
+    targetLimit = 14000; proteinLimit = 840;
 
-    if (currentScope === 'today') {
-      match = (item.date === selectedDateStr);
-    } 
-    else if (currentScope === 'week') {
-      // Logic to grab trailing 7 calendar days cleanly
-      const targetStartDate = new Date(targetEndDate);
-      targetStartDate.setDate(targetEndDate.getDate() - 6); 
-      match = (itemDate >= targetStartDate && itemDate <= targetEndDate);
-    } 
-    else if (currentScope === 'month') {
-      // Match current target calendar month context
-      match = (itemDate.getMonth() === targetEndDate.getMonth() && itemDate.getFullYear() === targetEndDate.getFullYear());
-    }
+    globalHistoryCache.forEach(function(item, index) {
+      if(!item.date) return;
+      const iP = item.date.split('-');
+      const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10), 0,0,0,0);
+      
+      if(itemDate >= startDate && itemDate <= endDate) {
+        filtered.push({...item, originalIndex: index});
+        cal += Number(item.calories) || 0;
+        prot += Number(item.protein) || 0;
+      }
+    });
+  } 
+  else if (currentScope === 'month') {
+    const selectedMonthStr = monthPicker.value; // Format: "YYYY-MM"
+    targetLimit = 60000; proteinLimit = 3600;
 
-    if (match) {
-      filtered.push({
-        date: item.date,
-        time: item.time || "00:00",
-        rawInput: item.rawInput || "Unknown Meal",
-        calories: Number(item.calories) || 0,
-        protein: Number(item.protein) || 0,
-        originalIndex: index
-      });
-      cal += Number(item.calories) || 0;
-      prot += Number(item.protein) || 0;
-    }
-  });
+    globalHistoryCache.forEach(function(item, index) {
+      if(!item.date) return;
+      if(item.date.startsWith(selectedMonthStr)) {
+        filtered.push({...item, originalIndex: index});
+        cal += Number(item.calories) || 0;
+        prot += Number(item.protein) || 0;
+      }
+    });
+  }
 
   const calBox = document.getElementById("todayCalories");
   const protBox = document.getElementById("todayProtein");
-  
-  if(calBox) calBox.innerText = cal;
-  if(protBox) protBox.innerText = prot;
+  if(calBox) calBox.innerText = cal.toFixed(0);
+  if(protBox) protBox.innerText = prot.toFixed(1);
 
   updateLinearProgress("calorieBarFill", cal, targetLimit);
   updateLinearProgress("proteinBarFill", prot, proteinLimit);
@@ -363,9 +317,6 @@ function processView() {
   renderTimelineDom(filtered, journalTimeline);
 }
 
-/**
- * Dynamic Chrono Timeline Node Builder
- */
 function renderTimelineDom(dataset, targetContainer) {
   if(!targetContainer) return;
   targetContainer.innerHTML = "";
@@ -380,34 +331,25 @@ function renderTimelineDom(dataset, targetContainer) {
   localCopy.forEach(function(row) {
     const itemEl = document.createElement("div");
     itemEl.className = "timeline-node";
-    
-    itemEl.innerHTML = "<div class='node-dot-track'><span class='node-dot'></span></div>" +
-      "<div class='node-payload' style='width: 100%;'>" +
-        "<div class='node-meta-row'>" +
-          "<span class='node-timestamp'>" + row.date + " · " + row.time + "</span>" +
-          "<div class='node-crud-triggers'>" +
-            "<button class='unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
-            "<button class='unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
-          "</div>" +
-        "</div>" +
-        "<div class='node-title-meal'>" + normalizeInputString(row.rawInput) + "</div>" +
-        "<p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:#64748b;'> " + row.calories + " kcal  ·  " + row.protein + "g Protein</p>" +
-      "</div>";
+    itemEl.innerHTML = `<div class='node-dot-track'><span class='node-dot'></span></div>
+      <div class='node-payload' style='width: 100%;'>
+        <div class='node-meta-row'>
+          <span class='node-timestamp'>${row.date} · ${row.time || "00:00"}</span>
+          <div class='node-crud-triggers'>
+            <button class='unique-edit-btn-${row.originalIndex}'>✏️</button>
+            <button class='unique-del-btn-${row.originalIndex}'>🗑️</button>
+          </div>
+        </div>
+        <div class='node-title-meal'>${normalizeInputString(row.rawInput || row.meal)}</div>
+        <p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:#64748b;'>${row.calories} kcal · ${row.protein}g Protein</p>
+      </div>`;
 
     targetContainer.appendChild(itemEl);
 
     itemEl.querySelector(".unique-edit-btn-" + row.originalIndex).addEventListener("click", function() {
-      const mealBox = document.getElementById("meal");
-      if(mealBox) {
-        mealBox.value = row.rawInput;
-        routeToView('home');
-        mealBox.focus();
-      }
+      const mb = document.getElementById("meal"); if(mb) { mb.value = row.rawInput || row.meal; routeToView('home'); mb.focus(); }
     });
-    
-    itemEl.querySelector(".unique-del-btn-" + row.originalIndex).addEventListener("click", function() {
-      deleteMeal(row.originalIndex);
-    });
+    itemEl.querySelector(".unique-del-btn-" + row.originalIndex).addEventListener("click", function() { deleteMeal(row.originalIndex); });
   });
 }
 
@@ -426,68 +368,37 @@ async function deleteMeal(index) {
       const data = await res.json();
       if(data.history) globalHistoryCache = data.history;
       if(data.coach || data.coachResponse) {
-        const speechBox = document.getElementById("coachCharacterSpeech");
-        if(speechBox) speechBox.innerText = data.coach || data.coachResponse;
+        const sb = document.getElementById("coachCharacterSpeech"); if(sb) sb.innerText = data.coach || data.coachResponse;
       }
       processView();
-    } catch (err) { alert("Delete pipeline drop synchronization error."); }
+    } catch (err) { alert("Deletion engine dropped connection."); }
     finally { if(loading) loading.style.display = "none"; }
   }
 }
 
-// ================= PER-DAY DATE-LINKED SIDEBAR NOTEPAD CONFIG =================
 function getActiveTimelineDate() {
-  const datePicker = document.getElementById("historyDatePicker");
-  return datePicker && datePicker.value ? datePicker.value : new Date().toISOString().split('T')[0];
+  const dp = document.getElementById("historyDatePicker"); return dp && dp.value ? dp.value : new Date().toISOString().split('T')[0];
 }
 
 function loadDailyMemo() {
-  const memoTextarea = document.getElementById("dashboardMemo");
-  const memoStatus = document.getElementById("memoStatus");
-  if (!memoTextarea) return;
-
-  const activeDate = getActiveTimelineDate();
-  const cachedData = localStorage.getItem(`aura_notes_${activeDate}`);
-  
-  memoTextarea.value = cachedData ? cachedData : "";
-  if (memoStatus) {
-    memoStatus.textContent = "Saved";
-    memoStatus.style.background = "#ccfbf1";
-    memoStatus.style.color = "#0d9488";
-  }
+  const mt = document.getElementById("dashboardMemo"); const ms = document.getElementById("memoStatus"); if (!mt) return;
+  const activeDate = getActiveTimelineDate(); const cachedData = localStorage.getItem(`aura_notes_${activeDate}`);
+  mt.value = cachedData ? cachedData : "";
+  if (ms) { ms.textContent = "Saved"; ms.style.background = "#ccfbf1"; ms.style.color = "#0d9488"; }
 }
 
 let saveTimeout;
 function saveDailyMemo() {
-  const memoTextarea = document.getElementById("dashboardMemo");
-  const memoStatus = document.getElementById("memoStatus");
-  if (!memoTextarea) return;
-
-  if (memoStatus) {
-    memoStatus.textContent = "Saving...";
-    memoStatus.style.background = "#fef3c7";
-    memoStatus.style.color = "#b45309";
-  }
-  
+  const mt = document.getElementById("dashboardMemo"); const ms = document.getElementById("memoStatus"); if (!mt) return;
+  if (ms) { ms.textContent = "Saving..."; ms.style.background = "#fef3c7"; ms.style.color = "#b45309"; }
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
-    const activeDate = getActiveTimelineDate();
-    localStorage.setItem(`aura_notes_${activeDate}`, memoTextarea.value);
-    if (memoStatus) {
-      memoStatus.textContent = "Saved";
-      memoStatus.style.background = "#ccfbf1";
-      memoStatus.style.color = "#0d9488";
-    }
+    const activeDate = getActiveTimelineDate(); localStorage.setItem(`aura_notes_${activeDate}`, mt.value);
+    if (ms) { ms.textContent = "Saved"; ms.style.background = "#ccfbf1"; ms.style.color = "#0d9488"; }
   }, 400);
 }
 
 window.addEventListener("resize", () => {
-  const mainDashboard = document.getElementById("mainDashboard");
-  if (mainDashboard && mainDashboard.style.display !== "none") {
-    if (window.innerWidth <= 1024) {
-      mainDashboard.style.display = "block";
-    } else {
-      mainDashboard.style.display = "grid";
-    }
-  }
+  const mb = document.getElementById("mainDashboard");
+  if (mb && mb.style.display !== "none") mb.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
 });
