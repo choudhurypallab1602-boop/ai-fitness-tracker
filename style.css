@@ -82,11 +82,22 @@ textarea { width: 100%; border: none; resize: none; outline: none; font-size: 15
 .fill-calories { background: var(--accent-color); } /* Purple */
 .fill-protein { background: var(--teal-success); } /* Teal */
 
+/* QUICK LOG ROW DESIGN */
+.quick-log-rows { display: flex; flex-direction: column; gap: 10px; }
+.quick-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border: 1px solid var(--border-soft); border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; background: var(--surface-panel); transition: background 0.15s; }
+.quick-row:hover { background: #f8fafc; }
+
+/* COMPANION INFRASTRUCTURE */
+.avatar-character-box { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent-color), #4f46e5); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 20px; }
+.character-title { font-size: 12px; font-weight: 700; color: var(--accent-color); text-transform: uppercase; }
+.companion-speech-bubble p { font-size: 14px; margin-top: 2px; color: var(--primary-txt); }
+.companion-window { display: flex; align-items: center; gap: 16px; }
+
 /* SIDEBAR NOTEPAD DATA CONTAINER */
 .sidebar-notepad-block { margin-top: auto; margin-bottom: 20px; background: #fafafa; border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px; }
 .sidebar-notepad-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .sidebar-notepad-header span { font-size: 11px; font-weight: 700; color: var(--secondary-txt); }
-.save-status { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #d1fae5; color: #065f46; font-weight: 600; }
+.save-status { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #d1fae5; color: #065f46; font-weight: 600; transition: all 0.2s; }
 .sidebar-notepad-textarea { width: 100%; min-height: 80px; border: none; resize: none; outline: none; background: transparent; font-size: 13px; color: var(--primary-txt); font-family: inherit; }
 
 /* CHRONO TIMELINE CONTEXT */
@@ -97,6 +108,8 @@ textarea { width: 100%; border: none; resize: none; outline: none; font-size: 15
 .node-dot { width: 8px; height: 8px; background: #fff; border: 2px solid #cbd5e1; border-radius: 50%; }
 .node-payload { flex: 1; background: #fafafa; border-radius: 12px; padding: 14px; border: 1px solid var(--border-soft); }
 .node-meta-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--secondary-txt); }
+.node-crud-triggers button { background: none; border: none; cursor: pointer; margin-left: 6px; font-size: 13px; }
+.node-title-meal { font-size: 14px; font-weight: 600; color: var(--primary-txt); }
 
 /* AUTH STRUCTURAL SYSTEM */
 .auth-wrapper { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: #f8fafc; padding: 20px; }
