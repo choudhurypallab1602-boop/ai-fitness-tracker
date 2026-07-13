@@ -66,6 +66,22 @@
                     <button class="pill-btn" data-scope="month">Monthly</button>
                 </div>
                 <input type="date" id="historyDatePicker" class="custom-date-ui">
+                <div class="view-filter-segment-bar">
+    <div class="segment-pills">
+        <button class="pill-btn active" data-scope="today">Daily</button>
+        <button class="pill-btn" data-scope="week">Weekly</button>
+        <button class="pill-btn" data-scope="month">Monthly</button>
+    </div>
+    
+    <!-- Dynamic Pickers Container -->
+    <div class="chrono-pickers-wrapper">
+        <!-- 1. Daily Date Picker -->
+        <input type="date" id="historyDatePicker" class="custom-date-ui">
+        
+        <!-- 2. Monthly Picker (Hidden by default) -->
+        <input type="month" id="historyMonthPicker" class="custom-date-ui" style="display: none;">
+    </div>
+</div>
             </div>
 
             <!-- SPA TARGET VIEWS -->
