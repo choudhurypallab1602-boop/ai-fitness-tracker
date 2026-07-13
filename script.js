@@ -35,30 +35,25 @@ window.addEventListener("load", function() {
       pills.forEach(p => p.classList.remove("active"));
       pill.classList.add("active");
       currentScope = pill.getAttribute("data-scope");
-      
-      // Title Update dynamically
-      const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
-      document.getElementById("metricsTitle").innerText = titleMap[currentScope] || 'Progress Indicators';
       processView();
     });
   });
 
-  // Sticky Pad Notepad Event Persistence Loop
-  const notepad = document.getElementById("dashboardMemo");
-  const memoStatus = document.getElementById("memoStatus");
-  
-  if(localStorage.getItem("aura_workspace_memo")) {
-    notepad.value = localStorage.getItem("aura_workspace_memo");
-  }
-  notepad.addEventListener("input", function() {
-    memoStatus.innerText = "Saving...";
-    localStorage.setItem("aura_workspace_memo", notepad.value);
-    setTimeout(() => { memoStatus.innerText = "Autosaved"; }, 800);
-  });
-
+  // Date picker Initialization & Listener
   const picker = document.getElementById("historyDatePicker");
-  picker.value = new Date().toISOString().split('T')[0];
-  picker.addEventListener("change", function() { processView(); });
+  if (picker) {
+    picker.value = new Date().toISOString().split('T')[0];
+    picker.addEventListener("change", function() { 
+      processView(); 
+      loadDailyMemo(); // Note text loads dynamically when calendar changes
+    });
+  }
+
+  // Integrated Notepad Core Loop (Per-Day Linked)
+  const notepad = document.getElementById("dashboardMemo");
+  if (notepad) {
+    notepad.addEventListener("input", saveDailyMemo);
+  }
 
   initializeVoice();
 
@@ -66,6 +61,9 @@ window.addEventListener("load", function() {
   if(savedUser) {
     activateDashboard(savedUser === "Guest", savedUser);
   }
+  
+  // Initial load execution for daily note state
+  loadDailyMemo();
 });
 
 function routeToView(target) {
@@ -148,12 +146,10 @@ function initializeVoice() {
 
     recognition.onstart = function() {
       isListening = true;
-      voiceBtn.querySelector('.voice-label').innerText = "Stop";
       voiceBtn.style.background = "#fee2e2";
     };
     recognition.onend = function() {
       isListening = false;
-      voiceBtn.querySelector('.voice-label').innerText = "Speak";
       voiceBtn.style.background = "#f1f5f9";
     };
     recognition.onresult = function(event) {
@@ -176,7 +172,6 @@ async function loadData() {
     const data = await res.json();
     if(data.history) globalHistoryCache = data.history; 
     
-    // Inject speech system into dynamic companion window interface
     if(data.coach || data.coachResponse) {
       const speechText = data.coach || data.coachResponse;
       document.getElementById("coachCharacterSpeech").innerText = speechText;
@@ -205,21 +200,14 @@ async function logMeal() {
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
-function updateRadialGauge(elementId, current, limit, overColor, baseColor) {
-  const el = document.getElementById(elementId);
-  if(!el) return;
-  const radius = el.r.baseVal.value;
-  const circumference = 2 * Math.PI * radius;
-  let percent = current / limit;
-  if(percent > 1) {
-    el.style.stroke = overColor;
-    percent = 1; 
-  } else {
-    el.style.stroke = baseColor;
-  }
-  const offset = circumference - (percent * circumference);
-  el.style.strokeDasharray = circumference + " " + circumference;
-  el.style.strokeDashoffset = offset;
+// Modern Linear Progress Fill System updates
+function updateLinearProgress(barFillId, current, limit) {
+  const fillElement = document.getElementById(barFillId);
+  if (!fillElement) return;
+  let percentage = (current / limit) * 100;
+  if (percentage > 100) percentage = 100; // Cap visual scale overflow
+  if (percentage < 0) percentage = 0;
+  fillElement.style.width = percentage + "%";
 }
 
 function processView() {
@@ -265,11 +253,12 @@ function processView() {
     }
   });
 
-  document.getElementById("todayCalories").innerText = cal + " / " + targetLimit + " kcal";
-  document.getElementById("todayProtein").innerText = prot + " / " + proteinLimit + " g";
+  document.getElementById("todayCalories").innerText = cal;
+  document.getElementById("todayProtein").innerText = prot;
 
-  updateRadialGauge("calorieGaugeFill", cal, targetLimit, "#ef4444", "#0d9488");
-  updateRadialGauge("proteinGaugeFill", prot, proteinLimit, "#ef4444", "#6366f1");
+  // Render Premium Linear Progress Bars dynamically
+  updateLinearProgress("calorieBarFill", cal, targetLimit);
+  updateLinearProgress("proteinBarFill", prot, proteinLimit);
 
   // Render Layout Feed Function
   renderTimelineDom(filtered, homeTimeline);
@@ -281,11 +270,10 @@ function renderTimelineDom(dataset, targetContainer) {
   targetContainer.innerHTML = "";
   
   if(dataset.length === 0) {
-    targetContainer.innerHTML = "<div class='null-state-msg'>No entries registered in this selection scope.</div>";
+    targetContainer.innerHTML = "<div class='null-state-msg' style='padding:20px; font-size:12px; color:#64748b; text-align:center;'>No entries registered in this scope.</div>";
     return;
   }
   
-  // Create safe explicit copies to prevent double reversing references
   let localCopy = dataset.slice().reverse();
 
   localCopy.forEach(function(row) {
@@ -297,8 +285,8 @@ function renderTimelineDom(dataset, targetContainer) {
         "<div class='node-meta-row'>" +
           "<span class='node-timestamp'>" + row.time + "</span>" +
           "<div class='node-crud-triggers'>" +
-            "<button class='action-trigger-btn unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
-            "<button class='action-trigger-btn unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
+            "<button class='unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
+            "<button class='unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
           "</div>" +
         "</div>" +
         "<div class='node-title-meal'>" + normalizeInputString(row.rawInput) + "</div>" +
@@ -307,7 +295,6 @@ function renderTimelineDom(dataset, targetContainer) {
 
     targetContainer.appendChild(itemEl);
 
-    // Context-independent target matching loops
     itemEl.querySelector(".unique-edit-btn-" + row.originalIndex).addEventListener("click", function() {
       document.getElementById("meal").value = row.rawInput;
       routeToView('home');
@@ -341,95 +328,49 @@ async function deleteMeal(index) {
     finally { if(loading) loading.style.display = "none"; }
   }
 }
-// ================= DRAGGABLE & PER-DAY STICKY ENGINE =================
-const stickyEl = document.getElementById("draggableSticky");
-const handleEl = document.getElementById("stickyHandle");
-const memoTextarea = document.getElementById("dashboardMemo");
-const memoStatus = document.getElementById("memoStatus");
-const datePicker = document.getElementById("historyDatePicker");
-const stickyDateLabel = document.getElementById("stickyDateLabel");
 
-// 1. DRAG ENGINE LOGIC
-let isDragging = false;
-let currentX, currentY, initialX, initialY;
-let xOffset = 0, yOffset = 0;
-
-handleEl.addEventListener("mousedown", dragStart);
-document.addEventListener("mousemove", drag);
-document.addEventListener("mouseup", dragEnd);
-
-handleEl.addEventListener("touchstart", dragStart, { passive: true });
-document.addEventListener("touchmove", drag, { passive: false });
-document.addEventListener("touchend", dragEnd);
-
-function dragStart(e) {
-    let clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
-    let clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
-    
-    initialX = clientX - xOffset;
-    initialY = clientY - yOffset;
-
-    if (e.target === handleEl || handleEl.contains(e.target)) {
-        isDragging = true;
-    }
-}
-
-function drag(e) {
-    if (!isDragging) return;
-    if (e.type === "touchmove") e.preventDefault(); // Stop screen scroll during drag
-
-    let clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-    let clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-
-    currentX = clientX - initialX;
-    currentY = clientY - initialY;
-
-    xOffset = currentX;
-    yOffset = currentY;
-
-    stickyEl.style.transform = `translate(${currentX}px, ${currentY}px)`;
-}
-
-function dragEnd() {
-    isDragging = false;
-}
-
-// 2. PER-DAY LOCKER LOGIC
-function getActiveStickyDate() {
-    // Agar datepicker me date selected h toh vo lega, nahi toh default current date
-    return datePicker && datePicker.value ? datePicker.value : new Date().toISOString().split('T')[0];
+// ================= FIXED PER-DAY NOTEPAD STORAGE ENGINE =================
+function getActiveTimelineDate() {
+  const datePicker = document.getElementById("historyDatePicker");
+  return datePicker && datePicker.value ? datePicker.value : new Date().toISOString().split('T')[0];
 }
 
 function loadDailyMemo() {
-    const targetDate = getActiveStickyDate();
-    const savedMemo = localStorage.getItem(`sticky_memo_${targetDate}`);
-    
-    memoTextarea.value = savedMemo ? savedMemo : "";
-    if(stickyDateLabel) {
-        stickyDateLabel.textContent = targetDate;
-    }
+  const memoTextarea = document.getElementById("dashboardMemo");
+  const memoStatus = document.getElementById("memoStatus");
+  if (!memoTextarea) return;
+
+  const activeDate = getActiveTimelineDate();
+  const cachedData = localStorage.getItem(`aura_notes_${activeDate}`);
+  
+  memoTextarea.value = cachedData ? cachedData : "";
+  if (memoStatus) {
     memoStatus.textContent = "Saved";
     memoStatus.style.background = "#ccfbf1";
+    memoStatus.style.color = "#0d9488";
+  }
 }
 
-// Auto Save on typing
-memoTextarea.addEventListener("input", () => {
+function saveDailyMemo() {
+  const memoTextarea = document.getElementById("dashboardMemo");
+  const memoStatus = document.getElementById("memoStatus");
+  if (!memoTextarea) return;
+
+  if (memoStatus) {
     memoStatus.textContent = "Saving...";
     memoStatus.style.background = "#fef3c7";
-    
-    const targetDate = getActiveStickyDate();
-    localStorage.setItem(`sticky_memo_${targetDate}`, memoTextarea.value);
-    
-    setTimeout(() => {
-        memoStatus.textContent = "Saved";
-        memoStatus.style.background = "#ccfbf1";
-    }, 600);
-});
-
-// Sync note when calendar date/timeline change
-if(datePicker) {
-    datePicker.addEventListener("change", loadDailyMemo);
+    memoStatus.style.color = "#b45309";
+  }
+  
+  const activeDate = getActiveTimelineDate();
+  localStorage.setItem(`aura_notes_${activeDate}`, memoTextarea.value);
+  
+  // Simulated small structural sync delay feedback
+  setTimeout(() => {
+    if (memoStatus) {
+      memoStatus.textContent = "Saved";
+      memoStatus.style.background = "#ccfbf1";
+      memoStatus.style.color = "#0d9488";
+    }
+  }, 400);
 }
-
-// Initial Load
-document.addEventListener("DOMContentLoaded", loadDailyMemo);
