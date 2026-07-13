@@ -31,6 +31,35 @@
         
         <!-- Left Persistent Navigation Sidebar -->
         <aside class="side-navigation">
+<aside class="side-navigation">
+    <div class="side-top">
+        <div class="side-logo">
+            <span class="logo-icon">✦</span>
+            <span class="logo-text">Aura</span>
+        </div>
+        <nav class="nav-links">
+            <button id="menuHome" class="nav-item active"><span class="nav-icon">⌂</span> Home</button>
+            <button id="menuJournal" class="nav-item"><span class="nav-icon">⌥</span> Journal</button>
+            <button id="menuCoach" class="nav-item"><span class="nav-icon">✧</span> AI Companion</button>
+        </nav>
+    </div>
+
+    <!-- Integrated Sidebar Notepad (Moved Here) -->
+    <div class="sidebar-notepad-block">
+        <div class="sidebar-notepad-header">
+            <span>DAILY NOTES</span>
+            <span class="save-status" id="memoStatus">Saved</span>
+        </div>
+        <textarea id="dashboardMemo" placeholder="Type quick notes for the selected date..." class="sidebar-notepad-textarea"></textarea>
+    </div>
+
+    <div class="side-bottom">
+        <div class="user-meta">
+            <div class="avatar-thumb" id="userDisplay">U</div>
+            <button id="logoutBtn" class="btn-icon-logout">Logout</button>
+        </div>
+    </div>
+</aside>
             <div class="side-top">
                 <div class="side-logo">
                     <span class="logo-icon">✦</span>
