@@ -5,9 +5,9 @@
     --primary-txt: #0f172a;
     --secondary-txt: #64748b;
     --border-soft: #e2e8f0;
-    --accent-color: #6366f1;
+    --accent-color: #6366f1; /* Deep Purple */
     --accent-glow: rgba(99, 102, 241, 0.08);
-    --teal-success: #0d9488;
+    --teal-success: #0d9488; /* Emerald Teal */
     --red-alert: #ef4444;
 }
 
@@ -59,17 +59,21 @@ textarea { flex: 1; border: none; resize: none; outline: none; font-size: 15px; 
 .processing-spinner { font-size: 12px; color: var(--secondary-txt); margin-top: 12px; display: flex; align-items: center; gap: 8px; }
 .spinner-dot { width: 6px; height: 6px; background: var(--accent-color); border-radius: 50%; animation: pulseGlow 1.5s infinite alternate; }
 
-/* ================= MODERN LINEAR PROGRESS METRICS ================= */
+/* ================= FIXED SYNCED PROGRESS METRICS ================= */
 .linear-metrics-grid { display: flex; flex-direction: column; gap: 20px; }
 .metric-progress-block { width: 100%; }
 .metric-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.metric-label { font-size: 13px; font-weight: 600; color: var(--secondary-txt); }
+
+/* Color Specific Row Labels */
+.calories-row-label { font-size: 13px; font-weight: 600; color: var(--accent-color); } /* Purple Text matching Bar */
+.protein-row-label { font-size: 13px; font-weight: 600; color: var(--teal-success); } /* Teal Text matching Bar */
+
 .metric-value-display { font-size: 13px; color: var(--secondary-txt); }
 .metric-value-display strong { font-size: 16px; color: var(--primary-txt); font-weight: 700; }
 .progress-bar-track { width: 100%; height: 10px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-.fill-calories { background: var(--accent-color); }
-.fill-protein { background: var(--teal-success); }
+.fill-calories { background: var(--accent-color); } /* Purple Bar */
+.fill-protein { background: var(--teal-success); } /* Teal Bar */
 
 /* QUICK DICTIONARY ROWS */
 .quick-log-rows { display: flex; flex-direction: column; gap: 10px; }
