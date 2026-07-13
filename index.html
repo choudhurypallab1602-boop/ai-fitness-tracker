@@ -387,7 +387,7 @@
             } catch (err) {
                 globalHistoryCache.splice(index, 1);
                 processView();
-            } finaly { document.getElementById("loading").style.display = "none"; }
+            } finally { document.getElementById("loading").style.display = "none"; }
         }
 
         function getActiveTimelineDate() { return document.getElementById("historyDatePicker").value || new Date().toISOString().split('T')[0]; }
