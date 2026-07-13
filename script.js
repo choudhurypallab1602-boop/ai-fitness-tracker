@@ -1,6 +1,6 @@
 /**
  * Aura Core Application State & UI Engineering Engine 
- * Core Fixed: Dynamic Month Dropdown Toggle & Local Timezone Verification
+ * Core Fixed: Syntax checked, clean termination, and range-based loaders.
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
@@ -245,9 +245,6 @@ function updateLinearProgress(barFillId, current, limit) {
   fillElement.style.width = percentage + "%";
 }
 
-/**
- * PRODUCTION-READY CHRONO FILTER ENGINE (Timezone Glitch Fixed)
- */
 function processView() {
   const homeTimeline = document.querySelector(".timeline");
   const journalTimeline = document.querySelector(".journal-timeline-target");
@@ -264,7 +261,7 @@ function processView() {
     const selectedDateStr = dailyPicker.value;
     globalHistoryCache.forEach(function(item, index) {
       if(item.date === selectedDateStr) {
-        filtered.push({...item, originalIndex: index});
+        filtered.push(Object.assign({}, item, {originalIndex: index}));
         cal += Number(item.calories) || 0;
         prot += Number(item.protein) || 0;
       }
@@ -275,7 +272,7 @@ function processView() {
     const parts = selectedDateStr.split('-');
     const endDate = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 0,0,0,0);
     const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - 6); // Pure trailing week loop
+    startDate.setDate(endDate.getDate() - 6);
 
     targetLimit = 14000; proteinLimit = 840;
 
@@ -285,20 +282,20 @@ function processView() {
       const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10), 0,0,0,0);
       
       if(itemDate >= startDate && itemDate <= endDate) {
-        filtered.push({...item, originalIndex: index});
+        filtered.push(Object.assign({}, item, {originalIndex: index}));
         cal += Number(item.calories) || 0;
         prot += Number(item.protein) || 0;
       }
     });
   } 
   else if (currentScope === 'month') {
-    const selectedMonthStr = monthPicker.value; // Format: "YYYY-MM"
+    const selectedMonthStr = monthPicker.value; 
     targetLimit = 60000; proteinLimit = 3600;
 
     globalHistoryCache.forEach(function(item, index) {
       if(!item.date) return;
       if(item.date.startsWith(selectedMonthStr)) {
-        filtered.push({...item, originalIndex: index});
+        filtered.push(Object.assign({}, item, {originalIndex: index}));
         cal += Number(item.calories) || 0;
         prot += Number(item.protein) || 0;
       }
@@ -331,18 +328,18 @@ function renderTimelineDom(dataset, targetContainer) {
   localCopy.forEach(function(row) {
     const itemEl = document.createElement("div");
     itemEl.className = "timeline-node";
-    itemEl.innerHTML = `<div class='node-dot-track'><span class='node-dot'></span></div>
-      <div class='node-payload' style='width: 100%;'>
-        <div class='node-meta-row'>
-          <span class='node-timestamp'>${row.date} · ${row.time || "00:00"}</span>
-          <div class='node-crud-triggers'>
-            <button class='unique-edit-btn-${row.originalIndex}'>✏️</button>
-            <button class='unique-del-btn-${row.originalIndex}'>🗑️</button>
-          </div>
-        </div>
-        <div class='node-title-meal'>${normalizeInputString(row.rawInput || row.meal)}</div>
-        <p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:#64748b;'>${row.calories} kcal · ${row.protein}g Protein</p>
-      </div>`;
+    itemEl.innerHTML = "<div class='node-dot-track'><span class='node-dot'></span></div>" +
+      "<div class='node-payload' style='width: 100%;'>" +
+        "<div class='node-meta-row'>" +
+          "<span class='node-timestamp'>" + row.date + " · " + (row.time || "00:00") + "</span>" +
+          "<div class='node-crud-triggers'>" +
+            "<button class='unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
+            "<button class='unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
+          "</div>" +
+        "</div>" +
+        "<div class='node-title-meal'>" + normalizeInputString(row.rawInput || row.meal) + "</div>" +
+        "<p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:#64748b;'>" + row.calories + " kcal · " + row.protein + "g Protein</p>" +
+      "</div>";
 
     targetContainer.appendChild(itemEl);
 
@@ -382,7 +379,7 @@ function getActiveTimelineDate() {
 
 function loadDailyMemo() {
   const mt = document.getElementById("dashboardMemo"); const ms = document.getElementById("memoStatus"); if (!mt) return;
-  const activeDate = getActiveTimelineDate(); const cachedData = localStorage.getItem(`aura_notes_${activeDate}`);
+  const activeDate = getActiveTimelineDate(); const cachedData = localStorage.getItem("aura_notes_" + activeDate);
   mt.value = cachedData ? cachedData : "";
   if (ms) { ms.textContent = "Saved"; ms.style.background = "#ccfbf1"; ms.style.color = "#0d9488"; }
 }
@@ -392,13 +389,13 @@ function saveDailyMemo() {
   const mt = document.getElementById("dashboardMemo"); const ms = document.getElementById("memoStatus"); if (!mt) return;
   if (ms) { ms.textContent = "Saving..."; ms.style.background = "#fef3c7"; ms.style.color = "#b45309"; }
   clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => {
-    const activeDate = getActiveTimelineDate(); localStorage.setItem(`aura_notes_${activeDate}`, mt.value);
+  saveTimeout = setTimeout(function() {
+    const activeDate = getActiveTimelineDate(); localStorage.setItem("aura_notes_" + activeDate, mt.value);
     if (ms) { ms.textContent = "Saved"; ms.style.background = "#ccfbf1"; ms.style.color = "#0d9488"; }
   }, 400);
 }
 
-window.addEventListener("resize", () => {
+window.addEventListener("resize", function() {
   const mb = document.getElementById("mainDashboard");
   if (mb && mb.style.display !== "none") mb.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
 });
