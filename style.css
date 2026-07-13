@@ -39,7 +39,7 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg-workspace); 
 .user-meta { display: flex; justify-content: space-between; align-items: center; width: 100%; }
 .avatar-thumb { width: 34px; height: 34px; background: var(--accent-color); color: #fff; border-radius: 50%; font-weight: 700; font-size: 13px; display: flex; justify-content: center; align-items: center; }
 
-/* 🚨 LOGOUT BUTTON COLOR FIX */
+/* LOGOUT BUTTON COLOR FIX */
 .btn-icon-logout { background: none; border: none; font-size: 14px; font-weight: 600; color: var(--red-alert); cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: background 0.2s; }
 .btn-icon-logout:hover { background: #fef2f2; }
 
@@ -135,7 +135,7 @@ textarea { width: 100%; border: none; resize: none; outline: none; font-size: 15
     }
     .side-logo { margin-bottom: 0; }
     .nav-links { flex-direction: row; gap: 4px; }
-    .sidebar-notepad-block { display: none; } /* Kept hidden on mobile to avoid breaking structure */
+    .sidebar-notepad-block { display: none; } 
     .side-bottom { border-top: none; padding-top: 0; width: auto; }
     .user-meta { gap: 12px; }
     .content-container { padding: 20px; }
