@@ -62,7 +62,7 @@ window.addEventListener("load", function() {
     }
     picker.addEventListener("change", function() { 
       processView(); 
-      loadDailyMemo(); // Note text dynamically loads when date changes
+      loadDailyMemo(); 
     });
   }
 
@@ -147,7 +147,6 @@ function handleGuest() {
 
 function handleLogout() {
   sessionStorage.clear();
-  // Absolute Reload completely wipes internal cache state maps
   window.location.reload();
 }
 
@@ -162,7 +161,6 @@ function activateDashboard(isGuest, name) {
   if(authScreen) authScreen.style.display = "none";
   
   if(mainDashboard) {
-    // Media responsive grid layout assignment
     if(window.innerWidth <= 1024) {
       mainDashboard.style.display = "block";
     } else {
@@ -283,7 +281,7 @@ function updateLinearProgress(barFillId, current, limit) {
 }
 
 /**
- * Data Processing & Matrix Calculation Logic
+ * Advanced Dynamic Chrono-Filtering & Historical Window Calculation
  */
 function processView() {
   const homeTimeline = document.querySelector(".timeline");
@@ -293,8 +291,8 @@ function processView() {
   const selectedDateStr = datePicker.value;
   if(!selectedDateStr) return;
   
-  const targetDate = new Date(selectedDateStr);
-  targetDate.setHours(0,0,0,0);
+  // Create an explicit date tracking token normalized to absolute midnight local time
+  const targetEndDate = new Date(selectedDateStr + "T00:00:00");
 
   let filtered = [];
   let cal = 0, prot = 0;
@@ -305,16 +303,24 @@ function processView() {
 
   globalHistoryCache.forEach(function(item, index) {
     if(!item.date) return;
-    const itemDate = new Date(item.date);
-    itemDate.setHours(0,0,0,0);
+    
+    // Parse logging payload elements normalizing explicitly against timezones
+    const itemDate = new Date(item.date + "T00:00:00");
     let match = false;
 
-    if (currentScope === 'today') match = (item.date === selectedDateStr);
+    if (currentScope === 'today') {
+      match = (item.date === selectedDateStr);
+    } 
     else if (currentScope === 'week') {
-      const diffDays = Math.ceil((targetDate - itemDate) / (1000 * 60 * 60 * 24));
-      match = (diffDays >= 0 && diffDays < 7);
-    } else if (currentScope === 'month') {
-      match = (itemDate.getMonth() === targetDate.getMonth() && itemDate.getFullYear() === targetDate.getFullYear());
+      // Calculate retrospective rolling sliding window from chosen anchor date backwards
+      const targetStartDate = new Date(targetEndDate);
+      targetStartDate.setDate(targetEndDate.getDate() - 6); // 7-day retrospective window inclusive
+      
+      match = (itemDate >= targetStartDate && itemDate <= targetEndDate);
+    } 
+    else if (currentScope === 'month') {
+      // Pin to exact year and calendar month matched directly inside chosen timeline
+      match = (itemDate.getMonth() === targetEndDate.getMonth() && itemDate.getFullYear() === targetEndDate.getFullYear());
     }
 
     if (match) {
@@ -337,7 +343,6 @@ function processView() {
   if(calBox) calBox.innerText = cal;
   if(protBox) protBox.innerText = prot;
 
-  // Linear progress bars tracking update 
   updateLinearProgress("calorieBarFill", cal, targetLimit);
   updateLinearProgress("proteinBarFill", prot, proteinLimit);
 
@@ -366,7 +371,7 @@ function renderTimelineDom(dataset, targetContainer) {
     itemEl.innerHTML = "<div class='node-dot-track'><span class='node-dot'></span></div>" +
       "<div class='node-payload' style='width: 100%;'>" +
         "<div class='node-meta-row'>" +
-          "<span class='node-timestamp'>" + row.time + "</span>" +
+          "<span class='node-timestamp'>" + row.date + " · " + row.time + "</span>" +
           "<div class='node-crud-triggers'>" +
             "<button class='unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
             "<button class='unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
@@ -378,7 +383,6 @@ function renderTimelineDom(dataset, targetContainer) {
 
     targetContainer.appendChild(itemEl);
 
-    // Edit Operation Trigger Bind
     itemEl.querySelector(".unique-edit-btn-" + row.originalIndex).addEventListener("click", function() {
       const mealBox = document.getElementById("meal");
       if(mealBox) {
@@ -388,7 +392,6 @@ function renderTimelineDom(dataset, targetContainer) {
       }
     });
     
-    // Delete Operation Trigger Bind
     itemEl.querySelector(".unique-del-btn-" + row.originalIndex).addEventListener("click", function() {
       deleteMeal(row.originalIndex);
     });
@@ -453,7 +456,6 @@ function saveDailyMemo() {
     memoStatus.style.color = "#b45309";
   }
   
-  // Debounce logic fix to prevent multiple execution states
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     const activeDate = getActiveTimelineDate();
@@ -466,7 +468,6 @@ function saveDailyMemo() {
   }, 400);
 }
 
-// Mobile responsive grid view dynamically adjusting event trigger
 window.addEventListener("resize", () => {
   const mainDashboard = document.getElementById("mainDashboard");
   if (mainDashboard && mainDashboard.style.display !== "none") {
