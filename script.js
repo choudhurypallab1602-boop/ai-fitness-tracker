@@ -35,6 +35,10 @@ window.addEventListener("load", function() {
       pills.forEach(p => p.classList.remove("active"));
       pill.classList.add("active");
       currentScope = pill.getAttribute("data-scope");
+      
+      // Title Update dynamically
+      const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
+      document.getElementById("metricsTitle").innerText = titleMap[currentScope] || 'Progress Indicators';
       processView();
     });
   });
@@ -45,11 +49,11 @@ window.addEventListener("load", function() {
     picker.value = new Date().toISOString().split('T')[0];
     picker.addEventListener("change", function() { 
       processView(); 
-      loadDailyMemo(); // Note text loads dynamically when calendar changes
+      loadDailyMemo(); // Note text dynamically loads when date changes
     });
   }
 
-  // Integrated Notepad Core Loop (Per-Day Linked)
+  // Sidebar Notepad Real-time Input Sync
   const notepad = document.getElementById("dashboardMemo");
   if (notepad) {
     notepad.addEventListener("input", saveDailyMemo);
@@ -62,7 +66,7 @@ window.addEventListener("load", function() {
     activateDashboard(savedUser === "Guest", savedUser);
   }
   
-  // Initial load execution for daily note state
+  // Launch state load
   loadDailyMemo();
 });
 
@@ -146,10 +150,12 @@ function initializeVoice() {
 
     recognition.onstart = function() {
       isListening = true;
+      voiceBtn.querySelector('.voice-label').innerText = "Stop";
       voiceBtn.style.background = "#fee2e2";
     };
     recognition.onend = function() {
       isListening = false;
+      voiceBtn.querySelector('.voice-label').innerText = "Speak";
       voiceBtn.style.background = "#f1f5f9";
     };
     recognition.onresult = function(event) {
@@ -200,12 +206,12 @@ async function logMeal() {
   finally { if(loading) loading.style.display = "none"; input.value = ""; }
 }
 
-// Modern Linear Progress Fill System updates
+// Progressive Linear Tracking Injector
 function updateLinearProgress(barFillId, current, limit) {
   const fillElement = document.getElementById(barFillId);
   if (!fillElement) return;
   let percentage = (current / limit) * 100;
-  if (percentage > 100) percentage = 100; // Cap visual scale overflow
+  if (percentage > 100) percentage = 100; 
   if (percentage < 0) percentage = 0;
   fillElement.style.width = percentage + "%";
 }
@@ -256,11 +262,10 @@ function processView() {
   document.getElementById("todayCalories").innerText = cal;
   document.getElementById("todayProtein").innerText = prot;
 
-  // Render Premium Linear Progress Bars dynamically
+  // Linear progress bars tracking update 
   updateLinearProgress("calorieBarFill", cal, targetLimit);
   updateLinearProgress("proteinBarFill", prot, proteinLimit);
 
-  // Render Layout Feed Function
   renderTimelineDom(filtered, homeTimeline);
   renderTimelineDom(filtered, journalTimeline);
 }
@@ -329,7 +334,7 @@ async function deleteMeal(index) {
   }
 }
 
-// ================= FIXED PER-DAY NOTEPAD STORAGE ENGINE =================
+// ================= PER-DAY DATE-LINKED SIDEBAR NOTEPAD CONFIG =================
 function getActiveTimelineDate() {
   const datePicker = document.getElementById("historyDatePicker");
   return datePicker && datePicker.value ? datePicker.value : new Date().toISOString().split('T')[0];
@@ -365,7 +370,6 @@ function saveDailyMemo() {
   const activeDate = getActiveTimelineDate();
   localStorage.setItem(`aura_notes_${activeDate}`, memoTextarea.value);
   
-  // Simulated small structural sync delay feedback
   setTimeout(() => {
     if (memoStatus) {
       memoStatus.textContent = "Saved";
