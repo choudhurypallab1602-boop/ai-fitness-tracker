@@ -295,6 +295,21 @@
             fillElement.style.width = Math.min(Math.max(percentage, 0), 100) + "%";
         }
 
+        // --- NEW TIMEZONE SAFE DATE CONVERTER ---
+        function parseToLocalDateString(inputStr) {
+            if (!inputStr) return "";
+            // Agar full ISO string hai ya aadhi string, usey normal local format YYYY-MM-DD mein convert karega bina kisi day shift ke
+            let d = new Date(inputStr);
+            if (isNaN(d.getTime())) {
+                // Agar date direct string hai ("2026-07-13")
+                return inputStr.split('T')[0];
+            }
+            let y = d.getFullYear();
+            let m = String(d.getMonth() + 1).padStart(2, '0');
+            let day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
         function processView() {
             const homeTimeline = document.querySelector(".timeline");
             const journalTimeline = document.querySelector(".journal-timeline-target");
@@ -304,13 +319,13 @@
             let filtered = [];
             let cal = 0, prot = 0;
             let targetLimit = 2000, proteinLimit = 120;
-            const selectedDateStr = dailyPicker.value; // Format: YYYY-MM-DD
+            const selectedDateStr = dailyPicker.value; 
 
             globalHistoryCache.forEach(function(item, index) {
                 if(!item || !item.date) return;
                 
-                // Pure String-Based Date Checking to eliminate Timezone Offset shifts
-                let cleanItemDate = item.date.split('T')[0];
+                // Pure timezone safe extraction
+                let cleanItemDate = parseToLocalDateString(item.date);
                 let isMatch = false;
                 
                 if (currentScope === 'today' && cleanItemDate === selectedDateStr) isMatch = true;
@@ -354,7 +369,7 @@
                 itemEl.className = "timeline-node";
                 itemEl.innerHTML = `<div class='node-payload'>
                     <div class='node-meta-row'>
-                        <span class='node-timestamp'>${row.date} · ${row.time}</span>
+                        <span class='node-timestamp'>${row.date} · ${row.time || ''}</span>
                         <div class='node-crud-triggers'>
                             <button class='edit-trigger-btn' data-idx='${row.originalIndex}'>✏️</button>
                             <button class='delete-trigger-btn' data-idx='${row.originalIndex}'>🗑️</button>
