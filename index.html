@@ -480,7 +480,7 @@
         </main>
     </div>
 
-    <!-- SECTION 3: APP CODE SCRIPT ENGINE ENGINE -->
+    <!-- SECTION 3: APP CODE SCRIPT ENGINE -->
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
         const ALLOWED_USER = { username: "pallab", password: "123" };
@@ -492,23 +492,19 @@
         let currentScope = 'today'; 
 
         window.addEventListener("load", function() {
-            // Bind Login Core Events
             document.getElementById("loginBtn").addEventListener("click", handleLogin);
             document.getElementById("guestBtn").addEventListener("click", handleGuest);
             document.getElementById("logoutBtn").addEventListener("click", handleLogout);
             document.getElementById("logBtn").addEventListener("click", logMeal);
             
-            // Subview Router Wiring
             document.getElementById("menuHome").addEventListener("click", function() { routeToView('home'); });
             document.getElementById("menuJournal").addEventListener("click", function() { routeToView('journal'); });
             document.getElementById("menuCoach").addEventListener("click", function() { routeToView('coach'); });
 
-            // Macro Shortcut Wiring
             document.getElementById("quickBanana").addEventListener("click", function() { triggerQuickMacro("1 Whole fresh Banana"); });
             document.getElementById("quickEgg").addEventListener("click", function() { triggerQuickMacro("2 Boiled Whole Eggs"); });
             document.getElementById("quickWhey").addEventListener("click", function() { triggerQuickMacro("1 scoop Organic Whey Isolate Shake"); });
 
-            // Dynamic Segment Toggler Matrix Engine
             const pills = document.querySelectorAll(".segment-pills .pill-btn");
             const dailyPicker = document.getElementById("historyDatePicker");
             const monthPicker = document.getElementById("historyMonthPicker");
@@ -761,7 +757,6 @@
                 return;
             }
             
-            // Create a safe structural reverse copy
             let localCopy = dataset.slice().reverse();
 
             localCopy.forEach(function(row) {
@@ -781,7 +776,6 @@
 
                 targetContainer.appendChild(itemEl);
 
-                // Safe index event assignments
                 itemEl.querySelector(".edit-trigger-btn").addEventListener("click", function() {
                     const idx = this.getAttribute("data-idx");
                     const targetMeal = globalHistoryCache[idx];
@@ -810,15 +804,27 @@
                 processView();
             } else {
                 try {
-                    // +2 maps the index safely to the specific row in Google Sheet architecture
-                    const res = await fetch(API_URL + "?action=delete&row=" + (index + 2));
+                    // DUAL FALLBACK LOGIC: row index dynamically triggers sheet location (+2)
+                    // While providing detailed item parameters to make sure Google Script accepts it anyway
+                    const targetItem = globalHistoryCache[index];
+                    const mealStr = encodeURIComponent(targetItem.meal || targetItem.rawInput || "");
+                    const dateStr = encodeURIComponent(targetItem.date || "");
+                    const timeStr = encodeURIComponent(targetItem.time || "");
+                    
+                    const queryUrl = `${API_URL}?action=delete&row=${index + 2}&meal=${mealStr}&date=${dateStr}&time=${timeStr}`;
+                    
+                    const res = await fetch(queryUrl);
                     const data = await res.json();
                     if(data.history) globalHistoryCache = data.history;
                     if(data.coach || data.coachResponse) {
                         document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
                     }
                     processView();
-                } catch (err) { alert("Deletion failure."); }
+                } catch (err) { 
+                    alert("Backend failed to respond. Attempting local UI updates..."); 
+                    globalHistoryCache.splice(index, 1);
+                    processView();
+                }
                 finally { document.getElementById("loading").style.display = "none"; }
             }
         }
