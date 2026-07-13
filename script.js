@@ -1,5 +1,5 @@
 /**
- * Aura Core Application State & UI Engineering Engine
+ * Aura Core Application State & UI Engineering Engine (UTC-Timezone Glitch Fixed)
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
@@ -57,7 +57,11 @@ window.addEventListener("load", function() {
   const picker = document.getElementById("historyDatePicker");
   if (picker) {
     if (!picker.value) {
-      picker.value = new Date().toISOString().split('T')[0];
+      // Local Timezone-safe string injection
+      const localToday = new Date();
+      const offset = localToday.getTimezoneOffset();
+      const adjustedDate = new Date(localToday.getTime() - (offset * 60 * 1000));
+      picker.value = adjustedDate.toISOString().split('T')[0];
     }
     picker.addEventListener("change", function() { 
       processView(); 
@@ -277,17 +281,25 @@ function updateLinearProgress(barFillId, current, limit) {
 }
 
 /**
- * Advanced Dynamic Chrono-Filtering Window Calculation
+ * FIXED TIMEZONE SAFE FILTER ENGINE
  */
 function processView() {
   const homeTimeline = document.querySelector(".timeline");
   const journalTimeline = document.querySelector(".journal-timeline-target");
   const datePicker = document.getElementById("historyDatePicker");
   if(!datePicker) return;
-  const selectedDateStr = datePicker.value;
+  
+  const selectedDateStr = datePicker.value; // Format: "YYYY-MM-DD"
   if(!selectedDateStr) return;
   
-  const targetEndDate = new Date(selectedDateStr + "T00:00:00");
+  // Strict String Parsing instead of unsafe UTC evaluation
+  const parts = selectedDateStr.split('-');
+  const targetYear = parseInt(parts[0], 10);
+  const targetMonth = parseInt(parts[1], 10) - 1; // JS 0-indexed Months
+  const targetDay = parseInt(parts[2], 10);
+
+  // Timezone-safe execution anchor
+  const targetEndDate = new Date(targetYear, targetMonth, targetDay, 0, 0, 0, 0);
 
   let filtered = [];
   let cal = 0, prot = 0;
@@ -299,7 +311,12 @@ function processView() {
   globalHistoryCache.forEach(function(item, index) {
     if(!item.date) return;
     
-    const itemDate = new Date(item.date + "T00:00:00");
+    const itemParts = item.date.split('-');
+    const iYear = parseInt(itemParts[0], 10);
+    const iMonth = parseInt(itemParts[1], 10) - 1;
+    const iDay = parseInt(itemParts[2], 10);
+    const itemDate = new Date(iYear, iMonth, iDay, 0, 0, 0, 0);
+
     let match = false;
 
     if (currentScope === 'today') {
