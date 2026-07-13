@@ -2,186 +2,834 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aura Workspace</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura — Macro & Progress Matrix</title>
+    <style>
+        /* Modern Design System Tokens */
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #0f172a;
+            --accent-hover: #1e293b;
+            --success: #0d9488;
+            --success-bg: #ccfbf1;
+            --warning-bg: #fef3c7;
+            --warning-text: #b45309;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Main Dashboard Responsive Grid */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* App Header & Navigation Row */
+        .app-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-cluster {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        /* Sidebar Panels Layout */
+        .sidebar-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Memo Notepad */
+        .memo-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            color: var(--text-primary);
+            background: #f8fafc;
+        }
+
+        .memo-status-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--success-bg);
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Main Workspace Content Area */
+        .main-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Centralized Chrono Controller Bar */
+        .view-filter-segment-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            gap: 16px;
+        }
+
+        .segment-pills {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .pill-btn {
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pill-btn.active {
+            background: var(--accent) !important;
+            color: #ffffff !important;
+        }
+
+        .custom-date-ui {
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Metric Analytics Counter Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .metric-val {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Linear Progress Fill Rails */
+        .progress-rail {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            border-radius: 99px;
+            transition: width 0.4s ease-out;
+        }
+
+        /* Dynamic Timeline Nodes */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .timeline-node {
+            display: flex;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .node-payload {
+            flex-grow: 1;
+        }
+
+        .node-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .node-timestamp {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .node-title-meal {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .node-crud-triggers button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            font-size: 14px;
+        }
+
+        /* Action Forms inputs */
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .text-field {
+            flex-grow: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 14px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-btn:hover { background: var(--accent-hover); }
+
+        .quick-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border-radius: 99px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-right: 6px;
+            margin-top: 8px;
+            border: 1px solid transparent;
+        }
+
+        .quick-chip:hover { border-color: #cbd5e1; }
+
+        /* Auth Screen Shield Overlay */
+        #authScreen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 32px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Authentication Screen -->
-    <div id="authScreen" class="auth-wrapper">
-        <div class="auth-panel">
-            <h2>✦ Aura</h2>
-            <p style="color: var(--secondary-txt); margin-top: 4px; font-size: 14px;">Sign in to your dashboard</p>
-            <div class="auth-fields">
-                <input type="text" id="authUsername" placeholder="Username">
-                <input type="password" id="authPassword" placeholder="Password">
-                <button id="loginBtn" class="btn-primary">Sign In</button>
-                <button id="guestBtn" class="btn-secondary">Enter as Guest</button>
+    <!-- SECTION 1: AUTHENTICATION CONTAINER -->
+    <div id="authScreen">
+        <div class="auth-card">
+            <h2 style="margin-bottom: 20px; font-weight: 800; letter-spacing: -0.5px;">✦ Sign in to Aura</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="text" id="authUsername" class="text-field" placeholder="Username">
+                <input type="password" id="authPassword" class="text-field" placeholder="Password">
+                <button id="loginBtn" class="action-btn" style="width: 100%;">Continue</button>
+                <button id="guestBtn" class="action-btn" style="width: 100%; background:#f1f5f9; color: var(--text-primary);">Explore as Guest</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Dashboard -->
-    <div id="mainDashboard" class="workspace-root" style="display: none;">
+    <!-- SECTION 2: CORE APPLICATION DASHBOARD -->
+    <div class="dashboard-container" id="mainDashboard" style="display: none;">
         
-        <!-- Sidebar Navigation -->
-        <aside class="side-navigation">
-            <div class="side-top">
-                <div class="side-logo">
-                    <span class="logo-icon">✦</span><span>Aura</span>
-                </div>
-                <nav class="nav-links">
-                    <button id="menuHome" class="nav-item active">⌂ Home</button>
-                    <button id="menuJournal" class="nav-item">▤ Journal</button>
-                    <button id="menuCoach" class="nav-item">✨ Coach</button>
-                </nav>
+        <!-- Header Row -->
+        <header class="app-header">
+            <div class="brand-title">✦ Aura</div>
+            <nav class="nav-cluster">
+                <button class="nav-btn active" id="menuHome">Home</button>
+                <button class="nav-btn" id="menuJournal">Journal</button>
+                <button class="nav-btn" id="menuCoach">Coach</button>
+            </nav>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span id="userDisplay" style="font-weight: 600; background: #eaeaea; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 14px;">U</span>
+                <button id="logoutBtn" style="font-size:12px; background:none; border:none; color:var(--text-secondary); cursor:pointer;">Logout</button>
+            </div>
+        </header>
+
+        <!-- Left Column: Sidebars -->
+        <aside class="sidebar-stack">
+            <!-- Guest Mode Alert Banner -->
+            <div class="panel-card" id="guestBanner" style="display:none; background: #fffbeb; border-color:#fef08a; color:#b45309; font-size:13px; font-weight:500;">
+                ⚠️ Running on Sandbox Mode. Data persistence is limited to active memory.
             </div>
 
-            <!-- Notepad Notes -->
-            <div class="sidebar-notepad-block">
-                <div class="sidebar-notepad-header">
-                    <span>DAILY NOTES</span>
-                    <span class="save-status" id="memoStatus">Saved</span>
+            <!-- Notes Panel -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>DAILY NOTEPAD</span>
+                    <span id="memoStatus" class="memo-status-badge">Saved</span>
                 </div>
-                <textarea id="dashboardMemo" placeholder="Type notes..." class="sidebar-notepad-textarea"></textarea>
+                <textarea id="dashboardMemo" class="memo-textarea" placeholder="Draft reflections, routine configurations or tasks..."></textarea>
             </div>
 
-            <!-- Safe Bottom Meta with Logout Trigger -->
-            <div class="side-bottom">
-                <div class="user-meta">
-                    <div class="avatar-thumb" id="userDisplay">A</div>
-                    <button id="logoutBtn" class="btn-icon-logout">Logout</button>
-                </div>
+            <!-- Macro Reference Cards -->
+            <div class="panel-card">
+                <div class="panel-title">QUICK LOG MATRIX</div>
+                <div class="quick-chip" id="quickBanana">🍌 1 Whole Banana</div>
+                <div class="quick-chip" id="quickEgg">🥚 2 Whole Eggs</div>
+                <div class="quick-chip" id="quickWhey">🥛 1 Scoop Whey</div>
             </div>
         </aside>
 
-        <!-- Main Dashboard View Layer -->
-        <main class="content-container">
+        <!-- Right Column: Main Dynamic Viewboards -->
+        <main class="main-workspace">
+            
+            <!-- Unified Dynamic Filter Bar Section -->
             <div class="view-filter-segment-bar">
                 <div class="segment-pills">
                     <button class="pill-btn active" data-scope="today">Daily</button>
                     <button class="pill-btn" data-scope="week">Weekly</button>
                     <button class="pill-btn" data-scope="month">Monthly</button>
                 </div>
-                <input type="date" id="historyDatePicker" class="custom-date-ui">
-                <div class="view-filter-segment-bar">
-    <div class="segment-pills">
-        <button class="pill-btn active" data-scope="today">Daily</button>
-        <button class="pill-btn" data-scope="week">Weekly</button>
-        <button class="pill-btn" data-scope="month">Monthly</button>
-    </div>
-    
-    <!-- Dynamic Pickers Container -->
-    <div class="chrono-pickers-wrapper">
-        <!-- 1. Daily Date Picker -->
-        <input type="date" id="historyDatePicker" class="custom-date-ui">
-        
-        <!-- 2. Monthly Picker (Hidden by default) -->
-        <input type="month" id="historyMonthPicker" class="custom-date-ui" style="display: none;">
-    </div>
-</div>
-            </div>
-
-            <!-- SPA TARGET VIEWS -->
-            <div id="viewHome" style="display: block;">
-                <div class="split-workspace-grid">
-                    <div class="workspace-left-column">
-                        
-                        <!-- Text Entry Box -->
-                        <section class="log-input-card">
-                            <div class="log-input-group">
-                                <textarea id="meal" placeholder="Track breakfast, lunch, or snack details..."></textarea>
-                                <div class="log-input-controls">
-                                    <button id="voiceBtn" class="btn-voice-trigger"><span class="voice-label">🎤 Speak</span></button>
-                                    <button id="logBtn" class="btn-action-submit">Log Meal</button>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Synced Linear Gauges -->
-                        <section class="macro-gauge-card">
-                            <div class="card-header-minimal"><h3 id="metricsTitle">Daily Progress Matrix</h3></div>
-                            <div class="linear-metrics-grid">
-                                <div>
-                                    <div class="metric-info-row">
-                                        <span class="calories-row-label">Calories Target</span>
-                                        <span class="metric-value-display"><strong id="todayCalories">0</strong> kcal</span>
-                                    </div>
-                                    <div class="progress-bar-track">
-                                        <div id="calorieBarFill" class="progress-fill fill-calories" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="metric-info-row">
-                                        <span class="protein-row-label">Protein Target</span>
-                                        <span class="metric-value-display"><strong id="todayProtein">0</strong> g Protein</span>
-                                    </div>
-                                    <div class="progress-bar-track">
-                                        <div id="proteinBarFill" class="progress-fill fill-protein" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Timeline Track Component -->
-                        <section class="timeline-master-card">
-                            <div class="card-header-minimal"><h3>Activity Log Timeline</h3></div>
-                            <div class="timeline-engine-track timeline"></div>
-                        </section>
-                    </div>
-
-                    <div class="workspace-right-column">
-                        <!-- Quick Matrices -->
-                        <section class="quick-log-card">
-                            <div class="card-header-minimal"><h3>Quick Log Matrix</h3></div>
-                            <div class="quick-log-rows">
-                                <div id="quickBanana" class="quick-row">🍌 1 Fresh Banana</div>
-                                <div id="quickEgg" class="quick-row">🥚 2 Boiled Eggs</div>
-                                <div id="quickWhey" class="quick-row">🥛 1 Scoop Whey</div>
-                            </div>
-                        </section>
-
-                        <!-- AI Companion Bubble -->
-                        <section class="companion-window">
-                            <div class="avatar-character-box">✨</div>
-                            <div class="companion-speech-bubble">
-                                <h3 class="character-title">Aura AI</h3>
-                                <p id="coachCharacterSpeech">Ready to target today's metrics.</p>
-                            </div>
-                        </section>
-                    </div>
+                <div class="chrono-pickers-wrapper">
+                    <input type="date" id="historyDatePicker" class="custom-date-ui">
+                    <input type="month" id="historyMonthPicker" class="custom-date-ui" style="display: none;">
                 </div>
             </div>
 
-            <!-- View Layers for Journal SPA Target -->
+            <!-- Dynamic Subviews Module Container -->
+            <div id="viewHome">
+                <h3 id="metricsTitle" style="margin-bottom: 12px; font-weight: 700;">Daily Progress Matrix</h3>
+                
+                <!-- Macro Track Counters -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">CALORIES LOGGED</span>
+                        <div class="metric-val"><span id="todayCalories">0</span> <span style="font-size:14px; font-weight:400; color:var(--text-secondary);">kcal</span></div>
+                        <div class="progress-rail"><div id="calorieBarFill" class="progress-fill"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">PROTEIN INGESTED</span>
+                        <div class="metric-val"><span id="todayProtein">0</span> <span style="font-size:14px; font-weight:400; color:var(--text-secondary);">g</span></div>
+                        <div class="progress-rail"><div id="proteinBarFill" class="progress-fill" style="background: #0d9488;"></div></div>
+                    </div>
+                </div>
+
+                <!-- Input Console Box -->
+                <div class="panel-card" style="margin-top: 20px;">
+                    <div class="panel-title">LOG NEW MEAL OR DIET COMPONENT</div>
+                    <div class="input-group">
+                        <input type="text" id="meal" class="text-field" placeholder="Try typing '1 cup oats with milk and 10 almonds'...">
+                        <button id="voiceBtn" class="action-btn" style="background:#f1f5f9; color:var(--text-primary); border:1px solid var(--border-color); font-weight:500;">
+                            🎙️ <span class="voice-label">Speak</span>
+                        </button>
+                        <button id="logBtn" class="action-btn">Log Meal</button>
+                    </div>
+                    <div id="loading" style="display:none; font-size:12px; color:var(--text-secondary); margin-top:8px;">✦ Processing natural food metrics...</div>
+                </div>
+
+                <!-- Time-Series Node Chain -->
+                <div style="margin-top: 24px;">
+                    <h4 style="font-size:14px; font-weight:700; margin-bottom:12px; color:var(--text-secondary);">ACTIVITY LOG TIMELINE</h4>
+                    <div class="timeline"></div>
+                </div>
+            </div>
+
             <div id="viewJournal" style="display: none;">
-                <div class="macro-gauge-card">
-                    <div class="card-header-minimal"><h3>Journal Ledger Historical Entries</h3></div>
-                    <div class="timeline-engine-track journal-timeline-target"></div>
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Complete Analytical Journal</h3>
+                <div class="journal-timeline-target"></div>
+            </div>
+
+            <div id="viewCoach" style="display: none;">
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Aura AI System Coach</h3>
+                <div class="panel-card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                    <p id="coachCharacterSpeech" style="font-size: 15px; line-height: 1.6; font-weight: 500; color: #334155;">Ready to target today's metrics.</p>
                 </div>
             </div>
 
-            <!-- View Layers for Coach SPA Target -->
-            <div id="viewCoach" style="display: none;">
-                <div class="companion-window">
-                    <div class="avatar-character-box">🤖</div>
-                    <div>
-                        <h3 class="character-title">Aura Analytical Coach</h3>
-                        <p style="margin-top:6px; font-size:14px; color:var(--secondary-txt);">Deep health profiling metrics and insights module loaded.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Context Alerts and UI States -->
-            <div id="guestBanner" style="display:none; padding:10px; background:#ffedd5; color:#c2410c; font-size:12px; font-weight:600; text-align:center; border-radius:8px; margin-top:20px;">
-                Running in Guest Session. Dynamic Google Sheets sync is inactive.
-            </div>
-            <div id="loading" style="display:none; position:fixed; bottom:20px; right:20px; background:#000; color:#fff; padding:8px 16px; border-radius:20px; font-size:12px; z-index:999;">Syncing with Sheets...</div>
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <!-- SECTION 3: APP CODE SCRIPT ENGINE ENGINE -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
+        const ALLOWED_USER = { username: "pallab", password: "123" };
+
+        let globalHistoryCache = [];
+        let isGuestModeActive = false; 
+        let recognition;
+        let isListening = false;
+        let currentScope = 'today'; 
+
+        window.addEventListener("load", function() {
+            // Bind Login Core Events
+            document.getElementById("loginBtn").addEventListener("click", handleLogin);
+            document.getElementById("guestBtn").addEventListener("click", handleGuest);
+            document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+            document.getElementById("logBtn").addEventListener("click", logMeal);
+            
+            // Subview Router Wiring
+            document.getElementById("menuHome").addEventListener("click", function() { routeToView('home'); });
+            document.getElementById("menuJournal").addEventListener("click", function() { routeToView('journal'); });
+            document.getElementById("menuCoach").addEventListener("click", function() { routeToView('coach'); });
+
+            // Macro Shortcut Wiring
+            document.getElementById("quickBanana").addEventListener("click", function() { triggerQuickMacro("1 Whole fresh Banana"); });
+            document.getElementById("quickEgg").addEventListener("click", function() { triggerQuickMacro("2 Boiled Whole Eggs"); });
+            document.getElementById("quickWhey").addEventListener("click", function() { triggerQuickMacro("1 scoop Organic Whey Isolate Shake"); });
+
+            // Dynamic Segment Toggler Matrix Engine
+            const pills = document.querySelectorAll(".segment-pills .pill-btn");
+            const dailyPicker = document.getElementById("historyDatePicker");
+            const monthPicker = document.getElementById("historyMonthPicker");
+
+            pills.forEach(function(pill) {
+                pill.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    pills.forEach(p => p.classList.remove("active"));
+                    this.classList.add("active");
+                    
+                    currentScope = this.getAttribute("data-scope");
+                    
+                    if (currentScope === 'month') {
+                        if(dailyPicker) dailyPicker.style.display = "none";
+                        if(monthPicker) {
+                            monthPicker.style.display = "block";
+                            if(!monthPicker.value) {
+                                const now = new Date();
+                                monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                            }
+                        }
+                    } else {
+                        if(monthPicker) monthPicker.style.display = "none";
+                        if(dailyPicker) dailyPicker.style.display = "block";
+                    }
+                    
+                    const titleMap = { today: 'Daily Progress Matrix', week: 'Weekly Total Metrics', month: 'Monthly Total Metrics' };
+                    const metricsTitle = document.getElementById("metricsTitle");
+                    if(metricsTitle) metricsTitle.innerText = titleMap[currentScope] || 'Progress Indicators';
+                    
+                    processView();
+                });
+            });
+
+            if (dailyPicker) {
+                if (!dailyPicker.value) {
+                    const localToday = new Date();
+                    const offset = localToday.getTimezoneOffset();
+                    const adjustedDate = new Date(localToday.getTime() - (offset * 60 * 1000));
+                    dailyPicker.value = adjustedDate.toISOString().split('T')[0];
+                }
+                dailyPicker.addEventListener("change", function() { 
+                    processView(); 
+                    loadDailyMemo(); 
+                });
+            }
+
+            if (monthPicker) {
+                monthPicker.addEventListener("change", processView);
+            }
+
+            const notepad = document.getElementById("dashboardMemo");
+            if (notepad) notepad.addEventListener("input", saveDailyMemo);
+
+            initializeVoice();
+
+            const savedUser = sessionStorage.getItem("auth_user");
+            if(savedUser) activateDashboard(savedUser === "Guest", savedUser);
+            
+            loadDailyMemo();
+        });
+
+        function routeToView(target) {
+            const tabs = ['menuHome', 'menuJournal', 'menuCoach'];
+            const views = ['viewHome', 'viewJournal', 'viewCoach'];
+            
+            tabs.forEach(t => document.getElementById(t)?.classList.remove("active"));
+            views.forEach(v => { const el = document.getElementById(v); if(el) el.style.display = "none"; });
+
+            if(target === 'home') { document.getElementById("menuHome")?.classList.add("active"); document.getElementById("viewHome").style.display = "block"; }
+            if(target === 'journal') { document.getElementById("menuJournal")?.classList.add("active"); document.getElementById("viewJournal").style.display = "block"; }
+            if(target === 'coach') { document.getElementById("menuCoach")?.classList.add("active"); document.getElementById("viewCoach").style.display = "block"; }
+        }
+
+        function triggerQuickMacro(text) {
+            const inputField = document.getElementById("meal");
+            if(inputField) { inputField.value = text; inputField.focus(); }
+        }
+
+        function handleLogin() {
+            const u = document.getElementById("authUsername").value.trim().toLowerCase();
+            const p = document.getElementById("authPassword").value.trim();
+            if(u === ALLOWED_USER.username && p === ALLOWED_USER.password) {
+                sessionStorage.setItem("auth_user", u);
+                activateDashboard(false, u);
+            } else { alert("Incorrect Credentials."); }
+        }
+
+        function handleGuest() { sessionStorage.setItem("auth_user", "Guest"); activateDashboard(true, "Guest"); }
+        function handleLogout() { sessionStorage.clear(); window.location.reload(); }
+
+        function activateDashboard(isGuest, name) {
+            isGuestModeActive = isGuest;
+            document.getElementById("authScreen").style.display = "none";
+            const mainDash = document.getElementById("mainDashboard");
+            mainDash.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
+            if(document.getElementById("userDisplay") && name) document.getElementById("userDisplay").innerText = name.substring(0,1).toUpperCase();
+
+            if(isGuestModeActive) {
+                document.getElementById("guestBanner").style.display = "block";
+                processView();
+            } else { loadData(); }
+        }
+
+        function normalizeInputString(str) {
+            if(!str) return "";
+            let clean = str.trim().toLowerCase();
+            return clean.charAt(0).toUpperCase() + clean.slice(1);
+        }
+
+        function initializeVoice() {
+            if ("webkitSpeechRecognition" in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = "en-IN"; recognition.continuous = true; recognition.interimResults = false;   
+                const voiceBtn = document.getElementById("voiceBtn");
+                const mealInput = document.getElementById("meal");
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    if(voiceBtn.querySelector('.voice-label')) voiceBtn.querySelector('.voice-label').innerText = "Stop";
+                    voiceBtn.style.background = "#fee2e2";
+                };
+                recognition.onend = function() {
+                    isListening = false;
+                    if(voiceBtn.querySelector('.voice-label')) voiceBtn.querySelector('.voice-label').innerText = "Speak";
+                    voiceBtn.style.background = "#f1f5f9";
+                };
+                recognition.onresult = function(event) {
+                    let txt = "";
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) txt += event.results[i][0].transcript + " ";
+                    }
+                    if(txt.trim() && mealInput) mealInput.value += normalizeInputString(txt);
+                };
+                voiceBtn.addEventListener("click", function(e) { e.preventDefault(); if (isListening) recognition.stop(); else recognition.start(); });
+            }
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                if(data.history) globalHistoryCache = data.history; 
+                if(data.coach || data.coachResponse) {
+                    document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
+                }
+                processView();
+            } catch (err) { console.log("Data layer error."); }
+        }
+
+        async function logMeal() {
+            const input = document.getElementById("meal");
+            if(!input) return;
+            let meal = normalizeInputString(input.value);
+            if (!meal) return;
+            
+            document.getElementById("loading").style.display = "block";
+            const date = document.getElementById("historyDatePicker").value || new Date().toISOString().split('T')[0];
+
+            try {
+                const res = await fetch(API_URL + "?meal=" + encodeURIComponent(meal) + "&customDate=" + date);
+                const data = await res.json();
+                if(data.history) globalHistoryCache = data.history;
+                if(data.coach || data.coachResponse) {
+                    document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
+                }
+                processView();
+            } catch (err) { alert("Logging processing failure."); }
+            finally { document.getElementById("loading").style.display = "none"; input.value = ""; }
+        }
+
+        function updateLinearProgress(barFillId, current, limit) {
+            const fillElement = document.getElementById(barFillId);
+            if (!fillElement) return;
+            let percentage = (current / limit) * 100;
+            fillElement.style.width = Math.min(Math.max(percentage, 0), 100) + "%";
+        }
+
+        function processView() {
+            const homeTimeline = document.querySelector(".timeline");
+            const journalTimeline = document.querySelector(".journal-timeline-target");
+            const dailyPicker = document.getElementById("historyDatePicker");
+            const monthPicker = document.getElementById("historyMonthPicker");
+            
+            let filtered = [];
+            let cal = 0, prot = 0;
+            let targetLimit = 2000, proteinLimit = 120;
+
+            if (currentScope === 'today') {
+                const selectedDateStr = dailyPicker.value;
+                globalHistoryCache.forEach(function(item, index) {
+                    if(item.date === selectedDateStr) {
+                        filtered.push(Object.assign({}, item, {originalIndex: index}));
+                        cal += Number(item.calories) || 0;
+                        prot += Number(item.protein) || 0;
+                    }
+                });
+            } 
+            else if (currentScope === 'week') {
+                const selectedDateStr = dailyPicker.value;
+                const parts = selectedDateStr.split('-');
+                const endDate = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 0,0,0,0);
+                const startDate = new Date(endDate);
+                startDate.setDate(endDate.getDate() - 6);
+
+                targetLimit = 14000; proteinLimit = 840;
+
+                globalHistoryCache.forEach(function(item, index) {
+                    if(!item.date) return;
+                    const iP = item.date.split('-');
+                    const itemDate = new Date(parseInt(iP[0],10), parseInt(iP[1],10)-1, parseInt(iP[2],10), 0,0,0,0);
+                    
+                    if(itemDate >= startDate && itemDate <= endDate) {
+                        filtered.push(Object.assign({}, item, {originalIndex: index}));
+                        cal += Number(item.calories) || 0;
+                        prot += Number(item.protein) || 0;
+                    }
+                });
+            } 
+            else if (currentScope === 'month') {
+                const selectedMonthStr = monthPicker.value; 
+                targetLimit = 60000; proteinLimit = 3600;
+
+                globalHistoryCache.forEach(function(item, index) {
+                    if(!item.date) return;
+                    if(item.date.startsWith(selectedMonthStr)) {
+                        filtered.push(Object.assign({}, item, {originalIndex: index}));
+                        cal += Number(item.calories) || 0;
+                        prot += Number(item.protein) || 0;
+                    }
+                });
+            }
+
+            document.getElementById("todayCalories").innerText = cal.toFixed(0);
+            document.getElementById("todayProtein").innerText = prot.toFixed(1);
+
+            updateLinearProgress("calorieBarFill", cal, targetLimit);
+            updateLinearProgress("proteinBarFill", prot, proteinLimit);
+
+            renderTimelineDom(filtered, homeTimeline);
+            renderTimelineDom(filtered, journalTimeline);
+        }
+
+        function renderTimelineDom(dataset, targetContainer) {
+            if(!targetContainer) return;
+            targetContainer.innerHTML = "";
+            
+            if(dataset.length === 0) {
+                targetContainer.innerHTML = "<div class='null-state-msg' style='padding:20px; font-size:12px; color:var(--text-secondary); text-align:center;'>No entries registered in this scope.</div>";
+                return;
+            }
+            
+            let localCopy = dataset.slice().reverse();
+
+            localCopy.forEach(function(row) {
+                const itemEl = document.createElement("div");
+                itemEl.className = "timeline-node";
+                itemEl.innerHTML = "<div class='node-payload'>" +
+                    "<div class='node-meta-row'>" +
+                        "<span class='node-timestamp'>" + row.date + " · " + (row.time || "00:00") + "</span>" +
+                        "<div class='node-crud-triggers'>" +
+                            "<button class='unique-edit-btn-" + row.originalIndex + "'>✏️</button>" +
+                            "<button class='unique-del-btn-" + row.originalIndex + "'>🗑️</button>" +
+                        "</div>" +
+                    "</div>" +
+                    "<div class='node-title-meal'>" + normalizeInputString(row.rawInput || row.meal) + "</div>" +
+                    "<p class='node-macro-summary' style='margin-top:4px; font-size:11px; color:var(--text-secondary);'>" + row.calories + " kcal · " + row.protein + "g Protein</p>" +
+                "</div>";
+
+                targetContainer.appendChild(itemEl);
+
+                itemEl.querySelector(".unique-edit-btn-" + row.originalIndex).addEventListener("click", function() {
+                    const mb = document.getElementById("meal"); if(mb) { mb.value = row.rawInput || row.meal; routeToView('home'); mb.focus(); }
+                });
+                itemEl.querySelector(".unique-del-btn-" + row.originalIndex).addEventListener("click", function() { deleteMeal(row.originalIndex); });
+            });
+        }
+
+        async function deleteMeal(index) {
+            if(!confirm("Purge recorded entry?")) return;
+            document.getElementById("loading").style.display = "block";
+
+            if(isGuestModeActive) {
+                globalHistoryCache.splice(index, 1);
+                document.getElementById("loading").style.display = "none";
+                processView();
+            } else {
+                try {
+                    const res = await fetch(API_URL + "?action=delete&row=" + (index + 2));
+                    const data = await res.json();
+                    if(data.history) globalHistoryCache = data.history;
+                    if(data.coach || data.coachResponse) {
+                        document.getElementById("coachCharacterSpeech").innerText = data.coach || data.coachResponse;
+                    }
+                    processView();
+                } catch (err) { alert("Deletion failure."); }
+                finally { document.getElementById("loading").style.display = "none"; }
+            }
+        }
+
+        function getActiveTimelineDate() {
+            return document.getElementById("historyDatePicker").value || new Date().toISOString().split('T')[0];
+        }
+
+        function loadDailyMemo() {
+            const mt = document.getElementById("dashboardMemo"); const ms = document.getElementById("memoStatus"); if (!mt) return;
+            const cachedData = localStorage.getItem("aura_notes_" + getActiveTimelineDate());
+            mt.value = cachedData ? cachedData : "";
+            if (ms) { ms.textContent = "Saved"; ms.style.background = "var(--success-bg)"; ms.style.color = "var(--success)"; }
+        }
+
+        let saveTimeout;
+        function saveDailyMemo() {
+            const ms = document.getElementById("memoStatus");
+            if (ms) { ms.textContent = "Saving..."; ms.style.background = "var(--warning-bg)"; ms.style.color = "var(--warning-text)"; }
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(function() {
+                localStorage.setItem("aura_notes_" + getActiveTimelineDate(), document.getElementById("dashboardMemo").value);
+                if (ms) { ms.textContent = "Saved"; ms.style.background = "var(--success-bg)"; ms.style.color = "var(--success)"; }
+            }, 400);
+        }
+
+        window.addEventListener("resize", function() {
+            const mb = document.getElementById("mainDashboard");
+            if (mb && mb.style.display !== "none") mb.style.display = (window.innerWidth <= 1024) ? "block" : "grid";
+        });
+    </script>
 </body>
 </html>
