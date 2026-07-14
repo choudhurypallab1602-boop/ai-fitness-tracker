@@ -3,7 +3,7 @@
  * Core Fixed: Syntax checked, clean termination, and range-based loaders.
  */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzSN3RB8f2VhN0p8QbQ7VcQ-dsghvDhkfHsgI7eyzSm2TobCHjLBmCmYGG6hu-krijyqg/exec";
 
 const ALLOWED_USER = {
   username: "pallab",
