@@ -25,7 +25,7 @@
     body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; padding: 1.5rem; }
     .container { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
 
-    /* --- Auth Screen Framework --- */
+    /* --- Auth Overlay Framework --- */
     .auth-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #f4f6f9; z-index: 10000; display: flex; justify-content: center; align-items: center;
@@ -54,7 +54,7 @@
     }
     .guest-btn:hover { background: #f8fafc; color: var(--text-main); }
 
-    /* --- Top Navigation Header Bar --- */
+    /* --- Navigation Bar --- */
     .top-navbar {
       background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;
       padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--panel-shadow);
@@ -74,13 +74,13 @@
     .logout-link { font-size: 0.85rem; color: var(--text-muted); cursor: pointer; background: none; border: none; }
     .logout-link:hover { color: var(--accent-danger); }
 
-    /* --- Status Informational Alerts --- */
+    /* --- Alerts/Banners --- */
     .sandbox-banner {
       background-color: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 0.75rem 1.25rem;
       border-radius: 10px; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
     }
 
-    /* --- Workspace Layout Setup --- */
+    /* --- Core Workspace Grid Layout --- */
     .workspace-grid { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; align-items: start; }
     @media (max-width: 992px) { .workspace-grid { grid-template-columns: 1fr; } }
     .sidebar-stack { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -91,7 +91,7 @@
     .notepad-area { width: 100%; height: 120px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; font-size: 0.9rem; color: var(--text-main); resize: none; }
     .notepad-area:focus { outline: none; border-color: #cbd5e1; }
 
-    /* Quick Action Matrices */
+    /* Quick Logging System Buttons */
     .quick-log-flex { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
     .quick-chip {
       background: #f1f5f9; border: 1px solid var(--border-color); padding: 0.4rem 0.75rem; border-radius: 20px;
@@ -99,7 +99,7 @@
     }
     .quick-chip:hover { background: #e2e8f0; transform: translateY(-1px); }
 
-    /* Main Console Area Elements */
+    /* Console Dashboard Systems */
     .main-console-stack { display: flex; flex-direction: column; gap: 1.25rem; }
     .view-filter-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
     .time-frame-toggle { display: flex; background: #e2e8f0; padding: 0.2rem; border-radius: 8px; }
@@ -108,7 +108,6 @@
     .datepicker-wrapper { position: relative; display: flex; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.4rem 0.75rem; }
     .datepicker-input { border: none; font-size: 0.9rem; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; text-align: right; }
 
-    /* Analytical Core Dashboard Panels */
     .matrix-headline-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
     .progress-metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
     @media (max-width: 576px) { .progress-metrics-grid { grid-template-columns: 1fr; } }
@@ -121,7 +120,7 @@
     .stat-progress-track { width: 100%; height: 6px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
     .stat-progress-bar { height: 100%; background: #e2e8f0; width: 0%; border-radius: 99px; transition: width 0.4s ease; }
 
-    /* Core Action Form Processing Blocks */
+    /* Input Processing Form */
     .logger-input-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
     .input-field-core { flex: 1; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem; outline: none; background: #ffffff; }
     .input-field-core:focus { border-color: #cbd5e1; }
@@ -129,7 +128,7 @@
     .btn-submit-log { background: var(--accent-primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.15s; }
     .btn-submit-log:hover { background: var(--accent-hover); }
 
-    /* Timeline Modules & Inline Modification Interface */
+    /* Output Stream Component UI */
     .timeline-header-text { font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
     .timeline-display-stack { display: flex; flex-direction: column; gap: 0.75rem; min-height: 100px; }
     .timeline-record-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; transition: border-color 0.15s; }
@@ -153,7 +152,7 @@
     .inline-cancel-btn { background: #cbd5e1; color: var(--text-main); border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
     .no-entries-message { text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.95rem; }
 
-    /* Fullscreen Network Spinner */
+    /* Screen Network Requests Blocker */
     .network-spinner-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(244, 246, 249, 0.7);
       display: none; justify-content: center; align-items: center; z-index: 99999; backdrop-filter: blur(2px);
@@ -279,6 +278,7 @@
     let activeNavigationTab = 'home';
 
     window.addEventListener("DOMContentLoaded", () => {
+      // Standardize to target current active tracking point date
       const rawCurrentDate = new Date();
       const currentYear = rawCurrentDate.getFullYear();
       const currentMonth = String(rawCurrentDate.getMonth() + 1).padStart(2, '0');
@@ -395,12 +395,12 @@
         recognition.onerror = function() { toggleLoaderSpinner(false); };
         recognition.onend = function() { toggleLoaderSpinner(false); };
       } else {
-        alert("Speech recognition not supported in this browser perspective.");
+        alert("Speech engine drives missing or unmapped in browser channel.");
       }
     }
 
     function syncDatePerspective() {
-      renderAggregatedDashboardView();
+      if (activeNavigationTab === 'home') renderAggregatedDashboardView();
     }
 
     function switchTimeFrame(element, mode) {
@@ -442,7 +442,37 @@
     }
 
     /**
-     * Network Sync: Fetch Sheet database matrix entries securely using a universal safety parser
+     * Clean and normalize raw spreadsheet strings/objects into safe 'YYYY-MM-DD' tokens
+     */
+    function normalizeRawSheetDate(rawDateStr) {
+      if (!rawDateStr) return '';
+      let str = String(rawDateStr).trim();
+      
+      // Handle shifting formatting errors like row 40 where ISO timestamp landed
+      if (str.includes('T')) {
+        str = str.split('T')[0];
+      }
+      
+      // Clean time zones, long formats, or spaces
+      if (str.includes(' ')) {
+        str = str.split(' ')[0];
+      }
+
+      // Re-route slashes if standard Indian/UK matrices match: DD/MM/YYYY or YYYY/MM/DD
+      if (str.includes('/')) {
+        const units = str.split('/');
+        if (units[0].length === 4) { // YYYY/MM/DD
+          return `${units[0]}-${units[1].padStart(2, '0')}-${units[2].padStart(2, '0')}`;
+        } else { // DD/MM/YYYY
+          return `${units[2]}-${units[1].padStart(2, '0')}-${units[0].padStart(2, '0')}`;
+        }
+      }
+
+      return str; // Return YYYY-MM-DD cleanly
+    }
+
+    /**
+     * Network Sync: Fetch Sheet entries and parse historical cells safely
      */
     async function fetchSheetDatabaseMatrix() {
       if (localStorage.getItem("aura_session_active") !== "true") return;
@@ -451,12 +481,17 @@
         const res = await fetch(BACKEND_GATEWAY_URL);
         const output = await res.json();
         if (output.status === "success") {
-          // Dynamic Safety Parser: Automatically fixes shifted columns (like row 40) while keeping clean ones pristine
+          
           synchronizedHistoryMatrix = (output.history || []).map(item => {
-            const isRowShifted = item.date && item.date.includes('T');
+            // Universal shifting check
+            const isRowShifted = item.date && String(item.date).includes('T');
+            
+            const rawDate = isRowShifted ? (item.time || '') : (item.date || '');
+            const parsedDate = normalizeRawSheetDate(rawDate);
+
             return {
               rowIdx: item.rowIdx,
-              date: isRowShifted ? (item.time || '') : (item.date || ''),
+              date: parsedDate,
               time: isRowShifted ? (item.rawInput || '') : (item.time || ''),
               rawInput: isRowShifted ? (item.parsedDesc || '') : (item.rawInput || ''),
               parsedDesc: isRowShifted ? (item.calories || '') : (item.parsedDesc || ''),
@@ -465,12 +500,13 @@
             };
           });
           
+          // Re-render current active view context cleanly
           if (activeNavigationTab === 'home') renderAggregatedDashboardView();
           else if (activeNavigationTab === 'journal') renderJournalTabView();
           else if (activeNavigationTab === 'coach') renderCoachTabView();
         }
       } catch (err) {
-        console.error("Communication failure fetching data: ", err);
+        console.error("Communication failure fetching historical elements: ", err);
       } finally {
         toggleLoaderSpinner(false);
       }
@@ -575,28 +611,30 @@
     }
 
     /**
-     * Core Home Workspace rendering loop
+     * Dashboard Home Workspace rendering loop
      */
     function renderAggregatedDashboardView() {
       const activeSelectedDate = document.getElementById("globalMetricDatePicker").value;
       const containerBox = document.getElementById("timelineConsoleContainer");
       
-      // Select filtering logic frame based on timeline options toggled
       const targetDateObject = new Date(activeSelectedDate);
       
       const filteredRecords = synchronizedHistoryMatrix.filter(item => {
         if (!item.date) return false;
-        const normalizedItemDate = new Date(item.date.replace(/\//g, '-').trim());
+        
+        // Convert clean normalized 'YYYY-MM-DD' back to comparable timestamps
+        const itemDateObj = new Date(item.date);
+        if (isNaN(itemDateObj.getTime())) return false;
         
         if (currentTimeframeMode === 'daily') {
-          return normalizedItemDate.toDateString() === targetDateObject.toDateString();
+          return itemDateObj.toDateString() === targetDateObject.toDateString();
         } else if (currentTimeframeMode === 'weekly') {
           const sevenDaysAgo = new Date(targetDateObject);
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          return normalizedItemDate <= targetDateObject && normalizedItemDate >= sevenDaysAgo;
+          return itemDateObj <= targetDateObject && itemDateObj >= sevenDaysAgo;
         } else if (currentTimeframeMode === 'monthly') {
-          return normalizedItemDate.getMonth() === targetDateObject.getMonth() && 
-                 normalizedItemDate.getFullYear() === targetDateObject.getFullYear();
+          return itemDateObj.getMonth() === targetDateObject.getMonth() && 
+                 itemDateObj.getFullYear() === targetDateObject.getFullYear();
         }
         return false;
       });
@@ -605,7 +643,7 @@
       let calculatedProtein = 0;
 
       if (filteredRecords.length === 0) {
-        containerBox.innerHTML = `<div class="no-entries-message">No entries for this filtered timeline selection range.</div>`;
+        containerBox.innerHTML = `<div class="no-entries-message">No entries found for this tracking parameters matrix.</div>`;
         document.getElementById("aggregatedCalories").textContent = "0";
         document.getElementById("aggregatedProtein").textContent = "0.0";
         document.getElementById("calorieProgressBar").style.width = "0%";
@@ -613,6 +651,7 @@
         return;
       }
 
+      // Chronological sort
       filteredRecords.sort((x, y) => (x.time || '').localeCompare(y.time || ''));
       containerBox.innerHTML = "";
 
@@ -651,16 +690,16 @@
     }
 
     /**
-     * Journal tab rendering system view loop logic
+     * Journal view engine logic
      */
     function renderJournalTabView() {
       const containerBox = document.getElementById("timelineConsoleContainer");
       if (synchronizedHistoryMatrix.length === 0) {
-        containerBox.innerHTML = `<div class="no-entries-message">No historical data logs mapped in sheet storage rows.</div>`;
+        containerBox.innerHTML = `<div class="no-entries-message">No historical data logs mapped inside the sheet workspace.</div>`;
         return;
       }
 
-      // Sort chronological descending order
+      // Order chronological descending
       const sortedRecords = [...synchronizedHistoryMatrix].sort((x, y) => new Date(y.date) - new Date(x.date));
       containerBox.innerHTML = "";
 
@@ -684,35 +723,35 @@
     }
 
     /**
-     * Coach processing view synthesis logic
+     * AI Coach dynamic recommendation view matrix synthesis
      */
     function renderCoachTabView() {
       const containerBox = document.getElementById("timelineConsoleContainer");
       
-      // Aggregate all historical records calculations metrics summary profiles
       let cumulativeCals = 0; let cumulativeProtein = 0;
       synchronizedHistoryMatrix.forEach(r => {
         cumulativeCals += parseInt(r.calories, 10) || 0;
         cumulativeProtein += parseFloat(r.protein) || 0;
       });
 
-      const averageCalories = synchronizedHistoryMatrix.length ? Math.round(cumulativeCals / synchronizedHistoryMatrix.length) : 0;
-      const averageProtein = synchronizedHistoryMatrix.length ? (cumulativeProtein / synchronizedHistoryMatrix.length).toFixed(1) : "0.0";
+      const totalItems = synchronizedHistoryMatrix.length || 1;
+      const averageCalories = Math.round(cumulativeCals / totalItems);
+      const averageProtein = (cumulativeProtein / totalItems).toFixed(1);
 
       containerBox.innerHTML = `
         <div class="stat-box" style="border-left: 4px solid var(--accent-success); margin-bottom: 1rem;">
           <div class="stat-label" style="color: var(--accent-success);">Macro Compliance Metric Review</div>
           <div class="card-parsed-text" style="font-size: 1.15rem; margin-bottom: 0.5rem;">Analytical Breakdown Profile Summary</div>
           <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">
-            Based on your complete spreadsheet log profile metadata tracking points, your average historical consumption stands at <strong>${averageCalories} kcal</strong> and <strong>${averageProtein}g protein</strong> per recorded log index.
+            Based on your complete historical profile (${synchronizedHistoryMatrix.length} logs analyzed), your average intake tracks at <strong>${averageCalories} kcal</strong> and <strong>${averageProtein}g protein</strong> per entry block.
           </p>
         </div>
         <div class="stat-box" style="border-left: 4px solid #3b82f6;">
           <div class="stat-label" style="color: #3b82f6;">Strategic Coach Recommendations</div>
           <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-            <li> Maintain protein pacing metrics to support active muscle building recovery vectors.</li>
+            <li> Keep logging meals in real-time. The new strict parsing layout tracks all shifts automatically.</li>
             <li> Check your notepad configuration panels for accurate target threshold updates.</li>
-            <li> Use inline modifications to repair errors or misaligned inputs on the fly.</li>
+            <li> Use the <strong>Journal</strong> view layout tab to quickly monitor cross-date trends at a glance.</li>
           </ul>
         </div>
       `;
