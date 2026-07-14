@@ -21,418 +21,144 @@
       --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: var(--font-stack);
-    }
-
-    body {
-      background-color: var(--bg-base);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding: 1.5rem;
-    }
-
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-stack); }
+    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; padding: 1.5rem; }
+    .container { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
 
     /* --- Auth Screen Framework --- */
     .auth-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #f4f6f9; z-index: 10000;
-      display: flex; justify-content: center; align-items: center;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #f4f6f9; z-index: 10000; display: flex; justify-content: center; align-items: center;
     }
     .auth-card {
-      background: white; border: 1px solid var(--border-color);
-      border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 420px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); text-align: center;
+      background: white; border: 1px solid var(--border-color); border-radius: 16px;
+      padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); text-align: center;
     }
     .auth-card h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.03em;}
     .auth-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
-    
-    .auth-form-group {
-      display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; text-align: left;
-    }
+    .auth-form-group { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; text-align: left; }
     .auth-input {
       width: 100%; border: 1px solid var(--border-color); border-radius: 8px;
       padding: 0.75rem; font-size: 0.95rem; outline: none; background: #f8fafc;
     }
     .auth-input:focus { border-color: #cbd5e1; background: white;}
-    .auth-error-msg {
-      color: var(--accent-danger); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; display: none;
-    }
-
+    .auth-error-msg { color: var(--accent-danger); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; display: none; }
     .auth-btn { 
-      background: var(--accent-primary); color: white; border: none;
-      padding: 0.85rem; font-weight: 600; border-radius: 8px; width: 100%;
-      cursor: pointer; font-size: 1rem; margin-bottom: 0.75rem; transition: background 0.2s;
+      background: var(--accent-primary); color: white; border: none; padding: 0.85rem; font-weight: 600;
+      border-radius: 8px; width: 100%; cursor: pointer; font-size: 1rem; margin-bottom: 0.75rem; transition: background 0.2s;
     }
     .auth-btn:hover { background: var(--accent-hover); }
     .guest-btn {
       background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);
-      padding: 0.85rem; font-weight: 600; border-radius: 8px; width: 100%;
-      cursor: pointer; font-size: 1rem; transition: all 0.2s;
+      padding: 0.85rem; font-weight: 600; border-radius: 8px; width: 100%; cursor: pointer; font-size: 1rem; transition: all 0.2s;
     }
     .guest-btn:hover { background: #f8fafc; color: var(--text-main); }
 
     /* --- Top Navigation Header Bar --- */
     .top-navbar {
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: var(--panel-shadow);
+      background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--panel-shadow);
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-    }
-    .brand span { color: var(--text-main); }
-
-    .nav-tabs {
-      display: flex;
-      background: #f1f5f9;
-      padding: 0.25rem;
-      border-radius: 8px;
-      gap: 0.25rem;
-    }
+    .brand { display: flex; align-items: center; gap: 0.5rem; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.03em; }
+    .nav-tabs { display: flex; background: #f1f5f9; padding: 0.25rem; border-radius: 8px; gap: 0.25rem; }
     .nav-tab {
-      padding: 0.5rem 1.25rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      border-radius: 6px;
+      padding: 0.5rem 1.25rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted);
+      border: none; background: transparent; cursor: pointer; border-radius: 6px;
     }
-    .nav-tab.active {
-      background: white;
-      color: var(--text-main);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    .user-profile-zone {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .nav-tab.active { background: white; color: var(--text-main); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .user-profile-zone { display: flex; align-items: center; gap: 0.75rem; }
     .avatar-circle {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #e2e8f0;
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: 700;
-      font-size: 0.9rem;
+      width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: var(--text-main);
+      display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 0.9rem;
     }
-    .logout-link {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
+    .logout-link { font-size: 0.85rem; color: var(--text-muted); cursor: pointer; background: none; border: none; }
     .logout-link:hover { color: var(--accent-danger); }
 
     /* --- Status Informational Alerts --- */
     .sandbox-banner {
-      background-color: #fffbeb;
-      border: 1px solid #fde68a;
-      color: #b45309;
-      padding: 0.75rem 1.25rem;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      background-color: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 0.75rem 1.25rem;
+      border-radius: 10px; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
     }
 
     /* --- Workspace Layout Setup --- */
-    .workspace-grid {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 1.5rem;
-      align-items: start;
-    }
-
-    @media (max-width: 992px) {
-      .workspace-grid { grid-template-columns: 1fr; }
-    }
-
-    .sidebar-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .card-panel {
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.25rem;
-      box-shadow: var(--panel-shadow);
-    }
-
-    .panel-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.85rem;
-    }
-    .panel-heading {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-status {
-      background: #ccfbf1;
-      color: #14b8a6;
-      font-size: 0.7rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      font-weight: 700;
-    }
-
-    .notepad-area {
-      width: 100%;
-      height: 120px;
-      background: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.75rem;
-      font-size: 0.9rem;
-      color: var(--text-main);
-      resize: none;
-    }
+    .workspace-grid { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 992px) { .workspace-grid { grid-template-columns: 1fr; } }
+    .sidebar-stack { display: flex; flex-direction: column; gap: 1.25rem; }
+    .card-panel { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; box-shadow: var(--panel-shadow); }
+    .panel-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; }
+    .panel-heading { font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-status { background: #ccfbf1; color: #14b8a6; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; }
+    .notepad-area { width: 100%; height: 120px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; font-size: 0.9rem; color: var(--text-main); resize: none; }
     .notepad-area:focus { outline: none; border-color: #cbd5e1; }
 
     /* Quick Action Matrices */
-    .quick-log-flex {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.25rem;
-    }
+    .quick-log-flex { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
     .quick-chip {
-      background: #f1f5f9;
-      border: 1px solid var(--border-color);
-      padding: 0.4rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: all 0.15s ease;
+      background: #f1f5f9; border: 1px solid var(--border-color); padding: 0.4rem 0.75rem; border-radius: 20px;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;
     }
-    .quick-chip:hover {
-      background: #e2e8f0;
-      transform: translateY(-1px);
-    }
+    .quick-chip:hover { background: #e2e8f0; transform: translateY(-1px); }
 
     /* Main Console Area Elements */
-    .main-console-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .view-filter-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .time-frame-toggle {
-      display: flex;
-      background: #e2e8f0;
-      padding: 0.2rem;
-      border-radius: 8px;
-    }
-    .toggle-option {
-      border: none; background: transparent;
-      padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600;
-      color: #475569; cursor: pointer; border-radius: 6px;
-    }
-    .toggle-option.active {
-      background: var(--accent-primary);
-      color: white;
-    }
-
-    .datepicker-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: white;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.4rem 0.75rem;
-    }
-    .datepicker-input {
-      border: none; font-size: 0.9rem; font-weight: 600;
-      color: var(--text-main); outline: none; cursor: pointer;
-      text-align: right;
-    }
+    .main-console-stack { display: flex; flex-direction: column; gap: 1.25rem; }
+    .view-filter-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .time-frame-toggle { display: flex; background: #e2e8f0; padding: 0.2rem; border-radius: 8px; }
+    .toggle-option { border: none; background: transparent; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600; color: #475569; cursor: pointer; border-radius: 6px; }
+    .toggle-option.active { background: var(--accent-primary); color: white; }
+    .datepicker-wrapper { position: relative; display: flex; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.4rem 0.75rem; }
+    .datepicker-input { border: none; font-size: 0.9rem; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; text-align: right; }
 
     /* Analytical Core Dashboard Panels */
-    .matrix-headline-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.25rem;
-    }
-
-    .progress-metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-    @media (max-width: 576px) {
-      .progress-metrics-grid { grid-template-columns: 1fr; }
-    }
-
-    .stat-box {
-      background: white; border: 1px solid var(--border-color);
-      border-radius: 12px; padding: 1.25rem; position: relative;
-    }
-    .stat-label {
-      font-size: 0.75rem; font-weight: 700; color: #64748b;
-      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;
-    }
-    .stat-number-row {
-      display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.75rem;
-    }
+    .matrix-headline-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+    .progress-metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 576px) { .progress-metrics-grid { grid-template-columns: 1fr; } }
+    
+    .stat-box { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; position: relative; }
+    .stat-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .stat-number-row { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.75rem; }
     .stat-big-val { font-size: 2rem; font-weight: 700; color: var(--text-main); }
     .stat-unit { font-size: 0.95rem; color: #64748b; font-weight: 500; }
-    
-    .stat-progress-track {
-      width: 100%; height: 6px; background: #f1f5f9; border-radius: 99px; overflow: hidden;
-    }
-    .stat-progress-bar {
-      height: 100%; background: #e2e8f0; width: 0%; border-radius: 99px;
-      transition: width 0.4s ease;
-    }
+    .stat-progress-track { width: 100%; height: 6px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+    .stat-progress-bar { height: 100%; background: #e2e8f0; width: 0%; border-radius: 99px; transition: width 0.4s ease; }
 
     /* Core Action Form Processing Blocks */
-    .logger-input-row {
-      display: flex; gap: 0.75rem; margin-top: 0.5rem;
-    }
-    .input-field-core {
-      flex: 1; border: 1px solid var(--border-color); border-radius: 8px;
-      padding: 0.75rem 1rem; font-size: 0.95rem; outline: none; background: #ffffff;
-    }
+    .logger-input-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+    .input-field-core { flex: 1; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem; outline: none; background: #ffffff; }
     .input-field-core:focus { border-color: #cbd5e1; }
-    
-    .btn-speak {
-      background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border-color);
-      padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
-      cursor: pointer; display: flex; align-items: center; gap: 0.35rem;
-    }
-    .btn-submit-log {
-      background: var(--accent-primary); color: white; border: none;
-      padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
-      cursor: pointer; transition: background 0.15s;
-    }
+    .btn-speak { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; }
+    .btn-submit-log { background: var(--accent-primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.15s; }
     .btn-submit-log:hover { background: var(--accent-hover); }
 
     /* Timeline Modules & Inline Modification Interface */
-    .timeline-header-text {
-      font-size: 0.8rem; font-weight: 700; color: #64748b;
-      text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem;
-    }
-    
-    .timeline-display-stack {
-      display: flex; flex-direction: column; gap: 0.75rem; min-height: 100px;
-    }
-    
-    .timeline-record-card {
-      background: white; border: 1px solid var(--border-color); border-radius: 12px;
-      padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;
-      position: relative; transition: border-color 0.15s;
-    }
+    .timeline-header-text { font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
+    .timeline-display-stack { display: flex; flex-direction: column; gap: 0.75rem; min-height: 100px; }
+    .timeline-record-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; transition: border-color 0.15s; }
     .timeline-record-card:hover { border-color: #cbd5e1; }
-    
-    .card-meta-line {
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .card-meta-line { display: flex; justify-content: space-between; align-items: center; }
     .card-timestamp-text { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
-    .card-badge-ai {
-      background: #f1f5f9; color: var(--text-main); font-size: 0.7rem;
-      padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; border: 1px solid var(--border-color);
-    }
+    .card-badge-ai { background: #f1f5f9; color: var(--text-main); font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; border: 1px solid var(--border-color); }
     .card-raw-text { font-size: 0.9rem; font-style: italic; color: var(--text-muted); word-break: break-word;}
     .card-parsed-text { font-size: 1rem; font-weight: 600; color: var(--text-main); margin-top: 0.15rem; }
-    
     .card-macro-grid { display: flex; gap: 1.25rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
     .card-macro-grid span strong { color: var(--text-main); font-weight: 700; }
-    
-    .action-row-links {
-      display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;
-    }
-    .action-btn-link {
-      background: transparent; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;
-    }
+    .action-row-links { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem; }
+    .action-btn-link { background: transparent; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
     .action-btn-link.edit-trigger { color: var(--accent-warning); }
     .action-btn-link.delete-trigger { color: var(--accent-danger); }
     .action-btn-link:hover { text-decoration: underline; }
 
-    /* Inline Edit Processing Area Form overrides */
-    .inline-edit-textarea {
-      width: 100%; height: 70px; font-size: 0.9rem; padding: 0.5rem;
-      border: 1px solid var(--accent-warning); border-radius: 6px; outline: none; resize: none;
-    }
-    .inline-edit-actions {
-      display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.25rem;
-    }
-    .inline-save-btn {
-      background: var(--accent-warning); color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
-    }
-    .inline-cancel-btn {
-      background: #cbd5e1; color: var(--text-main); border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
-    }
+    .inline-edit-textarea { width: 100%; height: 70px; font-size: 0.9rem; padding: 0.5rem; border: 1px solid var(--accent-warning); border-radius: 6px; outline: none; resize: none; }
+    .inline-edit-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.25rem; }
+    .inline-save-btn { background: var(--accent-warning); color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .inline-cancel-btn { background: #cbd5e1; color: var(--text-main); border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .no-entries-message { text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.95rem; }
 
-    .no-entries-message {
-      text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.95rem;
-    }
-
-    /* Fullscreen Network Request Blocker Overlay */
+    /* Fullscreen Network Spinner */
     .network-spinner-screen {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(244, 246, 249, 0.7); display: none;
-      justify-content: center; align-items: center; z-index: 99999;
-      backdrop-filter: blur(2px);
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(244, 246, 249, 0.7);
+      display: none; justify-content: center; align-items: center; z-index: 99999; backdrop-filter: blur(2px);
     }
-    .spinner-element {
-      width: 40px; height: 40px; border: 3px solid #e2e8f0;
-      border-top-color: var(--accent-primary); border-radius: 50%;
-      animation: infiniteRotation 0.8s linear infinite;
-    }
+    .spinner-element { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: var(--accent-primary); border-radius: 50%; animation: infiniteRotation 0.8s linear infinite; }
     @keyframes infiniteRotation { to { transform: rotate(360deg); } }
   </style>
 </head>
@@ -443,33 +169,25 @@
     <div class="auth-card">
       <h2>Welcome to Aura</h2>
       <p>Secure Fitness & Meal Analytical Log Console</p>
-      
       <div class="auth-form-group">
         <input type="text" id="authUsername" class="auth-input" placeholder="Username">
         <input type="password" id="authPassword" class="auth-input" placeholder="Password">
       </div>
-      
       <div class="auth-error-msg" id="authErrorPanel">Invalid credential token parameters provided.</div>
-      
       <button class="auth-btn" onclick="executeCredentialHandshake()">Login via Credentials</button>
       <button class="guest-btn" onclick="bypassAuthAsGuest()">Continue in Guest Sandbox</button>
     </div>
   </div>
 
-  <div class="network-spinner-screen" id="networkSpinner">
-    <div class="spinner-element"></div>
-  </div>
+  <div class="network-spinner-screen" id="networkSpinner"><div class="spinner-element"></div></div>
 
   <div class="container">
-    <!-- Top Level Dashboard Bar Component -->
     <nav class="top-navbar">
-      <div class="brand">
-        <span>✦ Aura</span>
-      </div>
+      <div class="brand"><span>✦ Aura</span></div>
       <div class="nav-tabs">
-        <button class="nav-tab active">Home</button>
-        <button class="nav-tab">Journal</button>
-        <button class="nav-tab">Coach</button>
+        <button class="nav-tab active" onclick="switchNavTab(this, 'home')">Home</button>
+        <button class="nav-tab" onclick="switchNavTab(this, 'journal')">Journal</button>
+        <button class="nav-tab" onclick="switchNavTab(this, 'coach')">Coach</button>
       </div>
       <div class="user-profile-zone">
         <div class="avatar-circle" id="userAvatar">P</div>
@@ -477,16 +195,12 @@
       </div>
     </nav>
 
-    <!-- Context Status Banner Warning Matrix -->
     <div class="sandbox-banner" id="statusBanner">
-      ⚠️ Sandbox Mode active. System is tracking local storage nodes until credentials handshake completes.
+      ✓ Cloud Connected Active State Matrix verified. Transactions routing securely via isolated server layers.
     </div>
 
-    <!-- Main Dynamic Interface System Grid -->
     <div class="workspace-grid">
-      <!-- Auxiliary Configuration Control Column -->
       <div class="sidebar-stack">
-        <!-- Daily Notepad Module Widget -->
         <div class="card-panel">
           <div class="panel-title-row">
             <div class="panel-heading">Daily Notepad</div>
@@ -495,7 +209,6 @@
           <textarea class="notepad-area" id="dailyNotepad" placeholder="Draft notes..." oninput="triggerNoteSave()"></textarea>
         </div>
 
-        <!-- System Fast Processing Trigger Quick Actions -->
         <div class="card-panel">
           <div class="panel-heading" style="margin-bottom: 0.75rem;">Quick Log Matrix</div>
           <div class="quick-log-flex">
@@ -506,23 +219,20 @@
         </div>
       </div>
 
-      <!-- Core Operational Dashboard Block Layout -->
       <div class="main-console-stack">
-        <!-- Filtering & Parameter Date Selection Controls -->
         <div class="view-filter-bar">
           <div class="time-frame-toggle">
-            <button class="toggle-option active">Daily</button>
-            <button class="toggle-option">Weekly</button>
-            <button class="toggle-option">Monthly</button>
+            <button class="toggle-option active" onclick="switchTimeFrame(this, 'daily')">Daily</button>
+            <button class="toggle-option" onclick="switchTimeFrame(this, 'weekly')">Weekly</button>
+            <button class="toggle-option" onclick="switchTimeFrame(this, 'monthly')">Monthly</button>
           </div>
           <div class="datepicker-wrapper">
             <input type="date" class="datepicker-input" id="globalMetricDatePicker" onchange="syncDatePerspective()">
           </div>
         </div>
 
-        <div class="matrix-headline-title">Daily Progress Matrix</div>
+        <div class="matrix-headline-title" id="dashboardContextTitle">Daily Progress Matrix</div>
 
-        <!-- Analytical Processing Stat Modules -->
         <div class="progress-metrics-grid">
           <div class="stat-box">
             <div class="stat-label">Calories Logged</div>
@@ -530,9 +240,7 @@
               <span class="stat-big-val" id="aggregatedCalories">0</span>
               <span class="stat-unit">kcal</span>
             </div>
-            <div class="stat-progress-track">
-              <div class="stat-progress-bar" id="calorieProgressBar" style="background-color: var(--accent-primary);"></div>
-            </div>
+            <div class="stat-progress-track"><div class="stat-progress-bar" id="calorieProgressBar" style="background-color: var(--accent-primary);"></div></div>
           </div>
 
           <div class="stat-box">
@@ -541,14 +249,11 @@
               <span class="stat-big-val" id="aggregatedProtein">0.0</span>
               <span class="stat-unit">g</span>
             </div>
-            <div class="stat-progress-track">
-              <div class="stat-progress-bar" id="proteinProgressBar" style="background-color: #0d9488;"></div>
-            </div>
+            <div class="stat-progress-track"><div class="stat-progress-bar" id="proteinProgressBar" style="background-color: #0d9488;"></div></div>
           </div>
         </div>
 
-        <!-- Standard Realtime Meal Commit Interface Area -->
-        <div class="card-panel">
+        <div class="card-panel" id="mealLoggerInputBlock">
           <div class="panel-heading" style="margin-bottom: 0.5rem;">Log New Meal</div>
           <div class="logger-input-row">
             <input type="text" class="input-field-core" id="rawMealInput" placeholder="Type food details...">
@@ -557,8 +262,7 @@
           </div>
         </div>
 
-        <!-- Data Activity Timeline Matrix Stream Layout -->
-        <div class="timeline-header-text">Activity Log Timeline</div>
+        <div class="timeline-header-text" id="timelineContextTitle">Activity Log Timeline</div>
         <div class="timeline-display-stack" id="timelineConsoleContainer">
           <div class="no-entries-message">No entries for this selection.</div>
         </div>
@@ -567,15 +271,14 @@
   </div>
 
   <script>
-    // HARDCODED SECURE DEPLOYMENT ENDPOINT ROUTE INTERACTION INTERFACE
     const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbzSN3RB8f2VhN0p8QbQ7VcQ-dsghvDhkfHsgI7eyzSm2TobCHjLBmCmYGG6hu-krijyqg/exec";
     
     let synchronizedHistoryMatrix = [];
     let saveTimeoutThread = null;
+    let currentTimeframeMode = 'daily';
+    let activeNavigationTab = 'home';
 
-    // Standard Application Entry Point Configuration Handshake
     window.addEventListener("DOMContentLoaded", () => {
-      // Set explicit current date text parameters
       const rawCurrentDate = new Date();
       const currentYear = rawCurrentDate.getFullYear();
       const currentMonth = String(rawCurrentDate.getMonth() + 1).padStart(2, '0');
@@ -583,7 +286,6 @@
       
       document.getElementById("globalMetricDatePicker").value = `${currentYear}-${currentMonth}-${currentDay}`;
 
-      // Check validation tokens inside storage mapping
       const sessionActive = localStorage.getItem("aura_session_active");
       const savedUserAvatar = localStorage.getItem("aura_avatar_char") || "P";
       if (sessionActive === "true") {
@@ -599,9 +301,6 @@
       }
     });
 
-    /**
-     * Strict Identity Verification Check Block
-     */
     function executeCredentialHandshake() {
       const userField = document.getElementById("authUsername").value.trim();
       const passField = document.getElementById("authPassword").value.trim();
@@ -645,15 +344,11 @@
       const banner = document.getElementById("statusBanner");
       if (isGuest) {
         banner.style.display = "flex";
-        banner.style.background = "#fffbeb";
-        banner.style.color = "#b45309";
-        banner.style.borderColor = "#fde68a";
+        banner.style.background = "#fffbeb"; banner.style.color = "#b45309"; banner.style.borderColor = "#fde68a";
         banner.innerHTML = "⚠️ Sandbox Mode active. System is tracking local storage nodes until credentials handshake completes.";
       } else {
         banner.style.display = "flex";
-        banner.style.background = "#f0fdf4";
-        banner.style.color = "#166534";
-        banner.style.borderColor = "#bbf7d0";
+        banner.style.background = "#f0fdf4"; banner.style.color = "#166534"; banner.style.borderColor = "#bbf7d0";
         banner.innerHTML = "✓ Cloud Connected Active State Matrix verified. Transactions routing securely via isolated server layers.";
       }
     }
@@ -700,7 +395,7 @@
         recognition.onerror = function() { toggleLoaderSpinner(false); };
         recognition.onend = function() { toggleLoaderSpinner(false); };
       } else {
-        alert("Speech engine drivers missing or unmapped in browser channel.");
+        alert("Speech recognition not supported in this browser perspective.");
       }
     }
 
@@ -708,8 +403,46 @@
       renderAggregatedDashboardView();
     }
 
+    function switchTimeFrame(element, mode) {
+      document.querySelectorAll('.time-frame-toggle .toggle-option').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      currentTimeframeMode = mode;
+      
+      const capitalizedMode = mode.charAt(0).toUpperCase() + mode.slice(1);
+      document.getElementById("dashboardContextTitle").textContent = `${capitalizedMode} Progress Matrix`;
+      
+      renderAggregatedDashboardView();
+    }
+
+    function switchNavTab(element, tab) {
+      document.querySelectorAll('.nav-tabs .nav-tab').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      activeNavigationTab = tab;
+
+      const mealLogger = document.getElementById("mealLoggerInputBlock");
+      const timeFilters = document.querySelector(".view-filter-bar");
+      const timelineTitle = document.getElementById("timelineContextTitle");
+
+      if (tab === 'home') {
+        mealLogger.style.display = "block";
+        timeFilters.style.display = "flex";
+        timelineTitle.textContent = "Activity Log Timeline";
+        renderAggregatedDashboardView();
+      } else if (tab === 'journal') {
+        mealLogger.style.display = "none";
+        timeFilters.style.display = "none";
+        timelineTitle.textContent = "Comprehensive Historical Journal Logs";
+        renderJournalTabView();
+      } else if (tab === 'coach') {
+        mealLogger.style.display = "none";
+        timeFilters.style.display = "none";
+        timelineTitle.textContent = "AI Strategic Coach Perspective Insights";
+        renderCoachTabView();
+      }
+    }
+
     /**
-     * Network Sync: Fetch Sheet entries and clean up shifted column mappings
+     * Network Sync: Fetch Sheet database matrix entries securely using a universal safety parser
      */
     async function fetchSheetDatabaseMatrix() {
       if (localStorage.getItem("aura_session_active") !== "true") return;
@@ -718,22 +451,23 @@
         const res = await fetch(BACKEND_GATEWAY_URL);
         const output = await res.json();
         if (output.status === "success") {
-          // Normalize column indexes to account for the timestamp offset visible in row 40
+          // Dynamic Safety Parser: Automatically fixes shifted columns (like row 40) while keeping clean ones pristine
           synchronizedHistoryMatrix = (output.history || []).map(item => {
-            if (item.date && item.date.includes('T')) {
-              return {
-                ...item,
-                date: item.time || item.date, 
-                time: item.rawInput || '',
-                rawInput: item.parsedDesc || '',
-                parsedDesc: item.calories || '',
-                calories: item.protein || '0',
-                protein: item.confidence || '0'
-              };
-            }
-            return item;
+            const isRowShifted = item.date && item.date.includes('T');
+            return {
+              rowIdx: item.rowIdx,
+              date: isRowShifted ? (item.time || '') : (item.date || ''),
+              time: isRowShifted ? (item.rawInput || '') : (item.time || ''),
+              rawInput: isRowShifted ? (item.parsedDesc || '') : (item.rawInput || ''),
+              parsedDesc: isRowShifted ? (item.calories || '') : (item.parsedDesc || ''),
+              calories: isRowShifted ? (item.protein || '0') : (item.calories || '0'),
+              protein: isRowShifted ? (item.confidence || '0') : (item.protein || '0')
+            };
           });
-          renderAggregatedDashboardView();
+          
+          if (activeNavigationTab === 'home') renderAggregatedDashboardView();
+          else if (activeNavigationTab === 'journal') renderJournalTabView();
+          else if (activeNavigationTab === 'coach') renderCoachTabView();
         }
       } catch (err) {
         console.error("Communication failure fetching data: ", err);
@@ -742,9 +476,6 @@
       }
     }
 
-    /**
-     * Network Action: Package raw input and log to app sheet
-     */
     async function executePostMealLog() {
       const fieldElement = document.getElementById("rawMealInput");
       const rawText = fieldElement.value.trim();
@@ -774,9 +505,6 @@
       }
     }
 
-    /**
-     * Switch display panel interface into editable interactive text node
-     */
     function enableInlineEditMode(rowIdx, currentText) {
       const textBlock = document.getElementById(`cardRawZone-${rowIdx}`);
       const controlBlock = document.getElementById(`cardActionZone-${rowIdx}`);
@@ -784,16 +512,13 @@
       textBlock.innerHTML = `
         <textarea class="inline-edit-textarea" id="editInput-${rowIdx}">${currentText}</textarea>
         <div class="inline-edit-actions">
-          <button class="inline-cancel-btn" onclick="renderAggregatedDashboardView()">Cancel</button>
+          <button class="inline-cancel-btn" onclick="switchNavTab(document.querySelector('.nav-tab.active'), activeNavigationTab)">Cancel</button>
           <button class="inline-save-btn" onclick="saveInlineModification(${rowIdx})">Save Update</button>
         </div>
       `;
       controlBlock.style.display = "none";
     }
 
-    /**
-     * Network Action: Commit edited log string transformations inside target sheet positions
-     */
     async function saveInlineModification(rowIdx) {
       const revisedText = document.getElementById(`editInput-${rowIdx}`).value.trim();
       if (!revisedText) return;
@@ -831,9 +556,6 @@
       }
     }
 
-    /**
-     * Network Action: Delete record by target sheet index coordination
-     */
     async function executeDataExtractionDelete(sheetRowIndex) {
       if (!confirm("Are you sure you want to extract this item from history matrices?")) return;
       
@@ -853,25 +575,37 @@
     }
 
     /**
-     * Rendering UI Processing View Loop Engine
+     * Core Home Workspace rendering loop
      */
     function renderAggregatedDashboardView() {
       const activeSelectedDate = document.getElementById("globalMetricDatePicker").value;
       const containerBox = document.getElementById("timelineConsoleContainer");
       
+      // Select filtering logic frame based on timeline options toggled
+      const targetDateObject = new Date(activeSelectedDate);
+      
       const filteredRecords = synchronizedHistoryMatrix.filter(item => {
         if (!item.date) return false;
-        const normalizedItemDate = item.date.replace(/\//g, '-').trim();
-        const normalizedActiveDate = activeSelectedDate.replace(/\//g, '-').trim();
-        return normalizedItemDate === normalizedActiveDate || 
-               new Date(normalizedItemDate).toDateString() === new Date(normalizedActiveDate).toDateString();
+        const normalizedItemDate = new Date(item.date.replace(/\//g, '-').trim());
+        
+        if (currentTimeframeMode === 'daily') {
+          return normalizedItemDate.toDateString() === targetDateObject.toDateString();
+        } else if (currentTimeframeMode === 'weekly') {
+          const sevenDaysAgo = new Date(targetDateObject);
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          return normalizedItemDate <= targetDateObject && normalizedItemDate >= sevenDaysAgo;
+        } else if (currentTimeframeMode === 'monthly') {
+          return normalizedItemDate.getMonth() === targetDateObject.getMonth() && 
+                 normalizedItemDate.getFullYear() === targetDateObject.getFullYear();
+        }
+        return false;
       });
 
       let calculatedCalories = 0;
       let calculatedProtein = 0;
 
       if (filteredRecords.length === 0) {
-        containerBox.innerHTML = `<div class="no-entries-message">No entries for this selection.</div>`;
+        containerBox.innerHTML = `<div class="no-entries-message">No entries for this filtered timeline selection range.</div>`;
         document.getElementById("aggregatedCalories").textContent = "0";
         document.getElementById("aggregatedProtein").textContent = "0.0";
         document.getElementById("calorieProgressBar").style.width = "0%";
@@ -892,7 +626,7 @@
         recordElementCard.className = "timeline-record-card";
         recordElementCard.innerHTML = `
           <div class="card-meta-line">
-            <span class="card-timestamp-text">${record.time || '00:00'}</span>
+            <span class="card-timestamp-text">${record.date} // ${record.time || '00:00'}</span>
             <span class="card-badge-ai">Verified AI</span>
           </div>
           <div class="card-raw-text" id="cardRawZone-${record.rowIdx}">"${record.rawInput || ''}"</div>
@@ -912,11 +646,76 @@
       document.getElementById("aggregatedCalories").textContent = calculatedCalories;
       document.getElementById("aggregatedProtein").textContent = calculatedProtein.toFixed(1);
 
-      const caloriePercentageLimit = Math.min((calculatedCalories / 2500) * 100, 100);
-      const proteinPercentageLimit = Math.min((calculatedProtein / 120) * 100, 100);
+      document.getElementById("calorieProgressBar").style.width = `${Math.min((calculatedCalories / 2500) * 100, 100)}%`;
+      document.getElementById("proteinProgressBar").style.width = `${Math.min((calculatedProtein / 120) * 100, 100)}%`;
+    }
+
+    /**
+     * Journal tab rendering system view loop logic
+     */
+    function renderJournalTabView() {
+      const containerBox = document.getElementById("timelineConsoleContainer");
+      if (synchronizedHistoryMatrix.length === 0) {
+        containerBox.innerHTML = `<div class="no-entries-message">No historical data logs mapped in sheet storage rows.</div>`;
+        return;
+      }
+
+      // Sort chronological descending order
+      const sortedRecords = [...synchronizedHistoryMatrix].sort((x, y) => new Date(y.date) - new Date(x.date));
+      containerBox.innerHTML = "";
+
+      sortedRecords.forEach(record => {
+        const recordElementCard = document.createElement("div");
+        recordElementCard.className = "timeline-record-card";
+        recordElementCard.innerHTML = `
+          <div class="card-meta-line">
+            <span class="card-timestamp-text">📅 ${record.date} — ${record.time || '00:00'}</span>
+            <span class="card-badge-ai" style="background: #e0f2fe; color: #0369a1;">Journal Frame</span>
+          </div>
+          <div class="card-raw-text">"${record.rawInput || ''}"</div>
+          <div class="card-parsed-text">${record.parsedDesc || ''}</div>
+          <div class="card-macro-grid">
+            <span>CALORIES: <strong>${record.calories || 0} kcal</strong></span>
+            <span>PROTEIN: <strong>${record.protein || 0}g</strong></span>
+          </div>
+        `;
+        containerBox.appendChild(recordElementCard);
+      });
+    }
+
+    /**
+     * Coach processing view synthesis logic
+     */
+    function renderCoachTabView() {
+      const containerBox = document.getElementById("timelineConsoleContainer");
       
-      document.getElementById("calorieProgressBar").style.width = `${caloriePercentageLimit}%`;
-      document.getElementById("proteinProgressBar").style.width = `${proteinPercentageLimit}%`;
+      // Aggregate all historical records calculations metrics summary profiles
+      let cumulativeCals = 0; let cumulativeProtein = 0;
+      synchronizedHistoryMatrix.forEach(r => {
+        cumulativeCals += parseInt(r.calories, 10) || 0;
+        cumulativeProtein += parseFloat(r.protein) || 0;
+      });
+
+      const averageCalories = synchronizedHistoryMatrix.length ? Math.round(cumulativeCals / synchronizedHistoryMatrix.length) : 0;
+      const averageProtein = synchronizedHistoryMatrix.length ? (cumulativeProtein / synchronizedHistoryMatrix.length).toFixed(1) : "0.0";
+
+      containerBox.innerHTML = `
+        <div class="stat-box" style="border-left: 4px solid var(--accent-success); margin-bottom: 1rem;">
+          <div class="stat-label" style="color: var(--accent-success);">Macro Compliance Metric Review</div>
+          <div class="card-parsed-text" style="font-size: 1.15rem; margin-bottom: 0.5rem;">Analytical Breakdown Profile Summary</div>
+          <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">
+            Based on your complete spreadsheet log profile metadata tracking points, your average historical consumption stands at <strong>${averageCalories} kcal</strong> and <strong>${averageProtein}g protein</strong> per recorded log index.
+          </p>
+        </div>
+        <div class="stat-box" style="border-left: 4px solid #3b82f6;">
+          <div class="stat-label" style="color: #3b82f6;">Strategic Coach Recommendations</div>
+          <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+            <li> Maintain protein pacing metrics to support active muscle building recovery vectors.</li>
+            <li> Check your notepad configuration panels for accurate target threshold updates.</li>
+            <li> Use inline modifications to repair errors or misaligned inputs on the fly.</li>
+          </ul>
+        </div>
+      `;
     }
   </script>
 </body>
