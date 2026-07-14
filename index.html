@@ -15,13 +15,13 @@
             --accent-hover: #1e293b;
             --success: #0d9488;
             --success-bg: #ccfbf1;
+            --danger: #e11d48;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-main); color: var(--text-primary); padding: 20px; display: flex; justify-content: center; }
         .dashboard-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-top: 20px; }
         @media (max-width: 1024px) { .dashboard-container { grid-template-columns: 1fr; } }
         
-        /* Updated header for branding image */
         .app-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px 24px; border-radius: 12px; border: 1px solid var(--border-color); }
         .brand-logo-container img { height: 36px; display: block; object-fit: contain; }
         
@@ -48,9 +48,10 @@
         .timeline-node { display: flex; gap: 16px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; }
         .node-payload { flex-grow: 1; }
         .node-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .node-timestamp { font-size: 12px; color: var(--text-secondary); }
-        .node-title-meal { font-size: 14px; font-weight: 600; }
-        .node-crud-triggers button { background: transparent; border: none; cursor: pointer; padding: 2px 6px; font-size: 14px; }
+        .node-timestamp { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .node-title-meal { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+        .node-crud-triggers button { background: transparent; border: none; cursor: pointer; padding: 2px 6px; font-size: 14px; opacity: 0.7; transition: opacity 0.2s; }
+        .node-crud-triggers button:hover { opacity: 1; }
         .input-group { display: flex; gap: 8px; margin-top: 10px; }
         .text-field { flex-grow: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 14px; }
         .action-btn { padding: 10px 20px; background: var(--accent); color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
@@ -75,9 +76,7 @@
 
     <div class="dashboard-container" id="mainDashboard" style="display: none;">
         <header class="app-header">
-            <!-- 🖼️ BRAND LOGO REGION -->
             <div class="brand-logo-container">
-                <!-- Apni uploaded image ka path/URL src mein dalo, ya phir asset local folder me h to filename set karo -->
                 <img src="logo.png" alt="Aura Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <span style="display:none; font-size:20px; font-weight:700;">✦ Aura</span>
             </div>
@@ -157,7 +156,6 @@
     </div>
 
     <script>
-        // Yahan apna naya Apps Script Web App URL daal dena agar naya generate kiya ho to
         const API_URL = "https://script.google.com/macros/s/AKfycbx0HJJqR_CqWbBeDODYsqGHiIDVBV7OUvegNpQmindiqne_z7L_B-vh2j6uqpFQvf9Sig/exec";
         const ALLOWED_USER = { username: "pallab", password: "123" };
 
@@ -315,6 +313,20 @@
             return clean.trim();
         }
 
+        function cleanIncomingTime(timeStr) {
+            if (!timeStr) return "";
+            // Agar Google Sheets/JS standard se ajeeb string aa rahi ho, parse it correctly
+            if (timeStr.includes("GMT") || timeStr.includes("1899")) {
+                try {
+                    let d = new Date(timeStr);
+                    if (!isNaN(d.getTime())) {
+                        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    }
+                } catch(e) {}
+            }
+            return String(timeStr).replace(/(.*)\sGMT.*/, '$1').trim();
+        }
+
         function processView() {
             const homeTimeline = document.querySelector(".timeline");
             const journalTimeline = document.querySelector(".journal-timeline-target");
@@ -373,18 +385,33 @@
             dataset.slice().reverse().forEach(function(row) {
                 const itemEl = document.createElement("div");
                 itemEl.className = "timeline-node";
+
+                // Double 'Parsed: Parsed:' strip code
+                let cleanParsedText = String(row.parsedFoods || '').replace(/^Parsed:\s*Parsed:\s*/i, 'Parsed: ').replace(/^Parsed:\s*/i, '');
+                let cleanTime = cleanIncomingTime(row.time);
+                
+                // Status Color Setup
+                let currentStatus = row.status || 'Verified';
+                let statusColor = "var(--success)";
+                if(currentStatus.includes("Failed") || currentStatus.includes("Error")) {
+                    statusColor = "var(--danger)";
+                }
+
                 itemEl.innerHTML = `<div class='node-payload'>
                     <div class='node-meta-row'>
-                        <span class='node-timestamp'>${row.date} · ${row.time || ''}</span>
+                        <span class='node-timestamp'>📅 ${row.date} &nbsp;·&nbsp; ⏰ ${cleanTime || 'N/A'}</span>
                         <div class='node-crud-triggers'>
                             <button class='edit-trigger-btn' data-idx='${row.originalIndex}'>✏️</button>
                             <button class='delete-trigger-btn' data-idx='${row.originalIndex}'>🗑️</button>
                         </div>
                     </div>
                     <div class='node-title-meal'>${normalizeInputString(row.rawInput || '')}</div>
-                    <div style='font-size:11px; color:var(--text-secondary); margin-top:2px;'>Parsed: <i>${row.parsedFoods || 'N/A'}</i></div>
-                    <div style='font-size:10px; color:var(--text-secondary);'>Status: <span style='color:var(--success); font-weight:600;'>${row.status || 'Verified'}</span></div>
-                    <p style='margin-top:6px; font-size:12px; font-weight:600;'>${row.calories || 0} kcal · ${row.protein || 0}g Protein</p>
+                    <div style='font-size:12px; color:var(--text-secondary); margin-top:4px; line-height: 1.4;'>✨ Parsed: <i>${cleanParsedText || 'Processed'}</i></div>
+                    
+                    <div style='display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border-color);'>
+                        <p style='font-size:13px; font-weight:700; color:var(--text-primary);'>🔥 ${row.calories || 0} kcal &nbsp;·&nbsp; 💪 ${row.protein || 0}g Protein</p>
+                        <span style='font-size: 11px; font-weight: 600; color: ${statusColor}; background: #f8fafc; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color);'>${currentStatus}</span>
+                    </div>
                 </div>`;
                 targetContainer.appendChild(itemEl);
 
