@@ -43,7 +43,7 @@
       gap: 1.25rem;
     }
 
-    /* --- Auth & Guest Screen States --- */
+    /* --- Auth Screen Framework --- */
     .auth-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -56,7 +56,20 @@
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); text-align: center;
     }
     .auth-card h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.03em;}
-    .auth-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; }
+    .auth-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    
+    .auth-form-group {
+      display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; text-align: left;
+    }
+    .auth-input {
+      width: 100%; border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 0.75rem; font-size: 0.95rem; outline: none; background: #f8fafc;
+    }
+    .auth-input:focus { border-color: #cbd5e1; background: white;}
+    .auth-error-msg {
+      color: var(--accent-danger); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; display: none;
+    }
+
     .auth-btn { 
       background: var(--accent-primary); color: white; border: none;
       padding: 0.85rem; font-weight: 600; border-radius: 8px; width: 100%;
@@ -348,7 +361,7 @@
     }
     .btn-submit-log:hover { background: var(--accent-hover); }
 
-    /* Timeline & Listing Modules */
+    /* Timeline Modules & Inline Modification Interface */
     .timeline-header-text {
       font-size: 0.8rem; font-weight: 700; color: #64748b;
       text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem;
@@ -373,18 +386,36 @@
       background: #f1f5f9; color: var(--text-main); font-size: 0.7rem;
       padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; border: 1px solid var(--border-color);
     }
-    .card-raw-text { font-size: 0.9rem; font-style: italic; color: var(--text-muted); }
+    .card-raw-text { font-size: 0.9rem; font-style: italic; color: var(--text-muted); word-break: break-word;}
     .card-parsed-text { font-size: 1rem; font-weight: 600; color: var(--text-main); margin-top: 0.15rem; }
     
     .card-macro-grid { display: flex; gap: 1.25rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
     .card-macro-grid span strong { color: var(--text-main); font-weight: 700; }
     
-    .card-row-action-delete {
-      position: absolute; right: 1.25rem; bottom: 1.25rem;
-      background: transparent; border: none; color: var(--accent-danger);
-      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    .action-row-links {
+      display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;
     }
-    .card-row-action-delete:hover { text-decoration: underline; }
+    .action-btn-link {
+      background: transparent; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    }
+    .action-btn-link.edit-trigger { color: var(--accent-warning); }
+    .action-btn-link.delete-trigger { color: var(--accent-danger); }
+    .action-btn-link:hover { text-decoration: underline; }
+
+    /* Inline Edit Processing Area Form overrides */
+    .inline-edit-textarea {
+      width: 100%; height: 70px; font-size: 0.9rem; padding: 0.5rem;
+      border: 1px solid var(--accent-warning); border-radius: 6px; outline: none; resize: none;
+    }
+    .inline-edit-actions {
+      display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.25rem;
+    }
+    .inline-save-btn {
+      background: var(--accent-warning); color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
+    .inline-cancel-btn {
+      background: #cbd5e1; color: var(--text-main); border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
 
     .no-entries-message {
       text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.95rem;
@@ -407,13 +438,21 @@
 </head>
 <body>
 
-  <!-- Mock Authentication Lifecycle Routing Gateway -->
+  <!-- Dynamic Security Authentication Routing Overlay Layer -->
   <div class="auth-overlay" id="authGate">
     <div class="auth-card">
       <h2>Welcome to Aura</h2>
       <p>Secure Fitness & Meal Analytical Log Console</p>
-      <button class="auth-btn" onclick="bypassAuth('Premium Active Account', 'P')">Login via Credentials</button>
-      <button class="guest-btn" onclick="bypassAuth('Guest Sandbox User', 'G')">Continue in Guest Sandbox</button>
+      
+      <div class="auth-form-group">
+        <input type="text" id="authUsername" class="auth-input" placeholder="Username">
+        <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+      </div>
+      
+      <div class="auth-error-msg" id="authErrorPanel">Invalid credential token parameters provided.</div>
+      
+      <button class="auth-btn" onclick="executeCredentialHandshake()">Login via Credentials</button>
+      <button class="guest-btn" onclick="bypassAuthAsGuest()">Continue in Guest Sandbox</button>
     </div>
   </div>
 
@@ -477,7 +516,6 @@
             <button class="toggle-option">Monthly</button>
           </div>
           <div class="datepicker-wrapper">
-            <!-- Format Display Configured matching requested UI mock setup -->
             <input type="date" class="datepicker-input" id="globalMetricDatePicker" onchange="syncDatePerspective()">
           </div>
         </div>
@@ -537,7 +575,7 @@
 
     // Standard Application Entry Point Configuration Handshake
     window.addEventListener("DOMContentLoaded", () => {
-      // Setup current tracking parameters in clean text elements bypassing native browser offsets
+      // Set explicit current date text parameters
       const rawCurrentDate = new Date();
       const currentYear = rawCurrentDate.getFullYear();
       const currentMonth = String(rawCurrentDate.getMonth() + 1).padStart(2, '0');
@@ -545,37 +583,60 @@
       
       document.getElementById("globalMetricDatePicker").value = `${currentYear}-${currentMonth}-${currentDay}`;
 
-      // Check for cached auth user states to prevent tracking drops
-      const sessionSessionToken = localStorage.getItem("aura_session_active");
+      // Check validation tokens inside storage mapping
+      const sessionActive = localStorage.getItem("aura_session_active");
       const savedUserAvatar = localStorage.getItem("aura_avatar_char") || "P";
-      if (sessionSessionToken === "true") {
+      if (sessionActive === "true") {
         document.getElementById("authGate").style.display = "none";
         document.getElementById("userAvatar").textContent = savedUserAvatar;
         updateStatusBannerMode(savedUserAvatar === "G");
+        fetchSheetDatabaseMatrix();
       }
 
-      // Restore custom user workspace draft notepad settings
       const scratchpadCachedData = localStorage.getItem("aura_notepad_scratchpad");
       if (scratchpadCachedData) {
         document.getElementById("dailyNotepad").value = scratchpadCachedData;
       }
-
-      fetchSheetDatabaseMatrix();
     });
 
-    function bypassAuth(modeLabel, initialChar) {
+    /**
+     * Strict Identity Verification Check Block
+     */
+    function executeCredentialHandshake() {
+      const userField = document.getElementById("authUsername").value.trim();
+      const passField = document.getElementById("authPassword").value.trim();
+      const errorPanel = document.getElementById("authErrorPanel");
+
+      if (userField === "Pallab" && passField === "2570") {
+        errorPanel.style.display = "none";
+        localStorage.setItem("aura_session_active", "true");
+        localStorage.setItem("aura_avatar_char", "P");
+        document.getElementById("authGate").style.display = "none";
+        document.getElementById("userAvatar").textContent = "P";
+        updateStatusBannerMode(false);
+        fetchSheetDatabaseMatrix();
+      } else {
+        errorPanel.style.display = "block";
+        errorPanel.textContent = "Error: Invalid credentials verification mismatch.";
+      }
+    }
+
+    function bypassAuthAsGuest() {
       localStorage.setItem("aura_session_active", "true");
-      localStorage.setItem("aura_avatar_char", initialChar);
+      localStorage.setItem("aura_avatar_char", "G");
       document.getElementById("authGate").style.display = "none";
-      document.getElementById("userAvatar").textContent = initialChar;
-      updateStatusBannerMode(initialChar === "G");
+      document.getElementById("userAvatar").textContent = "G";
+      updateStatusBannerMode(true);
       fetchSheetDatabaseMatrix();
     }
 
     function triggerLogout() {
       localStorage.removeItem("aura_session_active");
       localStorage.removeItem("aura_avatar_char");
+      document.getElementById("authUsername").value = "";
+      document.getElementById("authPassword").value = "";
       document.getElementById("authGate").style.display = "flex";
+      document.getElementById("authErrorPanel").style.display = "none";
       synchronizedHistoryMatrix = [];
       renderAggregatedDashboardView();
     }
@@ -587,7 +648,7 @@
         banner.style.background = "#fffbeb";
         banner.style.color = "#b45309";
         banner.style.borderColor = "#fde68a";
-        banner.innerHTML = "⚠️ Sandbox Mode active. Dynamic tracking structural models parsing without cloud backup verification logs.";
+        banner.innerHTML = "⚠️ Sandbox Mode active. System is tracking local storage nodes until credentials handshake completes.";
       } else {
         banner.style.display = "flex";
         banner.style.background = "#f0fdf4";
@@ -632,8 +693,7 @@
         recognition.start();
         
         recognition.onresult = function(event) {
-          const resultText = event.results[0][0].transcript;
-          document.getElementById("rawMealInput").value = resultText;
+          document.getElementById("rawMealInput").value = event.results[0][0].transcript;
           toggleLoaderSpinner(false);
         };
         
@@ -649,7 +709,7 @@
     }
 
     /**
-     * Network Sync: Read all elements from Sheet matrix database
+     * Network Sync: Fetch Sheet entries and clean up shifted column mappings
      */
     async function fetchSheetDatabaseMatrix() {
       if (localStorage.getItem("aura_session_active") !== "true") return;
@@ -658,62 +718,121 @@
         const res = await fetch(BACKEND_GATEWAY_URL);
         const output = await res.json();
         if (output.status === "success") {
-          synchronizedHistoryMatrix = output.history || [];
+          // Normalize column indexes to account for the timestamp offset visible in row 40
+          synchronizedHistoryMatrix = (output.history || []).map(item => {
+            if (item.date && item.date.includes('T')) {
+              return {
+                ...item,
+                date: item.time || item.date, 
+                time: item.rawInput || '',
+                rawInput: item.parsedDesc || '',
+                parsedDesc: item.calories || '',
+                calories: item.protein || '0',
+                protein: item.confidence || '0'
+              };
+            }
+            return item;
+          });
           renderAggregatedDashboardView();
-        } else {
-          console.error("Endpoint Error Output Stream: ", output.message);
         }
       } catch (err) {
-        console.error("Communication mapping failure matching historical parameters: ", err);
+        console.error("Communication failure fetching data: ", err);
       } finally {
         toggleLoaderSpinner(false);
       }
     }
 
     /**
-     * Network Action: Post clean structured entries via query parameter sets
+     * Network Action: Package raw input and log to app sheet
      */
     async function executePostMealLog() {
       const fieldElement = document.getElementById("rawMealInput");
       const rawText = fieldElement.value.trim();
-      const targetDate = document.getElementById("globalMetricDatePicker").value; // Format: YYYY-MM-DD
+      const targetDate = document.getElementById("globalMetricDatePicker").value;
       
-      // Generating dynamic time layout arrays safely
       const d = new Date();
-      const hours = String(d.getHours()).padStart(2, '0');
-      const minutes = String(d.getMinutes()).padStart(2, '0');
-      const calculatedTime = `${hours}:${minutes}`;
+      const calculatedTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
       if (!rawText) return;
 
       toggleLoaderSpinner(true);
       try {
-        const urlParams = new URLSearchParams({
-          date: targetDate,
-          time: calculatedTime,
-          meal: rawText
-        });
-
+        const urlParams = new URLSearchParams({ date: targetDate, time: calculatedTime, meal: rawText });
         const res = await fetch(`${BACKEND_GATEWAY_URL}?${urlParams.toString()}`);
         const output = await res.json();
 
         if (output.status === "success") {
-          synchronizedHistoryMatrix = output.history || [];
           fieldElement.value = "";
-          renderAggregatedDashboardView();
+          await fetchSheetDatabaseMatrix();
         } else {
-          alert("Handshake Execution Failure: " + output.message);
+          alert("Execution Failure: " + output.message);
         }
       } catch (err) {
         console.error(err);
-        alert("Transaction processing drop in cloud operational environment.");
       } finally {
         toggleLoaderSpinner(false);
       }
     }
 
     /**
-     * Network Action: Delete targeting real sheet coordinate arrays
+     * Switch display panel interface into editable interactive text node
+     */
+    function enableInlineEditMode(rowIdx, currentText) {
+      const textBlock = document.getElementById(`cardRawZone-${rowIdx}`);
+      const controlBlock = document.getElementById(`cardActionZone-${rowIdx}`);
+      
+      textBlock.innerHTML = `
+        <textarea class="inline-edit-textarea" id="editInput-${rowIdx}">${currentText}</textarea>
+        <div class="inline-edit-actions">
+          <button class="inline-cancel-btn" onclick="renderAggregatedDashboardView()">Cancel</button>
+          <button class="inline-save-btn" onclick="saveInlineModification(${rowIdx})">Save Update</button>
+        </div>
+      `;
+      controlBlock.style.display = "none";
+    }
+
+    /**
+     * Network Action: Commit edited log string transformations inside target sheet positions
+     */
+    async function saveInlineModification(rowIdx) {
+      const revisedText = document.getElementById(`editInput-${rowIdx}`).value.trim();
+      if (!revisedText) return;
+
+      const targetedRecord = synchronizedHistoryMatrix.find(item => item.rowIdx === rowIdx);
+      if (!targetedRecord) return;
+
+      toggleLoaderSpinner(true);
+      try {
+        const dropParams = new URLSearchParams({ action: "delete", row: rowIdx });
+        let res = await fetch(`${BACKEND_GATEWAY_URL}?${dropParams.toString()}`);
+        let output = await res.json();
+
+        if (output.status === "success") {
+          const insertParams = new URLSearchParams({
+            date: targetedRecord.date,
+            time: targetedRecord.time,
+            meal: revisedText
+          });
+          res = await fetch(`${BACKEND_GATEWAY_URL}?${insertParams.toString()}`);
+          output = await res.json();
+
+          if (output.status === "success") {
+            await fetchSheetDatabaseMatrix();
+          } else {
+            alert("Error inserting modified row: " + output.message);
+          }
+        } else {
+          alert("Modification error clearing previous record sequence: " + output.message);
+        }
+      } catch (err) {
+        console.error("Modification track mapping exception caught: ", err);
+      } finally {
+        toggleLoaderSpinner(false);
+      }
+    }
+
+    /**
+     * Network Action: Delete record by target sheet index coordination
      */
     async function executeDataExtractionDelete(sheetRowIndex) {
       if (!confirm("Are you sure you want to extract this item from history matrices?")) return;
@@ -724,33 +843,26 @@
         const output = await res.json();
 
         if (output.status === "success") {
-          synchronizedHistoryMatrix = output.history || [];
-          renderAggregatedDashboardView();
-        } else {
-          alert("Deletion rejection: " + output.message);
+          await fetchSheetDatabaseMatrix();
         }
       } catch (err) {
         console.error(err);
-        alert("Pipeline verification dropped performing active deletion tracking rows.");
       } finally {
         toggleLoaderSpinner(false);
       }
     }
 
     /**
-     * Rendering Engine: Core processing calculations tracking layout views
+     * Rendering UI Processing View Loop Engine
      */
     function renderAggregatedDashboardView() {
-      const activeSelectedDate = document.getElementById("globalMetricDatePicker").value; // Format: YYYY-MM-DD
+      const activeSelectedDate = document.getElementById("globalMetricDatePicker").value;
       const containerBox = document.getElementById("timelineConsoleContainer");
       
-      // ROBUST DATE MATCHING: Normalizing dynamic hyphens vs slashes to ensure purana data shows up
       const filteredRecords = synchronizedHistoryMatrix.filter(item => {
         if (!item.date) return false;
         const normalizedItemDate = item.date.replace(/\//g, '-').trim();
         const normalizedActiveDate = activeSelectedDate.replace(/\//g, '-').trim();
-        
-        // Handle variations where single digit dates might be written (e.g., 2026-07-04 vs 2026-7-4)
         return normalizedItemDate === normalizedActiveDate || 
                new Date(normalizedItemDate).toDateString() === new Date(normalizedActiveDate).toDateString();
       });
@@ -767,37 +879,39 @@
         return;
       }
 
-      // Chronological matrix structural rendering loops sorting by time execution elements
-      filteredRecords.sort((x, y) => x.time.localeCompare(y.time));
+      filteredRecords.sort((x, y) => (x.time || '').localeCompare(y.time || ''));
       containerBox.innerHTML = "";
 
       filteredRecords.forEach(record => {
         calculatedCalories += parseInt(record.calories, 10) || 0;
         calculatedProtein += parseFloat(record.protein) || 0;
 
+        const sanitizedRawString = (record.rawInput || '').replace(/"/g, '&quot;').replace(/'/g, "\\'");
+
         const recordElementCard = document.createElement("div");
         recordElementCard.className = "timeline-record-card";
         recordElementCard.innerHTML = `
           <div class="card-meta-line">
-            <span class="card-timestamp-text">${record.time}</span>
+            <span class="card-timestamp-text">${record.time || '00:00'}</span>
             <span class="card-badge-ai">Verified AI</span>
           </div>
-          <div class="card-raw-text">"${record.rawInput}"</div>
-          <div class="card-parsed-text">${record.parsedDesc}</div>
+          <div class="card-raw-text" id="cardRawZone-${record.rowIdx}">"${record.rawInput || ''}"</div>
+          <div class="card-parsed-text">${record.parsedDesc || ''}</div>
           <div class="card-macro-grid">
-            <span>CALORIES: <strong>${record.calories} kcal</strong></span>
-            <span>PROTEIN: <strong>${record.protein}g</strong></span>
+            <span>CALORIES: <strong>${record.calories || 0} kcal</strong></span>
+            <span>PROTEIN: <strong>${record.protein || 0}g</strong></span>
           </div>
-          <button class="card-row-action-delete" onclick="executeDataExtractionDelete(${record.rowIdx})">Delete</button>
+          <div class="action-row-links" id="cardActionZone-${record.rowIdx}">
+            <button class="action-btn-link edit-trigger" onclick="enableInlineEditMode(${record.rowIdx}, '${sanitizedRawString}')">Edit</button>
+            <button class="action-btn-link delete-trigger" onclick="executeDataExtractionDelete(${record.rowIdx})">Delete</button>
+          </div>
         `;
         containerBox.appendChild(recordElementCard);
       });
 
-      // Update Analytics Values
       document.getElementById("aggregatedCalories").textContent = calculatedCalories;
       document.getElementById("aggregatedProtein").textContent = calculatedProtein.toFixed(1);
 
-      // Render Interactive UI Dynamic Loading Progress Tracks (Based on arbitrary ceiling bounds 2500kcal / 120g)
       const caloriePercentageLimit = Math.min((calculatedCalories / 2500) * 100, 100);
       const proteinPercentageLimit = Math.min((calculatedProtein / 120) * 100, 100);
       
