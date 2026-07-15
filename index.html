@@ -3,113 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio Database Log</title>
-    <!-- Tailwind CSS for sleek styling -->
+    <title>AI Fitness Tracker Dashboard</title>
+    <!-- Tailwind CSS for sleek user interface styling -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
 
-    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-slate-700">
-        <div class="mb-6">
-            <h2 class="text-3xl font-extrabold text-white tracking-tight">Radio Station Log</h2>
-            <p class="text-sm text-slate-400 mt-1">Submit historical logs directly to your Google Sheet.</p>
-        </div>
+    <div class="max-w-6xl mx-auto space-y-6">
         
-        <form id="radioLogForm" onsubmit="submitForm(event)" class="space-y-4">
-            <!-- Station Name -->
-            <div>
-                <label class="block text-slate-300 text-sm font-semibold mb-1" for="stationName">Station Name / ID</label>
-                <input class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                       id="stationName" type="text" placeholder="e.g. WXPN" required>
-            </div>
+        <!-- Header Banner -->
+        <header class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 shadow-xl">
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">AI Fitness Tracker</h1>
+            <p class="text-emerald-100 text-sm md:text-base mt-1">Manage your active nutrition records, live dashboard stats, and historical logs effortlessly.</p>
+        </header>
 
-            <!-- Frequency -->
-            <div>
-                <label class="block text-slate-300 text-sm font-semibold mb-1" for="frequency">Frequency</label>
-                <input class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                       id="frequency" type="text" placeholder="e.g. 88.5 FM" required>
-            </div>
+        <!-- Main Layout: Grid Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Side: Interactive Meal Log Form -->
+            <section class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl h-fit">
+                <h2 class="text-xl font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                    <span>📝</span> Log New Meal
+                </h2>
+                
+                <form id="fitnessForm" onsubmit="submitMeal(event)" class="space-y-4">
+                    <!-- Raw Input Textarea -->
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-1" for="rawInput">What did you eat?</label>
+                        <textarea id="rawInput" rows="3" class="w-full bg-slate-700 border border-slate-600 rounded-xl py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm" placeholder="e.g., 3 chapatis + dal, 2 eggs" required></textarea>
+                    </div>
 
-            <!-- Host/DJ Name -->
-            <div>
-                <label class="block text-slate-300 text-sm font-semibold mb-1" for="hostName">Host / DJ Name</label>
-                <input class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                       id="hostName" type="text" placeholder="e.g. Helen Leicht">
-            </div>
+                    <!-- Meal Classification -->
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-1" for="parsedFoods">Meal Classification</label>
+                        <input id="parsedFoods" type="text" class="w-full bg-slate-700 border border-slate-600 rounded-xl py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm" placeholder="e.g., Breakfast, Post-Lunch Protein">
+                    </div>
 
-            <!-- Comments / Notes -->
-            <div>
-                <label class="block text-slate-300 text-sm font-semibold mb-1" for="comments">Historical Notes / Comments</label>
-                <textarea class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                          id="comments" rows="3" placeholder="Add historical context, genres played, active years..."></textarea>
-            </div>
+                    <!-- Calories & Protein Inputs -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-slate-300 text-sm font-medium mb-1" for="calories">Calories (kcal)</label>
+                            <input id="calories" type="number" class="w-full bg-slate-700 border border-slate-600 rounded-xl py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm" placeholder="600" required>
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 text-sm font-medium mb-1" for="protein">Protein (g)</label>
+                            <input id="protein" type="number" step="0.1" class="w-full bg-slate-700 border border-slate-600 rounded-xl py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm" placeholder="15" required>
+                        </div>
+                    </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-800">
-                Log to Google Sheet
-            </button>
-        </form>
+                    <!-- Action Submit Button -->
+                    <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-800 text-sm shadow-lg">
+                        Log Meal Entry
+                    </button>
+                </form>
 
-        <!-- Dynamic Status Alerts -->
-        <div id="alertBox" class="mt-4 p-4 rounded-lg text-sm text-center font-medium hidden"></div>
+                <!-- Form Action Alerts -->
+                <div id="formAlert" class="mt-4 p-3.5 rounded-xl text-xs font-semibold text-center hidden"></div>
+            </section>
+
+            <!-- Right Side: Historical Log Timeline -->
+            <section class="lg:col-span-2 bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl flex flex-col min-h-[450px]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <h2 class="text-xl font-bold text-teal-400 flex items-center gap-2">
+                        <span>📊</span> Historical Logs & Old Data
+                    </h2>
+                    <!-- Dynamic Search Filter -->
+                    <input id="searchLogs" type="text" oninput="filterLogs()" placeholder="Search historical logs..." class="bg-slate-700 border border-slate-600 text-slate-200 rounded-xl px-4 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-48">
+                </div>
+
+                <!-- Live Loader / Status UI Container -->
+                <div id="logStatus" class="flex flex-col items-center justify-center my-auto py-12 text-slate-400 space-y-2">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400"></div>
+                    <p class="text-sm font-medium">Fetching historical records...</p>
+                </div>
+
+                <!-- Dynamic Data Log Wrapper -->
+                <div id="tableWrapper" class="overflow-x-auto flex-1 hidden">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400 font-semibold text-xs bg-slate-850">
+                                <th class="py-3 px-4">Date / Time</th>
+                                <th class="py-3 px-4">Raw Input Description</th>
+                                <th class="py-3 px-4">Classification</th>
+                                <th class="py-3 px-4 text-right">Calories</th>
+                                <th class="py-3 px-4 text-right">Protein</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTableBody" class="divide-y divide-slate-700/50">
+                            <!-- Dynamic Spreadsheet Rows Injected Instantly Here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
     </div>
 
     <script>
-        // Your specific deployed endpoint URL
+        // Verified active execution endpoint URL
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzuiFZ1pzFhYyx5DQOrRbaM-pSpA1GvFpnS7dkruwc19VjJToM05bGM7wQi8DdNDwEfsA/exec";
+        
+        // Cache layer for client-side search modifications
+        let historicalLogsCache = [];
 
-        async function submitForm(event) {
-            event.preventDefault();
+        // Automatic initializer hook runs once structure prints onto screen
+        document.addEventListener("DOMContentLoaded", fetchHistoricalData);
 
-            const submitBtn = document.getElementById('submitBtn');
-            const alertBox = document.getElementById('alertBox');
+        /**
+         * Pulls all historical data from your sheet and processes it into the timeline view.
+         */
+        async function fetchHistoricalData() {
+            const statusDiv = document.getElementById("logStatus");
+            const wrapper = document.getElementById("tableWrapper");
             
-            // Set Loading UI state
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Transmitting to Google Sheets...";
-            submitBtn.className = "w-full bg-slate-600 text-slate-400 font-bold py-3 px-4 rounded-lg cursor-not-allowed";
-            alertBox.classList.add('hidden');
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const json = await response.json();
+                
+                if (json.status === "success") {
+                    historicalLogsCache = json.data || [];
+                    
+                    if (historicalLogsCache.length === 0) {
+                        statusDiv.innerHTML = `<p class="text-slate-500 text-sm">No historical log entries discovered inside 'Daily_Log'.</p>`;
+                        return;
+                    }
+                    
+                    // Render data rows
+                    renderTableRows(historicalLogsCache);
+                    statusDiv.classList.add("hidden");
+                    wrapper.classList.remove("hidden");
+                } else {
+                    throw new Error(json.error || "Execution fault encountered reading cells.");
+                }
+            } catch (err) {
+                console.error("Fetch failure: ", err);
+                statusDiv.innerHTML = `<p class="text-rose-400 text-sm font-semibold">⚠ Unable to load historical data logs: ${err.message}</p>`;
+            }
+        }
 
-            // Gather inputs
+        /**
+         * Builds out individual row components.
+         */
+        function renderTableRows(logs) {
+            const tbody = document.getElementById("logTableBody");
+            
+            // Loop backwards to ensure that the newest meal entry is always displayed at the top
+            tbody.innerHTML = logs.map(row => {
+                const timeString = row["Time"] ? `<span class="text-xs text-slate-500 block">${row["Time"]}</span>` : "";
+                return `
+                    <tr class="hover:bg-slate-750/40 transition-colors">
+                        <td class="py-3 px-4 font-mono text-xs text-slate-300 whitespace-nowrap">${row["Date"] || "N/A"}${timeString}</td>
+                        <td class="py-3 px-4 font-medium text-slate-200 max-w-xs truncate md:max-w-none md:whitespace-normal">${row["Raw Input"] || "—"}</td>
+                        <td class="py-3 px-4 text-xs"><span class="px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-medium">${row["Parsed Foods"] || "Logged via Web"}</span></td>
+                        <td class="py-3 px-4 text-right font-semibold text-amber-400 font-mono">${Number(row["Calories"]).toLocaleString()} kcal</td>
+                        <td class="py-3 px-4 text-right font-semibold text-teal-400 font-mono">${Number(row["Protein"]).toFixed(1)}g</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        /**
+         * Filters the table dynamically as you type in the search bar.
+         */
+        function filterLogs() {
+            const term = document.getElementById("searchLogs").value.toLowerCase();
+            const filtered = historicalLogsCache.filter(row => {
+                const rawInput = (row["Raw Input"] || "").toLowerCase();
+                const parsedFoods = (row["Parsed Foods"] || "").toLowerCase();
+                return rawInput.includes(term) || parsedFoods.includes(term);
+            });
+            renderTableRows(filtered);
+        }
+
+        /**
+         * Submits a new meal entry to the backend.
+         */
+        async function submitMeal(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById("submitBtn");
+            const alert = document.getElementById("formAlert");
+            
+            // Toggle form into loading state
+            btn.disabled = true;
+            btn.innerText = "Transmitting to Google Sheets...";
+            btn.className = "w-full bg-slate-700 text-slate-400 font-bold py-3 px-4 rounded-xl cursor-not-allowed text-sm shadow-none";
+            alert.classList.add("hidden");
+
             const payload = {
-                stationName: document.getElementById('stationName').value,
-                frequency: document.getElementById('frequency').value,
-                hostName: document.getElementById('hostName').value || "N/A",
-                comments: document.getElementById('comments').value || ""
+                rawInput: document.getElementById("rawInput").value,
+                parsedFoods: document.getElementById("parsedFoods").value,
+                calories: document.getElementById("calories").value,
+                protein: document.getElementById("protein").value,
+                confidence: 1
             };
 
             try {
-                // Sending text/plain is a clever trick that prevents the browser from doing a CORS preflight check,
-                // avoiding any annoying cross-origin request blocks.
                 const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8'
-                    },
+                    method: "POST",
+                    mode: "cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
 
-                const result = await response.json();
+                const res = await response.json();
 
-                if (result.result === 'success') {
-                    alertBox.className = "mt-4 p-4 rounded-lg text-sm text-center font-medium bg-emerald-950/50 text-emerald-300 border border-emerald-800";
-                    alertBox.innerText = "✓ Record appended to Google Sheet!";
-                    document.getElementById('radioLogForm').reset();
+                if (res.result === "success") {
+                    alert.className = "mt-4 p-3.5 rounded-xl text-xs font-semibold text-center bg-emerald-950/60 text-emerald-300 border border-emerald-800";
+                    alert.innerText = "✓ Record successfully appended to Daily_Log!";
+                    document.getElementById("fitnessForm").reset();
+                    
+                    // Refresh data automatically to instantly display the new entry
+                    fetchHistoricalData();
                 } else {
-                    throw new Error(result.error || "Unknown server error");
+                    throw new Error(res.error || "Internal Sheet integration discrepancy.");
                 }
-
-            } catch (error) {
-                console.error("Transmission Failure:", error);
-                alertBox.className = "mt-4 p-4 rounded-lg text-sm text-center font-medium bg-rose-950/50 text-rose-300 border border-rose-800";
-                alertBox.innerText = "Error: " + error.message;
+            } catch (err) {
+                console.error("Submission error: ", err);
+                alert.className = "mt-4 p-3.5 rounded-xl text-xs font-semibold text-center bg-rose-950/60 text-rose-300 border border-rose-800";
+                alert.innerText = "Error: " + err.message;
             } finally {
-                // Reset Button UI state
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Log to Google Sheet";
-                submitBtn.className = "w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-800";
-                alertBox.classList.remove('hidden');
+                // Revert form back to normal state
+                btn.disabled = false;
+                btn.innerText = "Log Meal Entry";
+                btn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-800 text-sm shadow-lg";
+                alert.classList.remove("hidden");
             }
         }
     </script>
