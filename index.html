@@ -2,817 +2,613 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aura // Fitness & Meal Tracking Matrix</title>
-  <style>
-    :root {
-      --bg-base: #f4f6f9;
-      --bg-surface: #ffffff;
-      --bg-card: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --accent-primary: #0f172a;
-      --accent-hover: #1e293b;
-      --accent-success: #0d9488;
-      --accent-danger: #e11d48;
-      --accent-warning: #d97706;
-      --border-color: #e2e8f0;
-      --panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
-      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-stack); }
-    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; padding: 1.5rem; }
-    .container { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
-
-    /* --- Auth Overlay Framework --- */
-    .auth-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #f4f6f9; z-index: 10000; display: flex; justify-content: center; align-items: center;
-    }
-    .auth-card {
-      background: white; border: 1px solid var(--border-color); border-radius: 16px;
-      padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); text-align: center;
-    }
-    .auth-card h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.03em;}
-    .auth-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
-    .auth-form-group { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; text-align: left; }
-    .auth-input {
-      width: 100%; border: 1px solid var(--border-color); border-radius: 8px;
-      padding: 0.75rem; font-size: 0.95rem; outline: none; background: #f8fafc;
-    }
-    .auth-input:focus { border-color: #cbd5e1; background: white;}
-    .auth-error-msg { color: var(--accent-danger); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; display: none; }
-    .auth-btn { 
-      background: var(--accent-primary); color: white; border: none; padding: 0.85rem; font-weight: 600;
-      border-radius: 8px; width: 100%; cursor: pointer; font-size: 1rem; margin-bottom: 0.75rem; transition: background 0.2s;
-    }
-    .auth-btn:hover { background: var(--accent-hover); }
-    .guest-btn {
-      background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);
-      padding: 0.85rem; font-weight: 600; border-radius: 8px; width: 100%; cursor: pointer; font-size: 1rem; transition: all 0.2s;
-    }
-    .guest-btn:hover { background: #f8fafc; color: var(--text-main); }
-
-    /* --- Navigation Bar --- */
-    .top-navbar {
-      background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;
-      padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--panel-shadow);
-    }
-    .brand { display: flex; align-items: center; gap: 0.5rem; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.03em; }
-    .nav-tabs { display: flex; background: #f1f5f9; padding: 0.25rem; border-radius: 8px; gap: 0.25rem; }
-    .nav-tab {
-      padding: 0.5rem 1.25rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted);
-      border: none; background: transparent; cursor: pointer; border-radius: 6px;
-    }
-    .nav-tab.active { background: white; color: var(--text-main); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .user-profile-zone { display: flex; align-items: center; gap: 0.75rem; }
-    .avatar-circle {
-      width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: var(--text-main);
-      display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 0.9rem;
-    }
-    .logout-link { font-size: 0.85rem; color: var(--text-muted); cursor: pointer; background: none; border: none; }
-    .logout-link:hover { color: var(--accent-danger); }
-
-    /* --- Alerts/Banners --- */
-    .sandbox-banner {
-      background-color: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 0.75rem 1.25rem;
-      border-radius: 10px; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
-    }
-
-    /* --- Core Workspace Grid Layout (UPDATED: Rigid Timeline Constraint System) --- */
-    .workspace-grid { 
-      display: grid; 
-      grid-template-columns: 260px 1fr 340px; 
-      gap: 1.25rem; 
-      align-items: start; 
-      width: 100%;
-    }
-    @media (max-width: 1200px) { 
-      .workspace-grid { grid-template-columns: 240px 1fr; } 
-      .right-timeline-panel { grid-column: span 2; max-width: 100% !important; } 
-    }
-    @media (max-width: 992px) { 
-      .workspace-grid { grid-template-columns: 1fr; } 
-      .right-timeline-panel { grid-column: span 1; max-width: 100% !important; } 
-    }
-    
-    .sidebar-stack { display: flex; flex-direction: column; gap: 1.25rem; }
-    .card-panel { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; box-shadow: var(--panel-shadow); }
-    .panel-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; }
-    .panel-heading { font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
-    .badge-status { background: #ccfbf1; color: #14b8a6; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; }
-    .notepad-area { width: 100%; height: 120px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; font-size: 0.9rem; color: var(--text-main); resize: none; }
-    .notepad-area:focus { outline: none; border-color: #cbd5e1; }
-
-    /* Quick Logging System Buttons */
-    .quick-log-flex { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
-    .quick-chip {
-      background: #f1f5f9; border: 1px solid var(--border-color); padding: 0.4rem 0.75rem; border-radius: 20px;
-      font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;
-    }
-    .quick-chip:hover { background: #e2e8f0; transform: translateY(-1px); }
-
-    /* Console Dashboard Systems */
-    .main-console-stack { display: flex; flex-direction: column; gap: 1.25rem; }
-
-    /* --- INJECTED CUSTOM FILTER SEGMENT CSS OVERHAULS --- */
-    .view-filter-segment-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 20px;
-        gap: 12px;
-    }
-    .segment-pills {
-        display: flex;
-        background: #f1f5f9;
-        padding: 4px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-    }
-    .pill-btn {
-        padding: 6px 16px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #64748b;
-        background: transparent;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-    }
-    /* HIGH-CONTRAST VISIBILITY FOR ACTIVE CHRONO PILL */
-    .pill-btn.active {
-        background: #0f172a !important;
-        color: #ffffff !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-    }
-    /* Dynamic Wrapper Controls */
-    .chrono-pickers-wrapper {
-        position: relative;
-        display: inline-block;
-    }
-    .custom-date-ui {
-        padding: 6px 12px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #0f172a;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        outline: none;
-        cursor: pointer;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        transition: border-color 0.2s;
-    }
-    .custom-date-ui:focus {
-        border-color: #6366f1;
-    }
-    /* ---------------------------------------------------- */
-
-    .matrix-headline-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
-    
-    .progress-metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 576px) { .progress-metrics-grid { grid-template-columns: 1fr; } }
-    
-    .stat-box { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; position: relative; box-shadow: var(--panel-shadow); }
-    .stat-label { font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
-    .stat-number-row { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.5rem; }
-    .stat-big-val { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
-    .stat-unit { font-size: 0.85rem; color: #64748b; font-weight: 500; }
-    .stat-progress-track { width: 100%; height: 5px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
-    .stat-progress-bar { height: 100%; background: #e2e8f0; width: 0%; border-radius: 99px; transition: width 0.4s ease; }
-
-    /* Input Processing Form */
-    .logger-input-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
-    .input-field-core { flex: 1; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem; outline: none; background: #ffffff; }
-    .input-field-core:focus { border-color: #cbd5e1; }
-    .btn-speak { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; }
-    .btn-submit-log { background: var(--accent-primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.15s; }
-    .btn-submit-log:hover { background: var(--accent-hover); }
-
-    /* Output Stream Timeline Controls */
-    .right-timeline-panel { max-width: 340px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
-    .timeline-header-text { font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .timeline-display-stack { display: flex; flex-direction: column; gap: 0.75rem; min-height: 100px; }
-    .timeline-record-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 0.4rem; position: relative; transition: border-color 0.15s; box-shadow: var(--panel-shadow); width: 100%; word-break: break-word; white-space: normal; }
-    .timeline-record-card:hover { border-color: #cbd5e1; }
-    .card-meta-line { display: flex; justify-content: space-between; align-items: center; }
-    .card-timestamp-text { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
-    .card-badge-ai { background: #f1f5f9; color: var(--text-main); font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 6px; font-weight: 700; border: 1px solid var(--border-color); }
-    .card-raw-text { font-size: 0.88rem; font-style: italic; color: var(--text-muted); word-break: break-word;}
-    .card-parsed-text { font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-top: 0.1rem; }
-    .card-macro-grid { display: flex; gap: 1rem; font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem; }
-    .card-macro-grid span strong { color: var(--text-main); font-weight: 700; }
-    
-    .action-row-links { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.25rem; }
-    .action-btn-link { background: transparent; border: none; font-size: 0.95rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
-    .action-btn-link:hover { opacity: 1; transform: scale(1.1); }
-
-    .inline-edit-textarea { width: 100%; height: 70px; font-size: 0.9rem; padding: 0.5rem; border: 1px solid var(--accent-warning); border-radius: 6px; outline: none; resize: none; }
-    .inline-edit-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.25rem; }
-    .inline-save-btn { background: var(--accent-warning); color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
-    .inline-cancel-btn { background: #cbd5e1; color: var(--text-main); border: none; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
-    .no-entries-message { text-align: center; color: var(--text-muted); padding: 2rem 0; font-size: 0.9rem; }
-
-    /* Screen Blocker Loader */
-    .network-spinner-screen {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(244, 246, 249, 0.7);
-      display: none; justify-content: center; align-items: center; z-index: 99999; backdrop-filter: blur(2px);
-    }
-    .spinner-element { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: var(--accent-primary); border-radius: 50%; animation: infiniteRotation 0.8s linear infinite; }
-    @keyframes infiniteRotation { to { transform: rotate(360deg); } }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aura Pro — AI-Powered Nutrition & Fitness Tracker</title>
+  <meta name="description" content="A premium, minimal, AI-powered nutrition tracker with deep dietary parsing, smart swaps, and coaching.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Sign-In Library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-  <!-- Dynamic Security Authentication Routing Layer -->
-  <div class="auth-overlay" id="authGate">
+  <!-- AUTH VIEW OVERLAY -->
+  <section id="auth-view" aria-label="Sign In to Aura Pro">
     <div class="auth-card">
-      <h2>Welcome to Aura</h2>
-      <p>Secure Fitness & Meal Analytical Log Console</p>
-      <div class="auth-form-group">
-        <input type="text" id="authUsername" class="auth-input" placeholder="Username">
-        <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+      <div class="logo-container" style="justify-content: center; margin-bottom: 8px;">
+        <span class="logo-dot"></span>
+        <span>Aura Pro ✨</span>
       </div>
-      <div class="auth-error-msg" id="authErrorPanel">Invalid credential token parameters provided.</div>
-      <button class="auth-btn" onclick="executeCredentialHandshake()">Login via Credentials</button>
-      <button class="guest-btn" onclick="bypassAuthAsGuest()">Continue in Guest Sandbox</button>
+      <p class="auth-subtitle">AI-Powered Nutrition Coach & Logger 🥑</p>
+      
+      <!-- Custom Credentials Login Form -->
+      <form id="credentials-login-form" style="margin-top: 16px; text-align: left; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;" onsubmit="return false;">
+        <div class="form-group">
+          <label for="login-username" style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">Username</label>
+          <input type="text" id="login-username" class="form-input" placeholder="e.g. Pallab" required style="padding: 10px 14px;">
+        </div>
+        <div class="form-group">
+          <label for="login-password" style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••" required style="padding: 10px 14px;">
+        </div>
+        <button type="submit" class="auth-button primary" style="margin-top: 8px; margin-bottom: 0; padding: 12px;">Sign In 🔓</button>
+      </form>
+
+      <div class="auth-divider">Or</div>
+
+      <!-- Google Login Button Container -->
+      <div id="g-signin-container" style="margin-bottom: 12px; display: flex; justify-content: center;">
+        <div id="g-signin-button"></div>
+      </div>
+
+      <button id="guest-login-btn" class="auth-button" style="padding: 10px 14px;">
+        Continue as Guest 👤
+      </button>
+      <p style="font-size: 11px; color: var(--text-secondary); margin-top: 12px;">
+        Guest mode saves data locally in your browser cache.
+      </p>
     </div>
-  </div>
+  </section>
 
-  <div class="network-spinner-screen" id="networkSpinner"><div class="spinner-element"></div></div>
-
-  <div class="container">
-    <nav class="top-navbar">
-      <div class="brand"><span>✦ Aura</span></div>
-      <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchNavTab(this, 'home')">Home</button>
-        <button class="nav-tab" onclick="switchNavTab(this, 'journal')">Journal</button>
-        <button class="nav-tab" onclick="switchNavTab(this, 'coach')">Coach</button>
+  <!-- MAIN APP CONTAINER -->
+  <main id="app-container" style="display: none;">
+    
+    <!-- DESKTOP SIDEBAR -->
+    <nav id="sidebar" aria-label="Desktop Sidebar Navigation">
+      <div class="logo-container">
+        <span class="logo-dot"></span>
+        <span>Aura Pro 🥑</span>
       </div>
-      <div class="user-profile-zone">
-        <div class="avatar-circle" id="userAvatar">P</div>
-        <button class="logout-link" onclick="triggerLogout()">Logout</button>
+      
+      <ul class="nav-menu">
+        <li>
+          <a class="nav-item active" data-view="dashboard-view" id="nav-dashboard">
+            🏡 Dashboard
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-view="coach-view" id="nav-coach">
+            🧠 AI Coach
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-view="timeline-view" id="nav-timeline">
+            🕒 Timeline
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-view="analytics-view" id="nav-analytics">
+            📊 Analytics
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-view="diet-planner-view" id="nav-diet-planner">
+            🍱 Diet Planner
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-view="settings-view" id="nav-settings">
+            ⚙️ Settings
+          </a>
+        </li>
+      </ul>
+
+      <!-- User Profile Box -->
+      <div class="user-profile">
+        <div class="user-avatar" id="user-avatar-initials">G</div>
+        <div class="user-info">
+          <div class="user-name" id="user-display-name">Guest User</div>
+          <div class="user-status" id="user-status-text">Offline Cache</div>
+        </div>
+        <button class="logout-btn" id="logout-button" title="Sign Out">
+          🚪
+        </button>
       </div>
     </nav>
 
-    <div class="sandbox-banner" id="statusBanner">
-      ✓ Cloud Connected Active State Matrix verified. Transactions routing securely via isolated server layers.
-    </div>
-
-    <div class="workspace-grid">
-      <!-- 1st Column: Sidebars -->
-      <div class="sidebar-stack">
-        <div class="card-panel">
-          <div class="panel-title-row">
-            <div class="panel-heading">Daily Notepad</div>
-            <span class="badge-status" id="notepadStatus">Saved</span>
-          </div>
-          <textarea class="notepad-area" id="dailyNotepad" placeholder="Draft notes..." oninput="triggerNoteSave()"></textarea>
-        </div>
-
-        <div class="card-panel">
-          <div class="panel-heading" style="margin-bottom: 0.75rem;">Quick Log Matrix</div>
-          <div class="quick-log-flex">
-            <div class="quick-chip" onclick="injectQuickLog('1 Banana')">🍌 Banana</div>
-            <div class="quick-chip" onclick="injectQuickLog('2 Eggs')">🥚 2 Eggs</div>
-            <div class="quick-chip" onclick="injectQuickLog('1 Scoop Whey Protein')">🥛 Whey</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2nd Column: Main Center Configured Actions -->
-      <div class="main-console-stack">
-        
-        <!-- UPDATED: Re-structured with your exact classes and structural mapping styling -->
-        <div class="view-filter-segment-bar">
-          <div class="segment-pills">
-            <button class="pill-btn active" onclick="switchTimeFrame(this, 'daily')">Daily</button>
-            <button class="pill-btn" onclick="switchTimeFrame(this, 'weekly')">Weekly</button>
-            <button class="pill-btn" onclick="switchTimeFrame(this, 'monthly')">Monthly</button>
-          </div>
-          <div class="chrono-pickers-wrapper">
-            <input type="date" class="custom-date-ui" id="globalMetricDatePicker" onchange="syncDatePerspective()">
-          </div>
-        </div>
-
-        <div class="matrix-headline-title" id="dashboardContextTitle">Daily Progress Matrix</div>
-
-        <!-- Analytical Target Parameters Mapping Container -->
-        <div class="progress-metrics-grid">
-          <div class="stat-box">
-            <div class="stat-label" id="calorieLabelText">Calories Logged</div>
-            <div class="stat-number-row">
-              <span class="stat-big-val" id="aggregatedCalories">0</span>
-              <span class="stat-unit">/ <span id="targetCaloriesLabel">2000</span> kcal</span>
-            </div>
-            <div class="stat-progress-track"><div class="stat-progress-bar" id="calorieProgressBar" style="background-color: var(--accent-primary);"></div></div>
-          </div>
-
-          <div class="stat-box">
-            <div class="stat-label" id="proteinLabelText">Protein Ingested</div>
-            <div class="stat-number-row">
-              <span class="stat-big-val" id="aggregatedProtein">0.0</span>
-              <span class="stat-unit">/ <span id="targetProteinLabel">120</span> g</span>
-            </div>
-            <div class="stat-progress-track"><div class="stat-progress-bar" id="proteinProgressBar" style="background-color: #0d9488;"></div></div>
-          </div>
-        </div>
-
-        <div class="card-panel" id="mealLoggerInputBlock">
-          <div class="panel-heading" style="margin-bottom: 0.5rem;">Log New Meal</div>
-          <div class="logger-input-row">
-            <input type="text" class="input-field-core" id="rawMealInput" placeholder="Type food details...">
-            <button class="btn-speak" onclick="triggerVoiceCapture()">🎙️ Speak</button>
-            <button class="btn-submit-log" onclick="executePostMealLog()">Log Meal</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3rd Column: Constrained Clean Right Side Activity Log Timeline -->
-      <div class="right-timeline-panel card-panel">
-        <div class="timeline-header-text" id="timelineContextTitle">Activity Log Timeline</div>
-        <div class="timeline-display-stack" id="timelineConsoleContainer">
-          <div class="no-entries-message">No entries for this selection.</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbzSN3RB8f2VhN0p8QbQ7VcQ-dsghvDhkfHsgI7eyzSm2TobCHjLBmCmYGG6hu-krijyqg/exec";
-    
-    let synchronizedHistoryMatrix = [];
-    let saveTimeoutThread = null;
-    let currentTimeframeMode = 'daily';
-    let activeNavigationTab = 'home';
-    
-    let currentCalorieTarget = 2000;
-    let currentProteinTarget = 120;
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const rawCurrentDate = new Date();
-      const currentYear = rawCurrentDate.getFullYear();
-      const currentMonth = String(rawCurrentDate.getMonth() + 1).padStart(2, '0');
-      const currentDay = String(rawCurrentDate.getDate()).padStart(2, '0');
+    <!-- MAIN VIEW WRAPPER -->
+    <article id="main-content" role="document">
       
-      document.getElementById("globalMetricDatePicker").value = `${currentYear}-${currentMonth}-${currentDay}`;
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="dashboard-view" class="view-section active" aria-labelledby="dashboard-title">
+        <header class="section-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <h1 class="section-title" id="dashboard-title">Daily Overview 🏡</h1>
+            <p class="section-subtitle" id="dashboard-date-str">Wednesday, July 15</p>
+          </div>
+          <button class="pdf-btn" id="dashboard-export-pdf">
+            📥 Export Report
+          </button>
+        </header>
 
-      const sessionActive = localStorage.getItem("aura_session_active");
-      const savedUserAvatar = localStorage.getItem("aura_avatar_char") || "P";
-      if (sessionActive === "true") {
-        document.getElementById("authGate").style.display = "none";
-        document.getElementById("userAvatar").textContent = savedUserAvatar;
-        updateStatusBannerMode(savedUserAvatar === "G");
-        fetchSheetDatabaseMatrix();
-      }
+        <!-- INSTANT AI LOGGING CARD -->
+        <div class="logger-card">
+          <div class="logger-input-wrapper">
+            <input type="text" id="meal-input-box" class="logger-input" placeholder="What did you have? (e.g. '2 slices whole wheat bread with peanut butter')">
+            <button id="voice-record-btn" class="logger-action-btn" title="Log via Voice">
+              🎙️
+            </button>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p id="voice-status" style="font-size: 12px; color: var(--text-secondary); visibility: hidden;">🎙️ Listening...</p>
+            <button id="submit-meal-btn" class="logger-submit-btn">Log Meal 🚀</button>
+          </div>
+        </div>
 
-      const scratchpadCachedData = localStorage.getItem("aura_notepad_scratchpad");
-      if (scratchpadCachedData) {
-        document.getElementById("dailyNotepad").value = scratchpadCachedData;
-      }
-    });
+        <!-- SMART FOOD SWAPS CONTAINER (Appears dynamically) -->
+        <div id="quick-swap-container"></div>
 
-    function executeCredentialHandshake() {
-      const userField = document.getElementById("authUsername").value.trim();
-      const passField = document.getElementById("authPassword").value.trim();
-      const errorPanel = document.getElementById("authErrorPanel");
-
-      if (userField === "Pallab" && passField === "2570") {
-        errorPanel.style.display = "none";
-        localStorage.setItem("aura_session_active", "true");
-        localStorage.setItem("aura_avatar_char", "P");
-        document.getElementById("authGate").style.display = "none";
-        document.getElementById("userAvatar").textContent = "P";
-        updateStatusBannerMode(false);
-        fetchSheetDatabaseMatrix();
-      } else {
-        errorPanel.style.display = "block";
-        errorPanel.textContent = "Error: Invalid credentials verification mismatch.";
-      }
-    }
-
-    function bypassAuthAsGuest() {
-      localStorage.setItem("aura_session_active", "true");
-      localStorage.setItem("aura_avatar_char", "G");
-      document.getElementById("authGate").style.display = "none";
-      document.getElementById("userAvatar").textContent = "G";
-      updateStatusBannerMode(true);
-      fetchSheetDatabaseMatrix();
-    }
-
-    function triggerLogout() {
-      localStorage.removeItem("aura_session_active");
-      localStorage.removeItem("aura_avatar_char");
-      document.getElementById("authUsername").value = "";
-      document.getElementById("authPassword").value = "";
-      document.getElementById("authGate").style.display = "flex";
-      document.getElementById("authErrorPanel").style.display = "none";
-      synchronizedHistoryMatrix = [];
-      renderAggregatedDashboardView();
-    }
-
-    function updateStatusBannerMode(isGuest) {
-      const banner = document.getElementById("statusBanner");
-      if (isGuest) {
-        banner.style.display = "flex";
-        banner.style.background = "#fffbeb"; banner.style.color = "#b45309"; banner.style.borderColor = "#fde68a";
-        banner.innerHTML = "⚠️ Sandbox Mode active. System is tracking local storage nodes until credentials handshake completes.";
-      } else {
-        banner.style.display = "flex";
-        banner.style.background = "#f0fdf4"; banner.style.color = "#166534"; banner.style.borderColor = "#bbf7d0";
-        banner.innerHTML = "✓ Cloud Connected Active State Matrix verified. Transactions routing securely via isolated server layers.";
-      }
-    }
-
-    function toggleLoaderSpinner(visible) {
-      document.getElementById("networkSpinner").style.display = visible ? "flex" : "none";
-    }
-
-    function triggerNoteSave() {
-      document.getElementById("notepadStatus").textContent = "Saving...";
-      document.getElementById("notepadStatus").style.background = "#fee2e2";
-      document.getElementById("notepadStatus").style.color = "#ef4444";
-      
-      clearTimeout(saveTimeoutThread);
-      saveTimeoutThread = setTimeout(() => {
-        const value = document.getElementById("dailyNotepad").value;
-        localStorage.setItem("aura_notepad_scratchpad", value);
-        document.getElementById("notepadStatus").textContent = "Saved";
-        document.getElementById("notepadStatus").style.background = "#ccfbf1";
-        document.getElementById("notepadStatus").style.color = "#14b8a6";
-      }, 800);
-    }
-
-    function injectQuickLog(text) {
-      document.getElementById("rawMealInput").value = text;
-      executePostMealLog();
-    }
-
-    function triggerVoiceCapture() {
-      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        
-        toggleLoaderSpinner(true);
-        recognition.start();
-        
-        recognition.onresult = function(event) {
-          document.getElementById("rawMealInput").value = event.results[0][0].transcript;
-          toggleLoaderSpinner(false);
-        };
-        
-        recognition.onerror = function() { toggleLoaderSpinner(false); };
-        recognition.onend = function() { toggleLoaderSpinner(false); };
-      } else {
-        alert("Speech engine drives missing or unmapped in browser channel.");
-      }
-    }
-
-    function syncDatePerspective() {
-      if (activeNavigationTab === 'home') renderAggregatedDashboardView();
-    }
-
-    function switchTimeFrame(element, mode) {
-      document.querySelectorAll('.segment-pills .pill-btn').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
-      currentTimeframeMode = mode;
-      
-      const capitalizedMode = mode.charAt(0).toUpperCase() + mode.slice(1);
-      document.getElementById("dashboardContextTitle").textContent = `${capitalizedMode} Progress Matrix`;
-      
-      if (mode === 'daily') {
-        currentCalorieTarget = 2000;
-        currentProteinTarget = 120;
-      } else if (mode === 'weekly') {
-        currentCalorieTarget = 14000;
-        currentProteinTarget = 840;
-      } else if (mode === 'monthly') {
-        currentCalorieTarget = 60000;
-        currentProteinTarget = 3600;
-      }
-      
-      document.getElementById("targetCaloriesLabel").textContent = currentCalorieTarget.toLocaleString();
-      document.getElementById("targetProteinLabel").textContent = currentProteinTarget.toLocaleString();
-
-      renderAggregatedDashboardView();
-    }
-
-    function switchNavTab(element, tab) {
-      document.querySelectorAll('.nav-tabs .nav-tab').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
-      activeNavigationTab = tab;
-
-      const mealLogger = document.getElementById("mealLoggerInputBlock");
-      const filterSegmentBar = document.querySelector(".view-filter-segment-bar");
-      const timelineTitle = document.getElementById("timelineContextTitle");
-      const rightPanel = document.querySelector(".right-timeline-panel");
-
-      if (tab === 'home') {
-        mealLogger.style.display = "block";
-        filterSegmentBar.style.display = "flex";
-        timelineTitle.textContent = "Activity Log Timeline";
-        if(rightPanel) rightPanel.style.display = "block";
-        renderAggregatedDashboardView();
-      } else if (tab === 'journal') {
-        mealLogger.style.display = "none";
-        filterSegmentBar.style.display = "none";
-        timelineTitle.textContent = "Comprehensive Historical Journal Logs";
-        renderJournalTabView();
-      } else if (tab === 'coach') {
-        mealLogger.style.display = "none";
-        filterSegmentBar.style.display = "none";
-        timelineTitle.textContent = "AI Strategic Coach Perspective Insights";
-        renderCoachTabView();
-      }
-    }
-
-    function normalizeRawSheetDate(rawDateStr) {
-      if (!rawDateStr) return '';
-      let str = String(rawDateStr).trim();
-      if (str.includes('T')) str = str.split('T')[0];
-      if (str.includes(' ')) str = str.split(' ')[0];
-      if (str.includes('/')) {
-        const units = str.split('/');
-        if (units[0].length === 4) {
-          return `${units[0]}-${units[1].padStart(2, '0')}-${units[2].padStart(2, '0')}`;
-        } else {
-          return `${units[2]}-${units[1].padStart(2, '0')}-${units[0].padStart(2, '0')}`;
-        }
-      }
-      return str;
-    }
-
-    async function fetchSheetDatabaseMatrix() {
-      if (localStorage.getItem("aura_session_active") !== "true") return;
-      toggleLoaderSpinner(true);
-      try {
-        const res = await fetch(BACKEND_GATEWAY_URL);
-        const output = await res.json();
-        if (output.status === "success") {
+        <!-- DASHBOARD GRID -->
+        <div class="grid-main">
           
-          synchronizedHistoryMatrix = (output.history || []).map(item => {
-            const isRowShifted = item.date && String(item.date).includes('T');
-            const rawDate = isRowShifted ? (item.time || '') : (item.date || '');
-            const parsedDate = normalizeRawSheetDate(rawDate);
+          <!-- MACROS & WATER CARD -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card card-calories">
+              <h2 class="card-title">🍎 Daily Metrics</h2>
+              
+              <!-- Calories progress bar -->
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-label">⚡ Calories</span>
+                  <span class="metric-values">
+                    <span id="calorie-current">0</span> <span class="total">/ <span id="calorie-goal-val">2000</span> kcal</span>
+                  </span>
+                </div>
+                <div class="progress-bar-container">
+                  <div id="calorie-progress-bar" class="progress-bar-fill green"></div>
+                </div>
+                <p id="calorie-remaining-desc" style="font-size: 12px; color: var(--text-secondary); text-align: right; margin-top: 4px;">2000 kcal remaining</p>
+              </div>
 
-            return {
-              rowIdx: item.rowIdx,
-              date: parsedDate,
-              time: isRowShifted ? (item.rawInput || '') : (item.time || ''),
-              rawInput: isRowShifted ? (item.parsedDesc || '') : (item.rawInput || ''),
-              parsedDesc: isRowShifted ? (item.calories || '') : (item.parsedDesc || ''),
-              calories: isRowShifted ? (item.protein || '0') : (item.calories || '0'),
-              protein: isRowShifted ? (item.confidence || '0') : (item.protein || '0')
-            };
-          });
+              <!-- Protein progress bar -->
+              <div class="metric-row" style="margin-bottom: 0;">
+                <div class="metric-info">
+                  <span class="metric-label">🥩 Protein</span>
+                  <span class="metric-values">
+                    <span id="protein-current">0</span> <span class="total">/ <span id="protein-goal-val">120</span> g</span>
+                  </span>
+                </div>
+                <div class="progress-bar-container">
+                  <div id="protein-progress-bar" class="progress-bar-fill green"></div>
+                </div>
+                <p id="protein-remaining-desc" style="font-size: 12px; color: var(--text-secondary); text-align: right; margin-top: 4px;">120 g remaining</p>
+              </div>
+            </div>
+
+            <!-- WATER TRACKER CARD -->
+            <div class="card card-water">
+              <h2 class="card-title">💧 Hydration</h2>
+              <p class="section-subtitle" style="margin-bottom: 12px;">Track your daily water intake. Goal: <span id="hydration-goal-val">2000</span> ml</p>
+              <div class="water-container">
+                <div class="water-glasses" id="water-glasses-row">
+                  <!-- Generated by JS -->
+                </div>
+                <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
+                  <button id="decrement-water-btn" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-secondary); transition: var(--transition-smooth);" title="Decrease water by 250ml">- 250ml</button>
+                  <div>
+                    <span id="water-current-val" style="font-size: 18px; font-weight: 700;">0</span> <span style="font-size: 12px; color: var(--text-secondary);">/ <span id="water-goal-ml-val">2000</span> ml</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NUTRITION SCORE & AI COACH CARD -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            
+            <!-- circular nutrition score -->
+            <div class="card card-score">
+              <h2 class="card-title">🏆 Nutrition Score</h2>
+              <div class="score-circle-wrapper">
+                <div class="score-circular">
+                  <svg>
+                    <circle class="bg-circle" cx="70" cy="70" r="60"></circle>
+                    <circle id="score-ring" class="fg-circle" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377"></circle>
+                  </svg>
+                  <span class="score-text-val" id="score-number-display">0</span>
+                </div>
+                <div class="score-rating" id="score-rating-text" style="color: var(--text-secondary);">Awaiting logs</div>
+                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; line-height: 1.3;">Calculated dynamically based on meal macros, balance, and quality.</p>
+              </div>
+            </div>
+
+            <!-- AI Coach Preview Card -->
+            <div class="card card-coach" style="border-style: dashed;">
+              <h2 class="card-title" style="margin-bottom: 10px;">
+                <span>🤖 AI Coach Aura</span>
+                <span style="font-size: 10px; padding: 2px 6px; background: var(--border-color); border-radius: 10px; font-weight: 500;">Active</span>
+              </h2>
+              <p id="dashboard-coach-preview" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                Awaiting logs to synthesize your personalized daily dietary coaching advice...
+              </p>
+              <a class="nav-item" data-view="coach-view" style="padding: 6px 12px; font-size: 12px; width: fit-content; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px;">Talk to Coach 💬</a>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RECENT MEALS PREVIEW -->
+        <div class="card" style="margin-top: 32px;">
+          <h2 class="card-title" style="margin-bottom: 20px;">🍽️ Today's Meals</h2>
+          <div class="timeline-list" id="dashboard-timeline-list">
+            <!-- Rendered dynamically -->
+            <p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 16px;">No meals logged today yet. Use the log box above to get started.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. AI COACH VIEW -->
+      <section id="coach-view" class="view-section" aria-labelledby="coach-title">
+        <header class="section-header">
+          <h1 class="section-title" id="coach-title">AI Coaching Insights 🧠</h1>
+          <p class="section-subtitle">Personalized observations, scores, and smart recommendations</p>
+        </header>
+
+        <div class="card card-coach">
+          <div class="coach-header">
+            <div class="coach-avatar">🤖</div>
+            <div class="coach-identity">
+              <h3>Coach Aura</h3>
+              <p>Certified Nutritional Strategist (Gemini 1.5 Engine)</p>
+            </div>
+          </div>
           
-          if (activeNavigationTab === 'home') renderAggregatedDashboardView();
-          else if (activeNavigationTab === 'journal') renderJournalTabView();
-          else if (activeNavigationTab === 'coach') renderCoachTabView();
-        }
-      } catch (err) {
-        console.error("Communication failure fetching structural matrix logs: ", err);
-      } finally {
-        toggleLoaderSpinner(false);
-      }
-    }
+          <div class="coach-text-block" id="coach-advice-text">
+            Your logs are empty. Add a few meals in the Dashboard or Timeline to compile nutritional coaching recommendations.
+          </div>
 
-    async function executePostMealLog() {
-      const fieldElement = document.getElementById("rawMealInput");
-      const rawText = fieldElement.value.trim();
-      const targetDate = document.getElementById("globalMetricDatePicker").value;
-      
-      const d = new Date();
-      const calculatedTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-
-      if (!rawText) return;
-
-      toggleLoaderSpinner(true);
-      try {
-        const urlParams = new URLSearchParams({ date: targetDate, time: calculatedTime, meal: rawText });
-        const res = await fetch(`${BACKEND_GATEWAY_URL}?${urlParams.toString()}`);
-        const output = await res.json();
-
-        if (output.status === "success") {
-          fieldElement.value = "";
-          await fetchSheetDatabaseMatrix();
-        } else {
-          alert("Execution Failure: " + output.message);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        toggleLoaderSpinner(false);
-      }
-    }
-
-    function enableInlineEditMode(rowIdx, currentText) {
-      const textBlock = document.getElementById(`cardRawZone-${rowIdx}`);
-      const controlBlock = document.getElementById(`cardActionZone-${rowIdx}`);
-      
-      textBlock.innerHTML = `
-        <textarea class="inline-edit-textarea" id="editInput-${rowIdx}">${currentText}</textarea>
-        <div class="inline-edit-actions">
-          <button class="inline-cancel-btn" onclick="switchNavTab(document.querySelector('.nav-tab.active'), activeNavigationTab)">Cancel</button>
-          <button class="inline-save-btn" onclick="saveInlineModification(${rowIdx})">Save Update</button>
+          <div style="border-top: 1px solid var(--border-color); padding-top: 24px;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">✨ Key Improvements</h4>
+            <div class="coach-suggestions-list" id="coach-suggestions-list">
+              <!-- Rendered via JS -->
+              <p style="font-size: 13px; color: var(--text-secondary);">No action steps generated yet.</p>
+            </div>
+          </div>
         </div>
-      `;
-      controlBlock.style.display = "none";
-    }
 
-    async function saveInlineModification(rowIdx) {
-      const revisedText = document.getElementById(`editInput-${rowIdx}`).value.trim();
-      if (!revisedText) return;
-
-      const targetedRecord = synchronizedHistoryMatrix.find(item => item.rowIdx === rowIdx);
-      if (!targetedRecord) return;
-
-      toggleLoaderSpinner(true);
-      try {
-        const dropParams = new URLSearchParams({ action: "delete", row: rowIdx });
-        let res = await fetch(`${BACKEND_GATEWAY_URL}?${dropParams.toString()}`);
-        let output = await res.json();
-
-        if (output.status === "success") {
-          const insertParams = new URLSearchParams({
-            date: targetedRecord.date,
-            time: targetedRecord.time,
-            meal: revisedText
-          });
-          res = await fetch(`${BACKEND_GATEWAY_URL}?${insertParams.toString()}`);
-          output = await res.json();
-
-          if (output.status === "success") {
-            await fetchSheetDatabaseMatrix();
-          } else {
-            alert("Error inserting modified row: " + output.message);
-          }
-        } else {
-          alert("Modification error clearing previous record sequence: " + output.message);
-        }
-      } catch (err) {
-        console.error("Modification track mapping exception caught: ", err);
-      } finally {
-        toggleLoaderSpinner(false);
-      }
-    }
-
-    async function executeDataExtractionDelete(sheetRowIndex) {
-      if (!confirm("Are you sure you want to extract this item from history matrices?")) return;
-      
-      toggleLoaderSpinner(true);
-      try {
-        const res = await fetch(`${BACKEND_GATEWAY_URL}?action=delete&row=${sheetRowIndex}`);
-        const output = await res.json();
-
-        if (output.status === "success") {
-          await fetchSheetDatabaseMatrix();
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        toggleLoaderSpinner(false);
-      }
-    }
-
-    function renderAggregatedDashboardView() {
-      const activeSelectedDate = document.getElementById("globalMetricDatePicker").value;
-      const containerBox = document.getElementById("timelineConsoleContainer");
-      const targetDateObject = new Date(activeSelectedDate);
-      
-      const filteredRecords = synchronizedHistoryMatrix.filter(item => {
-        if (!item.date) return false;
-        const itemDateObj = new Date(item.date);
-        if (isNaN(itemDateObj.getTime())) return false;
-        
-        if (currentTimeframeMode === 'daily') {
-          return itemDateObj.toDateString() === targetDateObject.toDateString();
-        } else if (currentTimeframeMode === 'weekly') {
-          const sevenDaysAgo = new Date(targetDateObject);
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          return itemDateObj <= targetDateObject && itemDateObj >= sevenDaysAgo;
-        } else if (currentTimeframeMode === 'monthly') {
-          return itemDateObj.getMonth() === targetDateObject.getMonth() && 
-                 itemDateObj.getFullYear() === targetDateObject.getFullYear();
-        }
-        return false;
-      });
-
-      let calculatedCalories = 0;
-      let calculatedProtein = 0;
-
-      if (filteredRecords.length === 0) {
-        containerBox.innerHTML = `<div class="no-entries-message">No entries found for this tracking parameters matrix.</div>`;
-        document.getElementById("aggregatedCalories").textContent = "0";
-        document.getElementById("aggregatedProtein").textContent = "0.0";
-        document.getElementById("calorieProgressBar").style.width = "0%";
-        document.getElementById("proteinProgressBar").style.width = "0%";
-        return;
-      }
-
-      filteredRecords.sort((x, y) => (x.time || '').localeCompare(y.time || ''));
-      containerBox.innerHTML = "";
-
-      filteredRecords.forEach(record => {
-        calculatedCalories += parseInt(record.calories, 10) || 0;
-        calculatedProtein += parseFloat(record.protein) || 0;
-
-        const sanitizedRawString = (record.rawInput || '').replace(/"/g, '&quot;').replace(/'/g, "\\'");
-
-        const recordElementCard = document.createElement("div");
-        recordElementCard.className = "timeline-record-card";
-        
-        recordElementCard.innerHTML = `
-          <div class="card-meta-line">
-            <span class="card-timestamp-text">${record.date} // ${record.time || '00:00'}</span>
-            <span class="card-badge-ai">Verified AI</span>
+        <!-- SMART SWAPS ARCHIVE -->
+        <div class="card" style="margin-top: 24px;">
+          <h2 class="card-title">💡 Active Smart Swaps</h2>
+          <p class="section-subtitle" style="margin-bottom: 16px;">Non-judgmental healthier substitutions suggested for items logged today</p>
+          <div id="coach-swaps-list" style="display: flex; flex-direction: column; gap: 12px;">
+            <p style="font-size: 13px; color: var(--text-secondary); text-align: center; padding: 16px;">No unhealthy food items detected in logs today.</p>
           </div>
-          <div class="card-raw-text" id="cardRawZone-${record.rowIdx}">"${record.rawInput || ''}"</div>
-          <div class="card-parsed-text">${record.parsedDesc || ''}</div>
-          <div class="card-macro-grid">
-            <span>CALORIES: <strong>${record.calories || 0} kcal</strong></span>
-            <span>PROTEIN: <strong>${record.protein || 0}g</strong></span>
-          </div>
-          <div class="action-row-links" id="cardActionZone-${record.rowIdx}">
-            <button class="action-btn-link edit-trigger" title="Edit Entry" onclick="enableInlineEditMode(${record.rowIdx}, '${sanitizedRawString}')">✏️</button>
-            <button class="action-btn-link delete-trigger" title="Delete Entry" onclick="executeDataExtractionDelete(${record.rowIdx})">🗑️</button>
-          </div>
-        `;
-        containerBox.appendChild(recordElementCard);
-      });
-
-      document.getElementById("aggregatedCalories").textContent = calculatedCalories.toLocaleString();
-      document.getElementById("aggregatedProtein").textContent = calculatedProtein.toFixed(1);
-
-      document.getElementById("calorieProgressBar").style.width = `${Math.min((calculatedCalories / currentCalorieTarget) * 100, 100)}%`;
-      document.getElementById("proteinProgressBar").style.width = `${Math.min((calculatedProtein / currentProteinTarget) * 100, 100)}%`;
-    }
-
-    function renderJournalTabView() {
-      const containerBox = document.getElementById("timelineConsoleContainer");
-      if (synchronizedHistoryMatrix.length === 0) {
-        containerBox.innerHTML = `<div class="no-entries-message">No historical data logs mapped inside the sheet workspace.</div>`;
-        return;
-      }
-      const sortedRecords = [...synchronizedHistoryMatrix].sort((x, y) => new Date(y.date) - new Date(x.date));
-      containerBox.innerHTML = "";
-
-      sortedRecords.forEach(record => {
-        const recordElementCard = document.createElement("div");
-        recordElementCard.className = "timeline-record-card";
-        recordElementCard.innerHTML = `
-          <div class="card-meta-line">
-            <span class="card-timestamp-text">📅 ${record.date} — ${record.time || '00:00'}</span>
-            <span class="card-badge-ai" style="background: #e0f2fe; color: #0369a1;">Journal Frame</span>
-          </div>
-          <div class="card-raw-text">"${record.rawInput || ''}"</div>
-          <div class="card-parsed-text">${record.parsedDesc || ''}</div>
-          <div class="card-macro-grid">
-            <span>CALORIES: <strong>${record.calories || 0} kcal</strong></span>
-            <span>PROTEIN: <strong>${record.protein || 0}g</strong></span>
-          </div>
-        `;
-        containerBox.appendChild(recordElementCard);
-      });
-    }
-
-    function renderCoachTabView() {
-      const containerBox = document.getElementById("timelineConsoleContainer");
-      let cumulativeCals = 0; let cumulativeProtein = 0;
-      synchronizedHistoryMatrix.forEach(r => {
-        cumulativeCals += parseInt(r.calories, 10) || 0;
-        cumulativeProtein += parseFloat(r.protein) || 0;
-      });
-
-      const totalItems = synchronizedHistoryMatrix.length || 1;
-      const averageCalories = Math.round(cumulativeCals / totalItems);
-      const averageProtein = (cumulativeProtein / totalItems).toFixed(1);
-
-      containerBox.innerHTML = `
-        <div class="stat-box" style="border-left: 4px solid var(--accent-success); margin-bottom: 1rem;">
-          <div class="stat-label" style="color: var(--accent-success);">Macro Compliance Metric Review</div>
-          <div class="card-parsed-text" style="font-size: 1.15rem; margin-bottom: 0.5rem;">Analytical Breakdown Profile Summary</div>
-          <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">
-            Based on your complete historical profile (${synchronizedHistoryMatrix.length} logs analyzed), your average intake tracks at <strong>${averageCalories} kcal</strong> and <strong>${averageProtein}g protein</strong> per entry block.
-          </p>
         </div>
-        <div class="stat-box" style="border-left: 4px solid #3b82f6;">
-          <div class="stat-label" style="color: #3b82f6;">Strategic Coach Recommendations</div>
-          <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-            <li> Keep logging meals in real-time. The new strict parsing layout tracks all shifts automatically.</li>
-            <li> Check your notepad configuration panels for accurate target threshold updates.</li>
-            <li> Use the <strong>Journal</strong> view layout tab to quickly monitor cross-date trends at a glance.</li>
-          </ul>
+      </section>
+
+      <!-- 3. TIMELINE VIEW -->
+      <section id="timeline-view" class="view-section" aria-labelledby="timeline-title">
+        <header class="section-header">
+          <h1 class="section-title" id="timeline-title">Meal Timeline 🕒</h1>
+          <p class="section-subtitle">Review, search, and manage your logged items</p>
+        </header>
+
+        <!-- Search and Date Filter -->
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <span>🔍</span>
+            <input type="text" id="timeline-search-input" class="search-input" placeholder="Search foods, meals, calories...">
+          </div>
+          <input type="date" id="timeline-date-filter" class="form-input" style="width: auto;">
         </div>
-      `;
-    }
-  </script>
+
+        <div class="timeline-list" id="timeline-logs-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 4. ANALYTICS VIEW -->
+      <section id="analytics-view" class="view-section" aria-labelledby="analytics-title">
+        <header class="section-header">
+          <h1 class="section-title" id="analytics-title">Analytics & Insights 📊</h1>
+          <p class="section-subtitle">Weekly progress, monthly grids, and distributions</p>
+        </header>
+
+        <!-- Stats Overview Banner -->
+        <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+          <div class="card">
+            <div class="analytics-stat">
+              <span class="label">⚡ Avg Daily Calories</span>
+              <span class="val" id="stats-avg-calories">0 kcal</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="analytics-stat">
+              <span class="label">🥩 Avg Daily Protein</span>
+              <span class="val" id="stats-avg-protein">0 g</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="analytics-stat">
+              <span class="label">👑 Peak Calorie Day</span>
+              <span class="val small" id="stats-max-calorie-day">—</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="analytics-stat">
+              <span class="label">🌱 Lowest Calorie Day</span>
+              <span class="val small" id="stats-min-calorie-day">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-main" style="grid-template-columns: 3fr 2fr;">
+          
+          <!-- Calorie & Protein Chart Card -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card">
+              <h2 class="card-title">📈 Weekly Calories & Protein</h2>
+              <div class="chart-container">
+                <canvas id="weekly-canvas" style="width: 100%; height: 100%;"></canvas>
+              </div>
+            </div>
+
+            <!-- Calendar style overview -->
+            <div class="card">
+              <h2 class="card-title">📅 Monthly Nutrition Calendar</h2>
+              <p class="section-subtitle" style="margin-bottom: 16px;">Daily targets achieved: Green (Within bounds), Orange (Near Goal), Red (Exceeded calories)</p>
+              <div id="monthly-calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px;">
+                <!-- Generated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Distribution & Most Eaten -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card">
+              <h2 class="card-title">🌟 Most Consumed Items</h2>
+              <table class="analytics-table" id="analytics-frequent-foods">
+                <tbody>
+                  <tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Awaiting log history</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <h2 class="card-title">🕰️ Meal Timing Distribution</h2>
+              <div class="chart-container" style="height: 150px;">
+                <canvas id="timing-canvas" style="width: 100%; height: 100%;"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 5. DIET PLANNER VIEW -->
+      <section id="diet-planner-view" class="view-section" aria-labelledby="diet-planner-title">
+        <header class="section-header">
+          <h1 class="section-title" id="diet-planner-title">AI Diet Planner 🍱</h1>
+          <p class="section-subtitle">Generate a custom daily menu based on your profiles</p>
+        </header>
+
+        <div class="grid-main" style="grid-template-columns: 1fr 2fr;">
+          
+          <!-- Onboarding Form -->
+          <div class="card" style="height: fit-content;">
+            <h2 class="card-title" style="margin-bottom: 20px;">⚙️ Configuration</h2>
+            <form id="diet-planner-form" class="planner-form" onsubmit="return false;">
+              <div class="form-group">
+                <label for="planner-goal">🎯 Primary Goal</label>
+                <select id="planner-goal" class="form-select">
+                  <option value="Fat Loss">Fat Loss</option>
+                  <option value="Muscle Gain">Muscle Gain</option>
+                  <option value="Maintenance">Maintenance</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="planner-diet">🥗 Dietary Preference</label>
+                <select id="planner-diet" class="form-select">
+                  <option value="Vegetarian">Vegetarian</option>
+                  <option value="Non-Vegetarian">Non-Vegetarian</option>
+                  <option value="Vegan">Vegan</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="planner-budget">💰 Weekly Budget</label>
+                <select id="planner-budget" class="form-select">
+                  <option value="Budget-Friendly">Budget-Friendly</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Premium">Premium</option>
+                </select>
+              </div>
+
+              <button id="planner-submit-btn" class="planner-submit-btn" style="color: #ffffff;">
+                Formulate Menu ⚡
+              </button>
+            </form>
+          </div>
+
+          <!-- Results Display -->
+          <div class="card" style="min-height: 400px; display: flex; flex-direction: column; justify-content: center;">
+            <div id="planner-empty-state" style="text-align: center; color: var(--text-secondary); padding: 48px;">
+              <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">🍱</div>
+              <h3>No Menu Generated</h3>
+              <p style="font-size: 13px; margin-top: 8px;">Adjust your parameters and click "Formulate Menu" to formulate a target diet plan via Gemini.</p>
+            </div>
+
+            <!-- Planned results container (Initially hidden) -->
+            <div id="planner-results" class="meal-plan-result" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">Your Tailored AI Menu</h3>
+                <span style="font-size: 14px; font-weight: 600; color: var(--text-secondary);" id="planner-totals-macros">0 kcal | 0g protein</span>
+              </div>
+
+              <div class="meal-plan-card-grid">
+                <div class="meal-plan-item">
+                  <h4>🍳 Breakfast</h4>
+                  <div class="name" id="plan-breakfast-name">—</div>
+                  <div class="macros" id="plan-breakfast-macros">—</div>
+                  <div class="ingredients" id="plan-breakfast-ingredients"></div>
+                </div>
+                <div class="meal-plan-item">
+                  <h4>🍲 Lunch</h4>
+                  <div class="name" id="plan-lunch-name">—</div>
+                  <div class="macros" id="plan-lunch-macros">—</div>
+                  <div class="ingredients" id="plan-lunch-ingredients"></div>
+                </div>
+                <div class="meal-plan-item">
+                  <h4>🥗 Dinner</h4>
+                  <div class="name" id="plan-dinner-name">—</div>
+                  <div class="macros" id="plan-dinner-macros">—</div>
+                  <div class="ingredients" id="plan-dinner-ingredients"></div>
+                </div>
+                <div class="meal-plan-item">
+                  <h4>🍿 Snacks</h4>
+                  <div class="name" id="plan-snacks-name">—</div>
+                  <div class="macros" id="plan-snacks-macros">—</div>
+                  <div class="ingredients" id="plan-snacks-ingredients"></div>
+                </div>
+              </div>
+
+              <div class="card" style="background: var(--bg-secondary); border: none; margin-bottom: 24px;">
+                <h4>💡 Rationale</h4>
+                <p id="planner-explanation-text" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></p>
+              </div>
+
+              <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">🛒 Target Shopping List</h4>
+              <ul class="shopping-list" id="planner-shopping-list">
+                <!-- Checked items generated dynamically -->
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 6. SETTINGS VIEW -->
+      <section id="settings-view" class="view-section" aria-labelledby="settings-title">
+        <header class="section-header">
+          <h1 class="section-title" id="settings-title">Settings & Accounts ⚙️</h1>
+          <p class="section-subtitle">Customize target constraints, endpoints, and credentials</p>
+        </header>
+
+        <div class="card" style="max-width: 680px;">
+          <div class="settings-section">
+            
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-calorie-goal" class="settings-label">⚡ Daily Calorie Target</label>
+                <span class="settings-desc">Total target calories consumed per day (kcal)</span>
+              </div>
+              <input type="number" id="settings-calorie-goal" class="form-input settings-control" value="2000">
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-protein-goal" class="settings-label">🥩 Daily Protein Target</label>
+                <span class="settings-desc">Target protein consumption per day (g)</span>
+              </div>
+              <input type="number" id="settings-protein-goal" class="form-input settings-control" value="120">
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-water-goal" class="settings-label">💧 Daily Hydration Target</label>
+                <span class="settings-desc">Daily target fluid consumption (ml)</span>
+              </div>
+              <input type="number" id="settings-water-goal" class="form-input settings-control" value="2000">
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-theme" class="settings-label">🌗 Interface Theme</label>
+                <span class="settings-desc">Toggle light and dark color schemes</span>
+              </div>
+              <select id="settings-theme" class="form-select settings-control">
+                <option value="light">Light Mode</option>
+                <option value="dark">Dark Mode</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-units" class="settings-label">⚖️ Measurement Units</label>
+                <span class="settings-desc">Units system for calculations</span>
+              </div>
+              <select id="settings-units" class="form-select settings-control">
+                <option value="metric">Metric (g, ml, kcal)</option>
+                <option value="imperial">Imperial (oz, lbs, kcal)</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-gas-url" class="settings-label">🔗 Google Apps Script URL</label>
+                <span class="settings-desc">URL of your deployed Web App backend endpoint</span>
+              </div>
+              <input type="text" id="settings-gas-url" class="form-input settings-control" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-block">
+                <label for="settings-gemini-key" class="settings-label">🔑 Gemini API Key</label>
+                <span class="settings-desc">Used to query Gemini directly from the client if Apps Script backend is not set</span>
+              </div>
+              <input type="password" id="settings-gemini-key" class="form-input settings-control" placeholder="AIzaSy...">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+              <button id="settings-save-btn" class="planner-submit-btn" style="width: auto; padding: 12px 32px; color: #ffffff;">Save Settings 💾</button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </article>
+
+    <!-- MOBILE NAVIGATION BOTTOM TAB BAR -->
+    <nav id="mobile-nav" aria-label="Mobile Navigation Bar">
+      <a class="mobile-nav-item active" data-view="dashboard-view" id="mob-dashboard">
+        🏡 Overview
+      </a>
+      <a class="mobile-nav-item" data-view="coach-view" id="mob-coach">
+        🧠 Coach
+      </a>
+      <a class="mobile-nav-item" data-view="timeline-view" id="mob-timeline">
+        🕒 Logs
+      </a>
+      <a class="mobile-nav-item" data-view="analytics-view" id="mob-analytics">
+        📊 Charts
+      </a>
+      <a class="mobile-nav-item" data-view="settings-view" id="mob-settings">
+        ⚙️ Settings
+      </a>
+    </nav>
+
+  </main>
+
+  <!-- DIALOG EDIT MODAL -->
+  <dialog id="edit-meal-modal" class="modal" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modal-title">✏️ Edit Meal Entry</h3>
+      <form id="edit-meal-form" onsubmit="return false;">
+        <input type="hidden" id="edit-meal-id">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="edit-meal-desc">Meal Description</label>
+          <input type="text" id="edit-meal-desc" class="form-input" required>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="edit-meal-calories">Calories (kcal)</label>
+            <input type="number" id="edit-meal-calories" class="form-input" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-meal-protein">Protein (g)</label>
+            <input type="number" id="edit-meal-protein" class="form-input" min="0" required>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="edit-modal-cancel" class="btn-secondary">Cancel</button>
+          <button type="submit" id="edit-modal-save" class="planner-submit-btn" style="width: auto; color: #ffffff;">Save Changes 💾</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Core Javascript code -->
+  <script src="script.js"></script>
 </body>
 </html>
