@@ -1,614 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aura Pro — AI-Powered Nutrition & Fitness Tracker</title>
-  <meta name="description" content="A premium, minimal, AI-powered nutrition tracker with deep dietary parsing, smart swaps, and coaching.">
-  <link rel="stylesheet" href="style.css">
-  <!-- Google Sign-In Library -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Database Log</title>
+    <!-- Tailwind CSS for sleek styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-4">
 
-  <!-- AUTH VIEW OVERLAY -->
-  <section id="auth-view" aria-label="Sign In to Aura Pro">
-    <div class="auth-card">
-      <div class="logo-container" style="justify-content: center; margin-bottom: 8px;">
-        <span class="logo-dot"></span>
-        <span>Aura Pro ✨</span>
-      </div>
-      <p class="auth-subtitle">AI-Powered Nutrition Coach & Logger 🥑</p>
-      
-      <!-- Custom Credentials Login Form -->
-      <form id="credentials-login-form" style="margin-top: 16px; text-align: left; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;" onsubmit="return false;">
-        <div class="form-group">
-          <label for="login-username" style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">Username</label>
-          <input type="text" id="login-username" class="form-input" placeholder="e.g. Pallab" required style="padding: 10px 14px;">
+    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-slate-700">
+        <div class="mb-6">
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Radio Station Log</h2>
+            <p class="text-sm text-slate-400 mt-1">Submit historical logs directly to your Google Sheet.</p>
         </div>
-        <div class="form-group">
-          <label for="login-password" style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">Password</label>
-          <input type="password" id="login-password" class="form-input" placeholder="••••" required style="padding: 10px 14px;">
-        </div>
-        <button type="submit" class="auth-button primary" style="margin-top: 8px; margin-bottom: 0; padding: 12px;">Sign In 🔓</button>
-      </form>
+        
+        <form id="radioLogForm" onsubmit="submitForm(event)" class="space-y-4">
+            <!-- Station Name -->
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-1" for="stationName">Station Name / ID</label>
+                <input class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                       id="stationName" type="text" placeholder="e.g. WXPN" required>
+            </div>
 
-      <div class="auth-divider">Or</div>
+            <!-- Frequency -->
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-1" for="frequency">Frequency</label>
+                <input class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                       id="frequency" type="text" placeholder="e.g. 88.5 FM" required>
+            </div>
 
-      <!-- Google Login Button Container -->
-      <div id="g-signin-container" style="margin-bottom: 12px; display: flex; justify-content: center;">
-        <div id="g-signin-button"></div>
-      </div>
+            <!-- Host/DJ Name -->
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-1" for="hostName">Host / DJ Name</label>
+                <input class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                       id="hostName" type="text" placeholder="e.g. Helen Leicht">
+            </div>
 
-      <button id="guest-login-btn" class="auth-button" style="padding: 10px 14px;">
-        Continue as Guest 👤
-      </button>
-      <p style="font-size: 11px; color: var(--text-secondary); margin-top: 12px;">
-        Guest mode saves data locally in your browser cache.
-      </p>
-    </div>
-  </section>
+            <!-- Comments / Notes -->
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-1" for="comments">Historical Notes / Comments</label>
+                <textarea class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                          id="comments" rows="3" placeholder="Add historical context, genres played, active years..."></textarea>
+            </div>
 
-  <!-- MAIN APP CONTAINER -->
-  <main id="app-container" style="display: none;">
-    
-    <!-- DESKTOP SIDEBAR -->
-    <nav id="sidebar" aria-label="Desktop Sidebar Navigation">
-      <div class="logo-container">
-        <span class="logo-dot"></span>
-        <span>Aura Pro 🥑</span>
-      </div>
-      
-      <ul class="nav-menu">
-        <li>
-          <a class="nav-item active" data-view="dashboard-view" id="nav-dashboard">
-            🏡 Dashboard
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" data-view="coach-view" id="nav-coach">
-            🧠 AI Coach
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" data-view="timeline-view" id="nav-timeline">
-            🕒 Timeline
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" data-view="analytics-view" id="nav-analytics">
-            📊 Analytics
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" data-view="diet-planner-view" id="nav-diet-planner">
-            🍱 Diet Planner
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" data-view="settings-view" id="nav-settings">
-            ⚙️ Settings
-          </a>
-        </li>
-      </ul>
-
-      <!-- User Profile Box -->
-      <div class="user-profile">
-        <div class="user-avatar" id="user-avatar-initials">G</div>
-        <div class="user-info">
-          <div class="user-name" id="user-display-name">Guest User</div>
-          <div class="user-status" id="user-status-text">Offline Cache</div>
-        </div>
-        <button class="logout-btn" id="logout-button" title="Sign Out">
-          🚪
-        </button>
-      </div>
-    </nav>
-
-    <!-- MAIN VIEW WRAPPER -->
-    <article id="main-content" role="document">
-      
-      <!-- 1. DASHBOARD VIEW -->
-      <section id="dashboard-view" class="view-section active" aria-labelledby="dashboard-title">
-        <header class="section-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div>
-            <h1 class="section-title" id="dashboard-title">Daily Overview 🏡</h1>
-            <p class="section-subtitle" id="dashboard-date-str">Wednesday, July 15</p>
-          </div>
-          <button class="pdf-btn" id="dashboard-export-pdf">
-            📥 Export Report
-          </button>
-        </header>
-
-        <!-- INSTANT AI LOGGING CARD -->
-        <div class="logger-card">
-          <div class="logger-input-wrapper">
-            <input type="text" id="meal-input-box" class="logger-input" placeholder="What did you have? (e.g. '2 slices whole wheat bread with peanut butter')">
-            <button id="voice-record-btn" class="logger-action-btn" title="Log via Voice">
-              🎙️
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-800">
+                Log to Google Sheet
             </button>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <p id="voice-status" style="font-size: 12px; color: var(--text-secondary); visibility: hidden;">🎙️ Listening...</p>
-            <button id="submit-meal-btn" class="logger-submit-btn">Log Meal 🚀</button>
-          </div>
-        </div>
+        </form>
 
-        <!-- SMART FOOD SWAPS CONTAINER (Appears dynamically) -->
-        <div id="quick-swap-container"></div>
-
-        <!-- DASHBOARD GRID -->
-        <div class="grid-main">
-          
-          <!-- MACROS & WATER CARD -->
-          <div style="display: flex; flex-direction: column; gap: 24px;">
-            <div class="card card-calories">
-              <h2 class="card-title">🍎 Daily Metrics</h2>
-              
-              <!-- Calories progress bar -->
-              <div class="metric-row">
-                <div class="metric-info">
-                  <span class="metric-label">⚡ Calories</span>
-                  <span class="metric-values">
-                    <span id="calorie-current">0</span> <span class="total">/ <span id="calorie-goal-val">2000</span> kcal</span>
-                  </span>
-                </div>
-                <div class="progress-bar-container">
-                  <div id="calorie-progress-bar" class="progress-bar-fill green"></div>
-                </div>
-                <p id="calorie-remaining-desc" style="font-size: 12px; color: var(--text-secondary); text-align: right; margin-top: 4px;">2000 kcal remaining</p>
-              </div>
-
-              <!-- Protein progress bar -->
-              <div class="metric-row" style="margin-bottom: 0;">
-                <div class="metric-info">
-                  <span class="metric-label">🥩 Protein</span>
-                  <span class="metric-values">
-                    <span id="protein-current">0</span> <span class="total">/ <span id="protein-goal-val">120</span> g</span>
-                  </span>
-                </div>
-                <div class="progress-bar-container">
-                  <div id="protein-progress-bar" class="progress-bar-fill green"></div>
-                </div>
-                <p id="protein-remaining-desc" style="font-size: 12px; color: var(--text-secondary); text-align: right; margin-top: 4px;">120 g remaining</p>
-              </div>
-            </div>
-
-            <!-- WATER TRACKER CARD -->
-            <div class="card card-water">
-              <h2 class="card-title">💧 Hydration</h2>
-              <p class="section-subtitle" style="margin-bottom: 12px;">Track your daily water intake. Goal: <span id="hydration-goal-val">2000</span> ml</p>
-              <div class="water-container">
-                <div class="water-glasses" id="water-glasses-row">
-                  <!-- Generated by JS -->
-                </div>
-                <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
-                  <button id="decrement-water-btn" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-secondary); transition: var(--transition-smooth);" title="Decrease water by 250ml">- 250ml</button>
-                  <div>
-                    <span id="water-current-val" style="font-size: 18px; font-weight: 700;">0</span> <span style="font-size: 12px; color: var(--text-secondary);">/ <span id="water-goal-ml-val">2000</span> ml</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- NUTRITION SCORE & AI COACH CARD -->
-          <div style="display: flex; flex-direction: column; gap: 24px;">
-            
-            <!-- circular nutrition score -->
-            <div class="card card-score">
-              <h2 class="card-title">🏆 Nutrition Score</h2>
-              <div class="score-circle-wrapper">
-                <div class="score-circular">
-                  <svg>
-                    <circle class="bg-circle" cx="70" cy="70" r="60"></circle>
-                    <circle id="score-ring" class="fg-circle" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377"></circle>
-                  </svg>
-                  <span class="score-text-val" id="score-number-display">0</span>
-                </div>
-                <div class="score-rating" id="score-rating-text" style="color: var(--text-secondary);">Awaiting logs</div>
-                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; line-height: 1.3;">Calculated dynamically based on meal macros, balance, and quality.</p>
-              </div>
-            </div>
-
-            <!-- AI Coach Preview Card -->
-            <div class="card card-coach" style="border-style: dashed;">
-              <h2 class="card-title" style="margin-bottom: 10px;">
-                <span>🤖 AI Coach Aura</span>
-                <span style="font-size: 10px; padding: 2px 6px; background: var(--border-color); border-radius: 10px; font-weight: 500;">Active</span>
-              </h2>
-              <p id="dashboard-coach-preview" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-                Awaiting logs to synthesize your personalized daily dietary coaching advice...
-              </p>
-              <a class="nav-item" data-view="coach-view" style="padding: 6px 12px; font-size: 12px; width: fit-content; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px;">Talk to Coach 💬</a>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- RECENT MEALS PREVIEW -->
-        <div class="card" style="margin-top: 32px;">
-          <h2 class="card-title" style="margin-bottom: 20px;">🍽️ Today's Meals</h2>
-          <div class="timeline-list" id="dashboard-timeline-list">
-            <!-- Rendered dynamically -->
-            <p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 16px;">No meals logged today yet. Use the log box above to get started.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 2. AI COACH VIEW -->
-      <section id="coach-view" class="view-section" aria-labelledby="coach-title">
-        <header class="section-header">
-          <h1 class="section-title" id="coach-title">AI Coaching Insights 🧠</h1>
-          <p class="section-subtitle">Personalized observations, scores, and smart recommendations</p>
-        </header>
-
-        <div class="card card-coach">
-          <div class="coach-header">
-            <div class="coach-avatar">🤖</div>
-            <div class="coach-identity">
-              <h3>Coach Aura</h3>
-              <p>Certified Nutritional Strategist (Gemini 1.5 Engine)</p>
-            </div>
-          </div>
-          
-          <div class="coach-text-block" id="coach-advice-text">
-            Your logs are empty. Add a few meals in the Dashboard or Timeline to compile nutritional coaching recommendations.
-          </div>
-
-          <div style="border-top: 1px solid var(--border-color); padding-top: 24px;">
-            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">✨ Key Improvements</h4>
-            <div class="coach-suggestions-list" id="coach-suggestions-list">
-              <!-- Rendered via JS -->
-              <p style="font-size: 13px; color: var(--text-secondary);">No action steps generated yet.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- SMART SWAPS ARCHIVE -->
-        <div class="card" style="margin-top: 24px;">
-          <h2 class="card-title">💡 Active Smart Swaps</h2>
-          <p class="section-subtitle" style="margin-bottom: 16px;">Non-judgmental healthier substitutions suggested for items logged today</p>
-          <div id="coach-swaps-list" style="display: flex; flex-direction: column; gap: 12px;">
-            <p style="font-size: 13px; color: var(--text-secondary); text-align: center; padding: 16px;">No unhealthy food items detected in logs today.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. TIMELINE VIEW -->
-      <section id="timeline-view" class="view-section" aria-labelledby="timeline-title">
-        <header class="section-header">
-          <h1 class="section-title" id="timeline-title">Meal Timeline 🕒</h1>
-          <p class="section-subtitle">Review, search, and manage your logged items</p>
-        </header>
-
-        <!-- Search and Date Filter -->
-        <div class="search-container">
-          <div class="search-input-wrapper">
-            <span>🔍</span>
-            <input type="text" id="timeline-search-input" class="search-input" placeholder="Search foods, meals, calories...">
-          </div>
-          <input type="date" id="timeline-date-filter" class="form-input" style="width: auto;">
-        </div>
-
-        <div class="timeline-list" id="timeline-logs-list">
-          <!-- Rendered dynamically -->
-        </div>
-      </section>
-
-      <!-- 4. ANALYTICS VIEW -->
-      <section id="analytics-view" class="view-section" aria-labelledby="analytics-title">
-        <header class="section-header">
-          <h1 class="section-title" id="analytics-title">Analytics & Insights 📊</h1>
-          <p class="section-subtitle">Weekly progress, monthly grids, and distributions</p>
-        </header>
-
-        <!-- Stats Overview Banner -->
-        <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
-          <div class="card">
-            <div class="analytics-stat">
-              <span class="label">⚡ Avg Daily Calories</span>
-              <span class="val" id="stats-avg-calories">0 kcal</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="analytics-stat">
-              <span class="label">🥩 Avg Daily Protein</span>
-              <span class="val" id="stats-avg-protein">0 g</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="analytics-stat">
-              <span class="label">👑 Peak Calorie Day</span>
-              <span class="val small" id="stats-max-calorie-day">—</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="analytics-stat">
-              <span class="label">🌱 Lowest Calorie Day</span>
-              <span class="val small" id="stats-min-calorie-day">—</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-main" style="grid-template-columns: 3fr 2fr;">
-          
-          <!-- Calorie & Protein Chart Card -->
-          <div style="display: flex; flex-direction: column; gap: 24px;">
-            <div class="card">
-              <h2 class="card-title">📈 Weekly Calories & Protein</h2>
-              <div class="chart-container">
-                <canvas id="weekly-canvas" style="width: 100%; height: 100%;"></canvas>
-              </div>
-            </div>
-
-            <!-- Calendar style overview -->
-            <div class="card">
-              <h2 class="card-title">📅 Monthly Nutrition Calendar</h2>
-              <p class="section-subtitle" style="margin-bottom: 16px;">Daily targets achieved: Green (Within bounds), Orange (Near Goal), Red (Exceeded calories)</p>
-              <div id="monthly-calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px;">
-                <!-- Generated by JS -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Distribution & Most Eaten -->
-          <div style="display: flex; flex-direction: column; gap: 24px;">
-            <div class="card">
-              <h2 class="card-title">🌟 Most Consumed Items</h2>
-              <table class="analytics-table" id="analytics-frequent-foods">
-                <tbody>
-                  <tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Awaiting log history</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="card">
-              <h2 class="card-title">🕰️ Meal Timing Distribution</h2>
-              <div class="chart-container" style="height: 150px;">
-                <canvas id="timing-canvas" style="width: 100%; height: 100%;"></canvas>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- 5. DIET PLANNER VIEW -->
-      <section id="diet-planner-view" class="view-section" aria-labelledby="diet-planner-title">
-        <header class="section-header">
-          <h1 class="section-title" id="diet-planner-title">AI Diet Planner 🍱</h1>
-          <p class="section-subtitle">Generate a custom daily menu based on your profiles</p>
-        </header>
-
-        <div class="grid-main" style="grid-template-columns: 1fr 2fr;">
-          
-          <!-- Onboarding Form -->
-          <div class="card" style="height: fit-content;">
-            <h2 class="card-title" style="margin-bottom: 20px;">⚙️ Configuration</h2>
-            <form id="diet-planner-form" class="planner-form" onsubmit="return false;">
-              <div class="form-group">
-                <label for="planner-goal">🎯 Primary Goal</label>
-                <select id="planner-goal" class="form-select">
-                  <option value="Fat Loss">Fat Loss</option>
-                  <option value="Muscle Gain">Muscle Gain</option>
-                  <option value="Maintenance">Maintenance</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="planner-diet">🥗 Dietary Preference</label>
-                <select id="planner-diet" class="form-select">
-                  <option value="Vegetarian">Vegetarian</option>
-                  <option value="Non-Vegetarian">Non-Vegetarian</option>
-                  <option value="Vegan">Vegan</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="planner-budget">💰 Weekly Budget</label>
-                <select id="planner-budget" class="form-select">
-                  <option value="Budget-Friendly">Budget-Friendly</option>
-                  <option value="Moderate">Moderate</option>
-                  <option value="Premium">Premium</option>
-                </select>
-              </div>
-
-              <button id="planner-submit-btn" class="planner-submit-btn" style="color: #ffffff;">
-                Formulate Menu ⚡
-              </button>
-            </form>
-          </div>
-
-          <!-- Results Display -->
-          <div class="card" style="min-height: 400px; display: flex; flex-direction: column; justify-content: center;">
-            <div id="planner-empty-state" style="text-align: center; color: var(--text-secondary); padding: 48px;">
-              <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">🍱</div>
-              <h3>No Menu Generated</h3>
-              <p style="font-size: 13px; margin-top: 8px;">Adjust your parameters and click "Formulate Menu" to formulate a target diet plan via Gemini.</p>
-            </div>
-
-            <!-- Planned results container (Initially hidden) -->
-            <div id="planner-results" class="meal-plan-result" style="display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-                <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">Your Tailored AI Menu</h3>
-                <span style="font-size: 14px; font-weight: 600; color: var(--text-secondary);" id="planner-totals-macros">0 kcal | 0g protein</span>
-              </div>
-
-              <div class="meal-plan-card-grid">
-                <div class="meal-plan-item">
-                  <h4>🍳 Breakfast</h4>
-                  <div class="name" id="plan-breakfast-name">—</div>
-                  <div class="macros" id="plan-breakfast-macros">—</div>
-                  <div class="ingredients" id="plan-breakfast-ingredients"></div>
-                </div>
-                <div class="meal-plan-item">
-                  <h4>🍲 Lunch</h4>
-                  <div class="name" id="plan-lunch-name">—</div>
-                  <div class="macros" id="plan-lunch-macros">—</div>
-                  <div class="ingredients" id="plan-lunch-ingredients"></div>
-                </div>
-                <div class="meal-plan-item">
-                  <h4>🥗 Dinner</h4>
-                  <div class="name" id="plan-dinner-name">—</div>
-                  <div class="macros" id="plan-dinner-macros">—</div>
-                  <div class="ingredients" id="plan-dinner-ingredients"></div>
-                </div>
-                <div class="meal-plan-item">
-                  <h4>🍿 Snacks</h4>
-                  <div class="name" id="plan-snacks-name">—</div>
-                  <div class="macros" id="plan-snacks-macros">—</div>
-                  <div class="ingredients" id="plan-snacks-ingredients"></div>
-                </div>
-              </div>
-
-              <div class="card" style="background: var(--bg-secondary); border: none; margin-bottom: 24px;">
-                <h4>💡 Rationale</h4>
-                <p id="planner-explanation-text" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></p>
-              </div>
-
-              <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">🛒 Target Shopping List</h4>
-              <ul class="shopping-list" id="planner-shopping-list">
-                <!-- Checked items generated dynamically -->
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- 6. SETTINGS VIEW -->
-      <section id="settings-view" class="view-section" aria-labelledby="settings-title">
-        <header class="section-header">
-          <h1 class="section-title" id="settings-title">Settings & Accounts ⚙️</h1>
-          <p class="section-subtitle">Customize target constraints, endpoints, and credentials</p>
-        </header>
-
-        <div class="card" style="max-width: 680px;">
-          <div class="settings-section">
-            
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-calorie-goal" class="settings-label">⚡ Daily Calorie Target</label>
-                <span class="settings-desc">Total target calories consumed per day (kcal)</span>
-              </div>
-              <input type="number" id="settings-calorie-goal" class="form-input settings-control" value="2000">
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-protein-goal" class="settings-label">🥩 Daily Protein Target</label>
-                <span class="settings-desc">Target protein consumption per day (g)</span>
-              </div>
-              <input type="number" id="settings-protein-goal" class="form-input settings-control" value="120">
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-water-goal" class="settings-label">💧 Daily Hydration Target</label>
-                <span class="settings-desc">Daily target fluid consumption (ml)</span>
-              </div>
-              <input type="number" id="settings-water-goal" class="form-input settings-control" value="2000">
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-theme" class="settings-label">🌗 Interface Theme</label>
-                <span class="settings-desc">Toggle light and dark color schemes</span>
-              </div>
-              <select id="settings-theme" class="form-select settings-control">
-                <option value="light">Light Mode</option>
-                <option value="dark">Dark Mode</option>
-              </select>
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-units" class="settings-label">⚖️ Measurement Units</label>
-                <span class="settings-desc">Units system for calculations</span>
-              </div>
-              <select id="settings-units" class="form-select settings-control">
-                <option value="metric">Metric (g, ml, kcal)</option>
-                <option value="imperial">Imperial (oz, lbs, kcal)</option>
-              </select>
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-gas-url" class="settings-label">🔗 Google Apps Script URL</label>
-                <span class="settings-desc">URL of your deployed Web App backend endpoint</span>
-              </div>
-              <input type="text" id="settings-gas-url" class="form-input settings-control" placeholder="https://script.google.com/macros/s/.../exec">
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-block">
-                <label for="settings-gemini-key" class="settings-label">🔑 Gemini API Key</label>
-                <span class="settings-desc">Used to query Gemini directly from the client if Apps Script backend is not set</span>
-              </div>
-              <input type="password" id="settings-gemini-key" class="form-input settings-control" placeholder="AIzaSy...">
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
-              <button id="settings-save-btn" class="planner-submit-btn" style="width: auto; padding: 12px 32px; color: #ffffff;">Save Settings 💾</button>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-    </article>
-
-    <!-- MOBILE NAVIGATION BOTTOM TAB BAR -->
-    <nav id="mobile-nav" aria-label="Mobile Navigation Bar">
-      <a class="mobile-nav-item active" data-view="dashboard-view" id="mob-dashboard">
-        🏡 Overview
-      </a>
-      <a class="mobile-nav-item" data-view="coach-view" id="mob-coach">
-        🧠 Coach
-      </a>
-      <a class="mobile-nav-item" data-view="timeline-view" id="mob-timeline">
-        🕒 Logs
-      </a>
-      <a class="mobile-nav-item" data-view="analytics-view" id="mob-analytics">
-        📊 Charts
-      </a>
-      <a class="mobile-nav-item" data-view="settings-view" id="mob-settings">
-        ⚙️ Settings
-      </a>
-    </nav>
-
-  </main>
-
-  <!-- DIALOG EDIT MODAL -->
-  <dialog id="edit-meal-modal" class="modal" aria-labelledby="modal-title">
-    <div class="modal-content">
-      <h3 class="modal-title" id="modal-title">✏️ Edit Meal Entry</h3>
-      <form id="edit-meal-form" onsubmit="return false;">
-        <input type="hidden" id="edit-meal-id">
-        <div class="form-group" style="margin-bottom: 14px;">
-          <label for="edit-meal-desc">Meal Description</label>
-          <input type="text" id="edit-meal-desc" class="form-input" required>
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="edit-meal-calories">Calories (kcal)</label>
-            <input type="number" id="edit-meal-calories" class="form-input" min="0" required>
-          </div>
-          <div class="form-group">
-            <label for="edit-meal-protein">Protein (g)</label>
-            <input type="number" id="edit-meal-protein" class="form-input" min="0" required>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button type="button" id="edit-modal-cancel" class="btn-secondary">Cancel</button>
-          <button type="submit" id="edit-modal-save" class="planner-submit-btn" style="width: auto; color: #ffffff;">Save Changes 💾</button>
-        </div>
-      </form>
+        <!-- Dynamic Status Alerts -->
+        <div id="alertBox" class="mt-4 p-4 rounded-lg text-sm text-center font-medium hidden"></div>
     </div>
-  </dialog>
 
-  <!-- Core Javascript code -->
-  <script src="script.js"></script>
+    <script>
+        // Your specific deployed endpoint URL
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzuiFZ1pzFhYyx5DQOrRbaM-pSpA1GvFpnS7dkruwc19VjJToM05bGM7wQi8DdNDwEfsA/exec";
+
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const alertBox = document.getElementById('alertBox');
+            
+            // Set Loading UI state
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Transmitting to Google Sheets...";
+            submitBtn.className = "w-full bg-slate-600 text-slate-400 font-bold py-3 px-4 rounded-lg cursor-not-allowed";
+            alertBox.classList.add('hidden');
+
+            // Gather inputs
+            const payload = {
+                stationName: document.getElementById('stationName').value,
+                frequency: document.getElementById('frequency').value,
+                hostName: document.getElementById('hostName').value || "N/A",
+                comments: document.getElementById('comments').value || ""
+            };
+
+            try {
+                // Sending text/plain is a clever trick that prevents the browser from doing a CORS preflight check,
+                // avoiding any annoying cross-origin request blocks.
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    alertBox.className = "mt-4 p-4 rounded-lg text-sm text-center font-medium bg-emerald-950/50 text-emerald-300 border border-emerald-800";
+                    alertBox.innerText = "✓ Record appended to Google Sheet!";
+                    document.getElementById('radioLogForm').reset();
+                } else {
+                    throw new Error(result.error || "Unknown server error");
+                }
+
+            } catch (error) {
+                console.error("Transmission Failure:", error);
+                alertBox.className = "mt-4 p-4 rounded-lg text-sm text-center font-medium bg-rose-950/50 text-rose-300 border border-rose-800";
+                alertBox.innerText = "Error: " + error.message;
+            } finally {
+                // Reset Button UI state
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Log to Google Sheet";
+                submitBtn.className = "w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-800";
+                alertBox.classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
